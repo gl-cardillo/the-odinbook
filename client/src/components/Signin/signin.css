@@ -81,11 +81,6 @@
   font-weight: bold;
 }
 
-.separator {
-  font-weight: 600;
-  color: #727171;
-}
-
 .blue {
   color: #1877f2;
 }
@@ -96,6 +91,11 @@
 
 .new-account {
   background-color: #42b72a;
+  margin-top: 10px;
+}
+
+.test-account {
+  background-color: #f83636;
   margin-top: 10px;
 }
 

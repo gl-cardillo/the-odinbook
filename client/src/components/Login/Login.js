@@ -49,6 +49,24 @@ export function Login({ setIsAuth }) {
       });
   };
 
+  const loginTestAccount = () => {
+    axios
+      .post("/auth/login", {
+        email: "test-account@example.com",
+        password: '',
+      })
+      .then((res) => {
+        setIsAuth(true);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        localStorage.setItem("token", JSON.stringify(res.data.token));
+        setUser(res.data.user);
+        navigate("/home", { replace: true });
+      })
+      .catch((err) => {
+        setErrror(err.response.data.message);
+      });
+  };
+
   return (
     <div>
       <div className="signlog-section">
@@ -86,12 +104,18 @@ export function Login({ setIsAuth }) {
             <button className="signlog-button" type="submit">
               Login
             </button>
-            <p className="separator">Or</p>
             <Link to={"/signin"}>
               <button className="signlog-button new-account">
                 Create new account
               </button>
             </Link>
+            <button
+              type="button"
+              className="signlog-button  test-account"
+              onClick={() => loginTestAccount()}
+            >
+              Login without an account
+            </button>
           </form>
         </div>
       </div>

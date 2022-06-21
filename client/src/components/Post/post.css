@@ -30,3 +30,14 @@
   border: 0;
   background-color: transparent;
 }
+
+.post-image {
+  padding: 10px;
+  object-fit: contain;
+  max-height: 600px;
+}
+
+.icon-remove-pic {
+  align-self: flex-end;
+  font-size: 25px;
+}

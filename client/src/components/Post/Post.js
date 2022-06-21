@@ -34,7 +34,7 @@ export function Post({ post, user, setRender, render, index }) {
       <div className="post">
         <div className="post-info">
           <Link to={`/profile/${post.userId}`}>
-            <img src={profilePicUrl} alt="avatar" />
+            <img className="post-profile-pic" src={profilePicUrl} alt="avatar" />
           </Link>
           <div className="author-time">
             <Link to={`/profile/${post.userId}`}>
@@ -55,6 +55,7 @@ export function Post({ post, user, setRender, render, index }) {
           }
         </div>
         <p className="post-message">{post.text}</p>
+        <img className="post-image" src={post.picUrl} />
         <LikeAndComment user={user} post={post} />
       </div>
     </div>

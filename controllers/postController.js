@@ -111,8 +111,9 @@ exports.getWhoLiked = async (req, res, next) => {
 
 exports.createPost = [
   body("text").trim().isLength(1),
+  
   async (req, res) => {
-    const { text, userId, userFullname } = req.body;
+    const { text, userId, userFullname , picUrl } = req.body;
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
       return res.json({ errs: errs.array() });
@@ -122,6 +123,7 @@ exports.createPost = [
         text,
         userId,
         userFullname,
+        picUrl
       });
       const savedPost = await post.save();
       if (savedPost) return res.status(200).json({ post });

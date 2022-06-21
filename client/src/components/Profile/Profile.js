@@ -24,11 +24,22 @@ export function Profile() {
 
   useEffect(() => {
     const getData = async () => {
-      const profile = await axios.get(`/user/profile/${profileId}`);
-
-      const posts = await axios.get(`/posts/byUserId/${profileId}`);
-      setProfile(profile.data);
-      setProfilePosts(posts.data);
+      axios
+        .get(`/user/profile/${profileId}`)
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      await axios
+        .get(`/posts/byUserId/${profileId}`)
+        .then((res) => {
+          setProfilePosts(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     };
 
     getData();
@@ -43,20 +54,22 @@ export function Profile() {
       file.type === "image/tiff" ||
       file.type === "image/webp"
     ) {
-
-      const url = await axios.get(
-        `/user/generateUrlS3/` ,   
-        {
+      let url;
+      axios
+        .get(`/user/generateUrlS3/`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
             )}`,
           },
-        },
+        }).then((res) => {
+          url = res.data
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
-      );
-
-      await axios
+      axios
         .put(url.data, file, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -67,7 +80,7 @@ export function Profile() {
           await axios.put(
             `/user/changeProfilePic`,
             {
-              imageUrl ,
+              imageUrl,
               id: user.id,
             },
             {
@@ -78,7 +91,7 @@ export function Profile() {
               },
             }
           );
-          user.profilePicUrl = imageUrl ;
+          user.profilePicUrl = imageUrl;
           localStorage.setItem("user", JSON.stringify(user));
           setRender((render) => render + 1);
         })
@@ -108,6 +121,7 @@ export function Profile() {
             <input
               type="file"
               id="file-input"
+              accept="image/*"
               onChange={(e) => changeProfilePic(e.target.files[0])}
             />
           </div>

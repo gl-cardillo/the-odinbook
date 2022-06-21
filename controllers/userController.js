@@ -410,7 +410,6 @@ exports.deleteAccount = async (req, res, next) => {
 };
 
 exports.generateUrlS3 = async (req, res) => {
-
   const url = await generateUploadURL();
   res.send(url);
 };
@@ -434,53 +433,3 @@ exports.getProfilePic = async (req, res) => {
     return res.status(500).json({ message: err.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
-//-----
-exports.update_profile_photo = [
-  upload,
-  (req, res, next) => {
-    console.log(req.file)
-    const type = req.file.mimetype.split('/')[1]
-
-    User.findById(req.params.user_id, (err, user) => {
-      if (err) return res.status(400).json(err);
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: `${req.params.user_id}_profile.${type}`,
-        Body: req.file.buffer,
-      };
-
-      //Delete previous instance from s3
-      S3.deleteObject(
-        { Bucket: params.Bucket, Key: params.Key },
-        (err, data) => {
-          if (err) return res.status(500).json(err);
-        }
-      );
-
-
-      S3.upload(params, (err, data) => {
-        console.log(data.location)
-        if (err) return res.status(500).json(err);
-        User.findOneAndUpdate(
-          { _id: req.params.user_id },
-          { profilePicUrl: data.Location },
-          (err, updatedUser) => {
-            if (err) return res.status(400).json(err);
-            return res.json(updatedUser);
-          }
-        );
-      });
-    });
-  },
-];

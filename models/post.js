@@ -9,6 +9,7 @@ const PostSchema = new Schema({
   text: { type: String, required: true },
   date: { type: Date, default: Date.now },
   likes: { type: Array },
+  picUrl: {type: String}
 });
 
 PostSchema.set("toObject", { virtuals: true });

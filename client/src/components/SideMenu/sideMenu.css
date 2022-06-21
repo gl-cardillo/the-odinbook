@@ -1,0 +1,83 @@
+.side-menu-container {
+  display: none;
+}
+
+@media screen and (min-width: 768px) {
+  .side-menu-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px 1px #bbbbc2;
+    background-color: #fff;
+    margin: 30px 15px;
+    height: fit-content;
+    gap: 30px;
+    width: 250px;
+  }
+  .side-menu-container button {
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    background-color: #1877f2;
+    padding: 5px;
+    font-weight: bold;
+  }
+
+  .delete-account {
+    padding: 8px;
+    border: 2px solid #f11313;
+    color: #f11313;
+    width: 130px;
+  }
+
+  .s-m-profile a,
+  .s-m-profile p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .s-m-profile img,
+  .s-m-profile-icon {
+    width: 40px;
+    height: 40px;
+
+  }
+
+  .s-m-div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+  }
+
+  .side-menu-container h3 {
+    margin-bottom: 10px;
+  }
+
+  .s-m-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .side-menu-container {
+    width: 300px;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .side-menu-container {
+    padding: 30px 40px;
+    font-size: 18px;
+    width: 350px;
+  }
+
+  .delete-account {
+    width: 145px;
+  }
+}

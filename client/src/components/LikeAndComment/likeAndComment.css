@@ -1,0 +1,138 @@
+.post-buttons {
+  border-top: 1px solid #c2c1c1;
+  display: flex;
+}
+
+.post-buttons button {
+  margin: 10px 10px 5px;
+  padding: 10px 0px;
+  border: 0;
+  width: 50%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 15px;
+}
+
+.post-buttons button:hover {
+  background-color: #dadada;
+}
+
+.comment-container {
+  padding: 20px 0;
+  border-bottom: 1px solid #c2c1c1;
+}
+
+.comment-author-message {
+  background-color: #f0f2f5;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.comment-info {
+  width: 90%;
+}
+
+.comment-option {
+  display: flex;
+  color: #8d8989;
+  font-size: 12px;
+  gap: 5px;
+  margin-left: 5px;
+}
+
+.add-comment textarea {
+  width: 100%;
+  margin-top: 10px;
+  background-color: #f0f2f5;
+}
+
+.add-comment button {
+  width: 100%;
+  border: 0;
+  color: #fff;
+  background-color: #1877f2;
+  font-weight: bold;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.like-comments-container {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin: 5px 15px;
+  height: 15px;
+}
+
+.comment-count-container {
+  width: 50%;
+}
+
+.like-count-container {
+  text-align: right;
+}
+
+.like-count,
+.comment-count {
+  font-size: 12px;
+}
+
+.like-count {
+  cursor: pointer;
+}
+
+.black-screen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: rgb(0 0 0 / 45%);
+  z-index: 1;
+  width: 100% !important;
+  height: 100%;
+}
+
+.screen-container {
+  position: absolute;
+  text-align: center;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  padding: 15px;
+  width: 250px;
+  border-radius: 10px;
+  background-color: white;
+  transform: translate(-50%, -50%);
+  max-height: 600px;
+  overflow-y: scroll;
+  overflow-y: hidden;
+  border: 3px solid #1877f2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.likes {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.screen-container {
+  font-weight: bold;
+}
+
+.screen-container .title-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.likes-count-container .delete-button {
+  align-self: end;
+  font-size: 25px;
+}

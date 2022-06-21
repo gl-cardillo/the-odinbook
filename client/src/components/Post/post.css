@@ -1,0 +1,32 @@
+.post-info,
+.comment-container {
+  display: flex;
+  gap: 10px;
+  text-align: left;
+}
+.author-time {
+  width: 90%;
+}
+
+.author {
+  font-weight: bold;
+}
+
+.time,
+.comment-option {
+  color: #8d8989;
+  font-size: 12px;
+}
+
+.post-message {
+  background-color: #f0f2f5;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.delete-button {
+  align-self: baseline;
+  border: 0;
+  background-color: transparent;
+}

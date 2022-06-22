@@ -9,8 +9,10 @@ const UserSchema = new Schema({
   email: { type: String, required: true },
   password: { type: String },
   profilePicUrl: { type: String },
+  coverPicUrl: {type: String},
   friends: { type: Array },
   friendRequests: { type: Array },
+
 });
 
 UserSchema.set("toObject", { virtuals: true });

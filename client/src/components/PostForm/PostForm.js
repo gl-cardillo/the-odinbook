@@ -20,7 +20,7 @@ export function PostForm({ user, setRender, render }) {
 
     try {
       if (file) {
-        const url = await axios.get(`/user/generateUrlS3/`, {
+        const url = await axios.get(`/user/generateUrlS3`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
@@ -55,6 +55,7 @@ export function PostForm({ user, setRender, render }) {
       setPreviewPicture(null);
       setText("");
       setRender(render + 1);
+      setError("");
     } catch (error) {
       console.log(error);
     }
@@ -90,9 +91,9 @@ export function PostForm({ user, setRender, render }) {
   };
 
   const removePic = () => {
-    setFile(null)
-    setPreviewPicture(null)
-  }
+    setFile(null);
+    setPreviewPicture(null);
+  };
 
   return (
     <div>

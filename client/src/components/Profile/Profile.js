@@ -45,7 +45,7 @@ export function Profile() {
     getData();
   }, [render, profileId]);
 
-  const changeProfilePic = async (file) => {
+  const changePic = async (profileOrCover, file) => {
     if (
       file.type === "image/bmp" ||
       file.type === "image/gif" ||
@@ -54,50 +54,47 @@ export function Profile() {
       file.type === "image/tiff" ||
       file.type === "image/webp"
     ) {
-      let url;
-      axios
-        .get(`/user/generateUrlS3/`, {
+      try {
+        // create url to store image
+        const url = await axios.get(`/user/generateUrlS3/`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
             )}`,
           },
-        }).then((res) => {
-          url = res.data
-        })
-        .catch((err) => {
-          console.log(err);
         });
-
-      axios
-        .put(url.data, file, {
+        // sotre image to the url
+        await axios.put(url.data, file, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        })
-        .then(async () => {
-          const imageUrl = url.data.split("?")[0];
-          await axios.put(
-            `/user/changeProfilePic`,
-            {
-              imageUrl,
-              id: user.id,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${JSON.parse(
-                  localStorage.getItem("token")
-                )}`,
-              },
-            }
-          );
-          user.profilePicUrl = imageUrl;
-          localStorage.setItem("user", JSON.stringify(user));
-          setRender((render) => render + 1);
-        })
-        .catch((err) => {
-          console.log(err);
         });
+
+        const imageUrl = url.data.split("?")[0];
+
+        // update the user in the database with the right url
+        await axios.put(
+          `/user/changePic`,
+          {
+            imageUrl,
+            id: user.id,
+            profileOrCover,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        );
+
+        const userUpdate = await axios.get(`/user/profile/${user._id}`);
+        localStorage.setItem("user", JSON.stringify(userUpdate.data));
+        setRender((render) => render + 1);
+      } catch (error) {
+        console.log(error);
+      }
     } else {
       alert("Insert a vaild image format (bmp, gif, jpeg, png, tiff, webp)");
     }
@@ -107,23 +104,49 @@ export function Profile() {
     <div className="main-page">
       <div className="profile">
         <div className="profile-info-container">
-          <div className="profile-pic-container">
-            <label htmlFor="file-input">
-              <img src={profile && profile.profilePicUrl} alt="avatar" />
+          <div className="cover-container">
+            <label htmlFor="cover-pic">
+              <img
+                className="profile-cover"
+                src={profile && profile.coverPicUrl}
+                alt="cover picture"
+              />
               {profile && user.id === profile.id ? (
                 <div className="overlay">
-                  <TiPlusOutline className="pic-icon" />
+                  <TiPlusOutline className="pic-icon cover" />
+                  <input
+                    type="file"
+                    id="cover-pic"
+                    accept="image/*"
+                    onChange={(e) =>
+                      changePic("coverPicUrl", e.target.files[0])
+                    }
+                  />
                 </div>
               ) : (
                 ""
               )}
             </label>
-            <input
-              type="file"
-              id="file-input"
-              accept="image/*"
-              onChange={(e) => changeProfilePic(e.target.files[0])}
-            />
+          </div>
+          <div className="profile-pic-container">
+            <label htmlFor="profile-pic">
+              <img src={profile && profile.profilePicUrl} alt="avatar" />
+              {profile && user.id === profile.id ? (
+                <div className="overlay">
+                  <TiPlusOutline className="pic-icon" />
+                  <input
+                    type="file"
+                    id="profile-pic"
+                    accept="image/*"
+                    onChange={(e) =>
+                      changePic("profilePicUrl", e.target.files[0])
+                    }
+                  />
+                </div>
+              ) : (
+                ""
+              )}
+            </label>
           </div>
           <div className="profile-name-button">
             <p className="username">{profile && profile.fullname}</p>
@@ -168,6 +191,11 @@ export function Profile() {
                 ""
               )
             }
+          </div>
+          <div className="profile-section">
+            <button>Posts</button>
+            <button>Friends</button>
+            <button>Details</button>
           </div>
         </div>
         <div>

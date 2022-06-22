@@ -2,7 +2,7 @@ const User = require("../models/user");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
 const { generateUploadURL, deleteFile } = require("../config/s3");
-const { upload, S3 } = require('../config/s3')
+const { upload, S3 } = require("../config/s3");
 const path = require("path");
 
 exports.getUser = async (req, res, next) => {
@@ -143,12 +143,11 @@ exports.friendRequestsByUserId3 = async (req, res, next) => {
         fullname: userProfile.fullname,
       };
       friendRequestsData.push(userData);
-
     }
 
     return res.status(200).json(friendRequestsData);
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -181,7 +180,6 @@ exports.suggestedProfile3 = async (req, res, next) => {
     const profiles = await User.find({ _id: { $nin: user.friends } }).limit(3);
 
     if (profiles.length < 1) {
-
       return res.status(200).json([]);
     }
     return res.status(200).json(profiles);
@@ -260,7 +258,7 @@ exports.getFriendsByUserId3 = async (req, res, next) => {
 
     return res.status(200).json(friendsData);
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -410,19 +408,34 @@ exports.deleteAccount = async (req, res, next) => {
 };
 
 exports.generateUrlS3 = async (req, res) => {
-  const url = await generateUploadURL();
-  res.send(url);
+  try {
+    const url = await generateUploadURL();
+    res.status(200).send(url);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
 };
 
-exports.changeProfilePic = async (req, res) => {
+exports.changePic = async (req, res) => {
   try {
-    const user = await User.findById(req.body.id);
+    const { id, imageUrl, profileOrCover } = req.body;
+    const user = await User.findById(id);
+    // check is user is changing the cover or the profile picture and
     // delete the current profile picture and add the new one
-    deleteFile(user.profilePicUrl);
-    user.profilePicUrl = req.body.imageUrl;
+
+    if (profileOrCover === "profilePicUrl") {
+      deleteFile(user.profilePicUrl);
+      user.profilePicUrl = imageUrl;
+    } else {
+      deleteFile(user.coverPicUrl);
+      user.coverPicUrl = imageUrl;
+    }
+
     await user.save();
     return res.status(200).json({ message: "Profile picture changed" });
-  } catch (err) {}
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
 };
 
 exports.getProfilePic = async (req, res) => {

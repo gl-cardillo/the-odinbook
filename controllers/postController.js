@@ -2,6 +2,7 @@ const Post = require("../models/post");
 const Comment = require("../models/comment");
 const User = require("../models/user");
 const { body, validationResult } = require("express-validator");
+const {  deleteFile } = require("../config/s3");
 
 exports.getPostsByUserId = async (req, res, next) => {
   try {
@@ -25,7 +26,7 @@ exports.getPostById = async (req, res, next) => {
       }
       return res.status(200).json(post);
     } catch (err) {
-      console.log(err.message)
+
     return res.status(500).json({ message: err.message });
     }
 }
@@ -141,6 +142,11 @@ exports.deletePost = async (req, res) => {
       const deletedComments = await Comment.deleteMany({
         postId: deletedPost.id,
       });
+      //if the post has a picture delete it from amazon s3
+
+      if (deletedPost.picUrl) {
+          deleteFile(deletedPost.picUrl);
+    }
 
       if (deletedComments) {
         return res

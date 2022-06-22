@@ -3,7 +3,10 @@ const aws = require("aws-sdk");
 const crypto = require("crypto");
 const { promisify } = require("util");
 const randomBytes = promisify(crypto.randomBytes);
+const multer = require("multer");
 const path = require("path");
+
+
 
 const s3 = new aws.S3({
   region: process.env.AWS_BUCKET_REGION,
@@ -12,7 +15,7 @@ const s3 = new aws.S3({
   sifnatureVersion: "v4",
 });
 
-exports.generateUploadURL = async (type) => {
+exports.generateUploadURL = async () => {
   const rawBytes = await randomBytes(16);
   const imageName = rawBytes.toString("hex");
 

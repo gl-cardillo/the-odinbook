@@ -47,7 +47,7 @@ export function Post({ post, user, setRender, render, index }) {
             post.userId === user._id && (
               <button
                 className="delete-button"
-                onClick={() => deletePost(post._id, setRender, render)}
+                onClick={() => deletePost(post, setRender, render)}
               >
                 <AiOutlineClose />
               </button>

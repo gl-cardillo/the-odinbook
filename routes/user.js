@@ -23,7 +23,7 @@ router.get("/profilePic/:userId", verifyToken, userController.getProfilePic);
 
 router.get("/generateUrlS3", verifyToken, userController.generateUrlS3);
 
-router.put("/changeProfilePic", verifyToken, userController.changeProfilePic);
+router.put("/changePic", verifyToken, userController.changePic);
 
 router.put("/sendFriendRequest", verifyToken, userController.sendFriendRequest);
 

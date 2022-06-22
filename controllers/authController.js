@@ -32,6 +32,8 @@ exports.signin = [
         password: hashedPassword,
         profilePicUrl:
           "https://myawsbucket-gl-cardi.s3.eu-west-2.amazonaws.com/6cfd21bd1531475c0d00f7cc8de66fcb",
+        converPicUrl:
+          "https://myawsbucket-gl-cardi.s3.eu-west-2.amazonaws.com/15094a45bca31029c0dc8a7626d8460b",
       });
 
       const savedUser = await user.save();
@@ -58,9 +60,9 @@ exports.login = [
       const user = await User.findOne({ email: req.body.email });
       // if user is the test account, set the right password
       if (req.body.email === "test-account@example.com") {
-        req.body.password = process.env.TEST_PASSWORD
+        req.body.password = process.env.TEST_PASSWORD;
       }
-        if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return res.status(404).json({ message: "User not found" });
       // compare the password and create token
       const comparedPassword = await bcrypt.compare(
         req.body.password,
@@ -71,11 +73,11 @@ exports.login = [
         const token = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET);
         return res.status(200).json({ user, token });
       } else {
-        console.log(console.log(req.body.password))
+        console.log(console.log(req.body.password));
         return res.status(400).json({ message: "Password is incorrect" });
       }
     } catch (err) {
-      console.log(err.message)
+      console.log(err.message);
       return res.status(500).json({ message: err.message });
     }
   },

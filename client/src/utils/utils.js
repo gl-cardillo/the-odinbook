@@ -1,13 +1,14 @@
 import axios from 'axios';
 
-export const deletePost = (id, set, render) => {
+export const deletePost = (post, set, render) => {
   axios
     .delete('http://localhost:5000/posts/deletePost', {
       headers: {
         Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
       },
       data: {
-        id,
+        id: post._id,
+        picUrl: post.picUrl
       },
     })
     .then(() => {

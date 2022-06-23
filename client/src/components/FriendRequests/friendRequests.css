@@ -22,16 +22,29 @@
   border-radius: 10px;
   box-shadow: 0px 0px 5px 1px #bbbbc2;
   background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .requests,
 .friend,
 .suggested-profile {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   border-bottom: 1px solid #c4c4c4;
   align-items: center;
   justify-content: space-between;
+}
+
+.friend {
+  justify-content: flex-start !important;
+  gap: 20px;
+}
+
+.friends-container {
+  max-width: 300px;
+  margin: auto !important;
 }
 
 .suggested-profile {
@@ -52,7 +65,7 @@
 .suggested-profile button {
   border: 0;
   font-weight: bold;
-  padding: 3px;
+  padding: 5px;
   color: #fff;
   font-family: "Roboto", "Droid Sans", Helvetica, sans-serif;
   border-radius: 5px;
@@ -78,8 +91,15 @@
   color: #1877f2;
   margin-bottom: 20px;
 }
+
+.friend-requests-button {
+ display: flex;
+ flex-direction: column;
+ gap: 5px;
+}
+
 @media screen and (min-width: 425px) {
-  .requests,
+
   .friend {
     padding: 10px;
   }
@@ -89,6 +109,10 @@
   .suggested-profile button {
     padding: 5px;
   }
+
+  .friend-requests-button {
+ display: block;
+}
 }
 
 @media screen and (min-width: 768px) {

@@ -69,9 +69,15 @@ export function Home() {
                   {suggestedProfile.map((profile, index) => {
                     return (
                       <div key={index}>
-                        <img src={profile.profilePicUrl} alt="avatar" />
-                        <p className="none1024px">{profile.firstname}</p>
-                        <p className="none1024px">{profile.lastname}</p>
+                        <Link to={`/profile/${profile.id}`}>
+                          <img src={profile.profilePicUrl} alt="avatar" />
+                        </Link>
+                        <Link to={`/profile/${profile.id}`}>
+                          <p className="none1024px">{profile.firstname}</p>
+                        </Link>
+                        <Link to={`/profile/${profile.id}`}>
+                          <p className="none1024px">{profile.lastname}</p>
+                        </Link>
                         <Link to={`/profile/${profile.id}`}>
                           <p className="block1024px">{profile.fullname}</p>
                         </Link>

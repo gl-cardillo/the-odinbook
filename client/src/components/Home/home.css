@@ -2,7 +2,7 @@
 .profile,
 .friend-requests,
 .friends {
-  margin: 10px 20px 80px;
+  margin: 10px 5px 80px;
 }
 
 .post-profile-pic,
@@ -30,8 +30,6 @@
   box-shadow: 0px 0px 5px 1px #bbbbc2;
   margin: 20px 0;
 }
-
-
 
 .home-suggested-profile-container {
   display: flex;
@@ -107,6 +105,14 @@ button[disabled] {
   gap: 30px;
   font-weight: bold;
 }
+@media screen and (min-width: 768px) {
+  .home,
+  .profile,
+  .friend-requests,
+  .friends {
+    margin: 10px 10px 80px;
+  }
+}
 
 @media screen and (min-width: 768px) {
   .home,
@@ -122,17 +128,19 @@ button[disabled] {
     display: flex;
     justify-content: space-around;
   }
-
 }
 
 @media screen and (min-width: 1024px) {
-
   .none1024px {
     display: none;
   }
 
   .block1024px {
     display: block;
+  }
+
+  .home-suggested-profile div {
+    width: 120px;
   }
 }
 

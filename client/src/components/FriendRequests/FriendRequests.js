@@ -48,10 +48,12 @@ export function FriendRequests() {
                 return (
                   <div className="requests" key={index}>
                     <Link to={`profile/${request.id}`}>
-                      <img src={request.profilePicUrl} alt="avatar" />
+                      <img src={request.profilePicUrl} alt="avatar" />{" "}
+                    </Link>{" "}
+                    <Link to={`profile/${request.id}`}>
                       <p>{request.fullname}</p>
                     </Link>
-                    <div>
+                    <div className="friend-requests-button">
                       <button
                         className="add-button"
                         onClick={() =>

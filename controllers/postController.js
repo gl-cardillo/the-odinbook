@@ -2,7 +2,7 @@ const Post = require("../models/post");
 const Comment = require("../models/comment");
 const User = require("../models/user");
 const { body, validationResult } = require("express-validator");
-const {  deleteFile } = require("../config/s3");
+const { deleteFile } = require("../config/s3");
 
 exports.getPostsByUserId = async (req, res, next) => {
   try {
@@ -19,17 +19,16 @@ exports.getPostsByUserId = async (req, res, next) => {
 };
 
 exports.getPostById = async (req, res, next) => {
-    try {
-      const post = await Post.findById(req.params.postId);
-      if (!post ) {
-        return res.status(404).json({ message: "No post found" });
-      }
-      return res.status(200).json(post);
-    } catch (err) {
-
-    return res.status(500).json({ message: err.message });
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).json({ message: "No post found" });
     }
-}
+    return res.status(200).json(post);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -80,9 +79,6 @@ exports.getLikeByPostId = async (req, res, next) => {
     return res.status(500).json({ message: err.message });
   }
 };
-  
-
-
 
 exports.getWhoLiked = async (req, res, next) => {
   try {
@@ -112,9 +108,9 @@ exports.getWhoLiked = async (req, res, next) => {
 
 exports.createPost = [
   body("text").trim().isLength(1),
-  
+
   async (req, res) => {
-    const { text, userId, userFullname , picUrl } = req.body;
+    const { text, userId, userFullname, picUrl } = req.body;
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
       return res.json({ errs: errs.array() });
@@ -124,7 +120,7 @@ exports.createPost = [
         text,
         userId,
         userFullname,
-        picUrl
+        picUrl,
       });
       const savedPost = await post.save();
       if (savedPost) return res.status(200).json({ post });
@@ -137,6 +133,13 @@ exports.createPost = [
 exports.deletePost = async (req, res) => {
   try {
     const deletedPost = await Post.findByIdAndDelete(req.body.id);
+    
+    //check if there is an image in the post
+    if (deletedPost.picUrl !== "") {
+      //if there is dele it
+      deleteFile(deletedPost.picUrl);
+    }
+
     // delete the comment of the post
     if (deletedPost) {
       const deletedComments = await Comment.deleteMany({
@@ -145,15 +148,13 @@ exports.deletePost = async (req, res) => {
       //if the post has a picture delete it from amazon s3
 
       if (deletedPost.picUrl) {
-          deleteFile(deletedPost.picUrl);
-    }
+        deleteFile(deletedPost.picUrl);
+      }
 
       if (deletedComments) {
-        return res
-          .status(200)
-          .json({
-            message: `Post with id ${req.body.id} deleted with comments`,
-          });
+        return res.status(200).json({
+          message: `Post with id ${req.body.id} deleted with comments`,
+        });
       } else {
         return res.status(400).json({ message: "Post not found" });
       }

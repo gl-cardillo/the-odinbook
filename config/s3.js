@@ -6,8 +6,6 @@ const randomBytes = promisify(crypto.randomBytes);
 const multer = require("multer");
 const path = require("path");
 
-
-
 const s3 = new aws.S3({
   region: process.env.AWS_BUCKET_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -21,7 +19,7 @@ exports.generateUploadURL = async () => {
 
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: imageName ,
+    Key: imageName,
     Expires: 60,
   };
 
@@ -34,7 +32,10 @@ exports.deleteFile = (url) => {
   //get key from url
   const key = url.split("amazonaws.com/")[1];
 
-  if (key === "6cfd21bd1531475c0d00f7cc8de66fcb") {
+  if (
+    key === "6cfd21bd1531475c0d00f7cc8de66fcb" ||
+    key === "9cb0e642e580fca30a47e3eda534d29c"
+  ) {
     return;
   }
 

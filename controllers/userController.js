@@ -365,15 +365,30 @@ exports.deleteAccount = async (req, res, next) => {
     const deleteUser = await User.findByIdAndDelete(id);
 
     deleteFile(deleteUser.profilePicUrl);
+    deleteFile(deleteUser.coverPicUrl);
 
     if (!deleteUser) {
       return res.status(404).json({ message: "No users found" });
     }
+
+    // find the post to delte
+    const postPicToDelete = await Post.find({ userId: id });
+
+    for (let i = 0; i < postPicToDelete.length; i++) {
+      //check if in any on of them ther is a picture
+      if (postPicToDelete[i].picUrl !== "") {
+        //if there is dele it
+        deleteFile(postPicToDelete[i].picUrl);
+      }
+    }
+
     // delete users' post
     const deletePost = await Post.deleteMany({ userId: id });
+
     if (!deletePost) {
       return res.status(500).json({ message: "Cannot remove posts" });
     }
+    
     // delete users' comment
     const deleteComments = await Comment.deleteMany({ userId: id });
     if (!deleteComments) {
@@ -403,6 +418,7 @@ exports.deleteAccount = async (req, res, next) => {
 
     return res.status(200).json({ message: "User deleted" });
   } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };

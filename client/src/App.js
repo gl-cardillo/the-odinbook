@@ -20,7 +20,7 @@ function App() {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
-console.log(user)
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <SkeletonTheme baseColor="#9b9b9b;" highlightColor="#979797">

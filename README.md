@@ -22,6 +22,8 @@ the goal is to build a full-stack application similar to Facebook
 - Like and comment on posts.
 - Send friend requests and become friends with other users.
 - Check who sent you a friend request.
+- See other users' friends.
+- See and update profile info.
 - Delete post.
 - Delete comments.
 - Delete users.

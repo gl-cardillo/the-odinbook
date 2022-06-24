@@ -213,7 +213,7 @@ describe("PUT /user/acceptFriendRequest", () => {
     expect(res.body.message).toEqual(`No request to accept`);
   });
 
-  it("should accept the friend request is there is one from that user", async () => {
+  it("should accept the friend request if there is one from that user", async () => {
     //add friend request to user
     user.friendRequests = [users[0].id];
     await user.save();
@@ -323,10 +323,10 @@ describe("PUT user/removeFriendRequest", () => {
   });
 });
 
-describe("PUT /user/changeProfilePic", () => {
+describe("PUT /user/changePic", () => {
   it("Should change the profile pic url", async () => {
     const res = await request(app)
-      .put(`/user/changeProfilePic`)
+      .put(`/user/changePic`)
       .set("Accept", "application/json")
       .send({
         imageUrl: "www.urlExample.com",
@@ -347,10 +347,48 @@ describe("GET /user/profilePicUrl", () => {
       .set("Authorization", token);
     expect(res.statusCode).toEqual(200);
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
-    expect(res.body).toEqual("www.urlExample.com");
-  });
+    expect(res.body).toMatch("https://myawsbucket-gl-cardi.s3.eu-west-2.amazonaws.com/6cfd21bd1531475c0d00f7cc8de66fcb")
+  })
 });
 
+describe("PUT /user/updateProfile", () => {
+  it("Should update the account", async () => {
+    const res = await request(app)
+      .put("/user/updateProfile")
+      .set("Accept", "application/json")
+      .set("Authorization", token)
+      .send({
+        id: userId,
+        firstname: "update",
+        lastname: "account",
+        gender: "Male",
+        dateOfBirth: "1995-10-30",
+        hometown: "New york",
+        worksAt: "Google",
+        school: "MIT",
+        relationship: "Single",
+      });
+    expect(res.statusCode).toEqual(200);
+    expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
+  });
+  it("Should fine the account updated", async () => {
+    const res = await request(app)
+      .get(`/user/profile/${userId}`)
+      .set("Accept", "application/json");
+    expect(res.statusCode).toEqual(200);
+    expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
+    expect(res.body).toHaveProperty("id", userId);
+    expect(res.body).toHaveProperty("firstname", "update");
+    expect(res.body).toHaveProperty("lastname", "account");
+    expect(res.body).toHaveProperty("gender", "Male");
+    expect(res.body).toHaveProperty("dateOfBirth", "1995-10-30T00:00:00.000Z");
+    expect(res.body).toHaveProperty("hometown", "New york");
+    expect(res.body).toHaveProperty("worksAt", "Google");
+    expect(res.body).toHaveProperty("school", "MIT");
+    expect(res.body).toHaveProperty("relationship", "Single");
+
+  });
+});
 describe("DELETE /user/deleteAccount", () => {
   it("Should delete the account", async () => {
     const res = await request(app)

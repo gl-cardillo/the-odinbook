@@ -2,8 +2,7 @@ const User = require("../models/user");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
 const { generateUploadURL, deleteFile } = require("../config/s3");
-const { upload, S3 } = require("../config/s3");
-const path = require("path");
+const { body, validationResult } = require("express-validator");
 
 exports.getUser = async (req, res, next) => {
   try {
@@ -388,7 +387,7 @@ exports.deleteAccount = async (req, res, next) => {
     if (!deletePost) {
       return res.status(500).json({ message: "Cannot remove posts" });
     }
-    
+
     // delete users' comment
     const deleteComments = await Comment.deleteMany({ userId: id });
     if (!deleteComments) {
@@ -440,9 +439,11 @@ exports.changePic = async (req, res) => {
     // delete the current profile picture and add the new one
 
     if (profileOrCover === "profilePicUrl") {
+      //comment for testing
       deleteFile(user.profilePicUrl);
       user.profilePicUrl = imageUrl;
     } else {
+      //comment for testing
       deleteFile(user.coverPicUrl);
       user.coverPicUrl = imageUrl;
     }
@@ -462,3 +463,44 @@ exports.getProfilePic = async (req, res) => {
     return res.status(500).json({ message: err.message });
   }
 };
+
+exports.updateProfile = [
+  body("firstname", "First name required").trim().escape(),
+  body("lastname", "Last name required").trim().escape(),
+  body("hometown").trim().escape(),
+  body("worksAt").trim().escape(),
+  body("relationship").trim().escape(),
+  async (req, res) => {
+    const {
+      id,
+      firstname,
+      lastname,
+      gender,
+      dateOfBirth,
+      hometown,
+      worksAt,
+      school,
+      relationship,
+    } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    try {
+      const user = await User.findByIdAndUpdate(id, {
+        firstname,
+        lastname,
+        gender,
+        dateOfBirth,
+        hometown,
+        worksAt,
+        school,
+        relationship,
+      });
+      await user.save();
+      return res.status(200).json({ message: "Profile updated" });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  },
+];

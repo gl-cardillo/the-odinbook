@@ -1,0 +1,104 @@
+.about-container {
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px 1px #bbbbc2;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: auto;
+  max-width: 290px;
+}
+
+.edit-button {
+  align-self: flex-end;
+}
+
+.about-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.about-form label {
+  margin: auto;
+}
+
+.about-form p {
+  position: absolute;
+  padding-left: 10px;
+  font-weight: 200;
+  font-size: 12px;
+  color: #848484;
+  padding-top: 5px;
+}
+
+.default-value {
+  font-size: 12px;
+  color: #848484;
+}
+
+.about-form input {
+  padding: 20px 10px 5px;
+  width: 220px;
+  border-radius: 15px;
+  border: 1px solid gray;
+}
+
+.about-form input:focus {
+  outline: none !important;
+  border: 2px solid #1877f2;
+  padding: 19px 9px 4px;
+}
+.about-form select {
+  width: 220px;
+  border-radius: 15px;
+  padding: 20px 5px 5px;
+  font-size: 12px;
+}
+
+.relationship {
+  position: inherit !important;
+  text-align: center;
+  color: black !important;
+  font-size: 16px !important;
+}
+
+.about-form .buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.about-form button {
+  background: #1877f2;
+  color: #ffffff;
+  width: 100px;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 10px;
+  border: 0;
+}
+
+.about-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-info p {
+     display: flex;
+    align-items: center;
+    gap: 10px
+}
+.about-icon {
+  color: #3b5998;
+  font-size: 20px;
+}
+@media screen and (min-width: 768px) {
+  .about-container {
+    max-width: 340px;
+
+  }
+  
+}

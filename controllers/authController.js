@@ -35,7 +35,7 @@ exports.signin = [
         coverPicUrl:
           "https://myawsbucket-gl-cardi.s3.eu-west-2.amazonaws.com/9cb0e642e580fca30a47e3eda534d29c",
       });
-      console.log(user)
+
       const savedUser = await user.save();
       if (savedUser) {
         //create token

@@ -137,6 +137,7 @@ exports.deletePost = async (req, res) => {
     //check if there is an image in the post
     if (deletedPost.picUrl !== "") {
       //if there is dele it
+      //comment for testing
       deleteFile(deletedPost.picUrl);
     }
 
@@ -146,10 +147,6 @@ exports.deletePost = async (req, res) => {
         postId: deletedPost.id,
       });
       //if the post has a picture delete it from amazon s3
-
-      if (deletedPost.picUrl) {
-        deleteFile(deletedPost.picUrl);
-      }
 
       if (deletedComments) {
         return res.status(200).json({

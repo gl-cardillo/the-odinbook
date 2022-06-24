@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { Post } from "../Post/Post";
 import { PostForm } from "../PostForm/PostForm";
 import { Friends } from "../Friends/Friends";
-import { Details } from "../Details/Details";
+import { About } from "../About/About";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { TiPlusOutline } from "react-icons/ti";
 import Skeleton from "react-loading-skeleton";
@@ -25,7 +25,7 @@ export function Profile() {
   const [profilePosts, setProfilePosts] = useState([]);
   const [render, setRender] = useState(1);
   const [showPosts, setShowPosts] = useState(true);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
 
   useEffect(() => {
@@ -109,15 +109,15 @@ export function Profile() {
   const changePage = (page) => {
     if (page === "posts") {
       setShowPosts(true);
-      setShowDetails(false);
+      setShowAbout(false);
       setShowFriends(false);
-    } else if (page === "details") {
-      setShowDetails(true);
+    } else if (page === "about") {
+      setShowAbout(true);
       setShowPosts(false);
       setShowFriends(false);
     } else {
       setShowFriends(true);
-      setShowDetails(false);
+      setShowAbout(false);
       setShowPosts(false);
     }
   };
@@ -209,7 +209,7 @@ export function Profile() {
                         addFriendRequest(profileId, user._id, setRender, render)
                       }
                     >
-                      Send friend request
+                      Add friend 
                     </button>
                   )
                 ) : (
@@ -231,19 +231,19 @@ export function Profile() {
                 Friends
               </button>
               <button
-                className={showDetails ? "active-section" : ""} 
-                onClick={() => changePage("details")}
+                className={showAbout ? "active-section" : ""}
+                onClick={() => changePage("about")}
               >
-                Details
+                About
               </button>
             </div>
           </div>
         ) : (
           <Skeleton height={500} />
         )}
-        {showDetails && (
-          <div className="profile-details-section">
-            <Details profile={profile} />
+        {showAbout && (
+          <div className="profile-about-section">
+            <About profile={profile} setRender={setRender} render={render} />
           </div>
         )}
         {showFriends && (

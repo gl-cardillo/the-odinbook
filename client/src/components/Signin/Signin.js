@@ -16,12 +16,16 @@ export function Signin({ setIsAuth }) {
   const schema = yup.object().shape({
     firstname: yup
       .string()
+      .min(2)
+      .max(15)
       .matches(/^[a-zA-Z0-9]{0,}$/, {
         message: "Special character not allowed.",
       })
       .required("Name is a required field"),
     lastname: yup
       .string()
+      .min(2)
+      .max(15)
       .matches(/^[a-zA-Z0-9]{0,}$/, {
         message: "Special character not allowed.",
       })
@@ -139,7 +143,7 @@ export function Signin({ setIsAuth }) {
               Sign in
             </button>{" "}
             <p className="error-form">{error !== "" ? error : ""}</p>
-          </form>{" "}
+          </form>
           <Link to={"/"}>
             <p>
               Already have an account? click <span className="blue">here</span>

@@ -2,7 +2,7 @@
 .profile,
 .friend-requests,
 .friends {
-  margin: 10px 5px 80px;
+  margin: 10px 10px 80px;
 }
 
 .post-profile-pic,
@@ -117,11 +117,14 @@ button[disabled] {
 @media screen and (min-width: 768px) {
   .home,
   .profile,
-  .friend-requests,
-  .friends,
   .suggested-profile-page,
   .search-section {
     width: 50%;
+  }
+
+  .friend-requests,
+  .friends {
+    width: 80%
   }
 
   .main-page {

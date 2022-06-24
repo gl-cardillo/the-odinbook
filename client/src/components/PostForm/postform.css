@@ -1,8 +1,5 @@
 .add-post textarea {
   resize: none;
-  position: relative;
-  left: 0;
-  right: 0;
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 10px;

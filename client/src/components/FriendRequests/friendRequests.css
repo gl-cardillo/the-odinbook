@@ -43,7 +43,7 @@
 }
 
 .friends-container {
-  max-width: 300px;
+  max-width: 390px;
   margin: auto !important;
 }
 
@@ -121,4 +121,6 @@
   .suggested-profile button {
     padding: 10px;
   }
+
+
 }

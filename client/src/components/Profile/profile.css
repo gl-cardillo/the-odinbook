@@ -6,7 +6,7 @@
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0px 0px 5px 1px #bbbbc2;
-  margin: 20px 0;
+  margin: 20px 10px;
 }
 
 .profile-pic-container img {
@@ -106,7 +106,7 @@
 }
 
 .profile-username {
-  font-size: 30px;
+  font-size: 25px;
   font-weight: bold;
 }
 
@@ -124,6 +124,9 @@
   padding-bottom: 1px !important;
 }
 
+.profile-post-section {
+  margin: 0 10px
+}
 
 @media screen and (min-width: 768px) {
   .profile-pic-container {

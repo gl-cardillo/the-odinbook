@@ -35,6 +35,8 @@ router.put("/declineFriendRequest", verifyToken, userController.declineFriendReq
 
 router.put("/removeFriend", verifyToken, userController.removeFriend);
 
+router.put("/updateProfile", verifyToken, userController.updateProfile)
+
 router.delete("/deleteAccount", verifyToken, userController.deleteAccount);
 
 module.exports = router;

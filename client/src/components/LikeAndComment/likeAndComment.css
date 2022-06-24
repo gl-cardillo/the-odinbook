@@ -49,6 +49,15 @@
   width: 100%;
   margin-top: 10px;
   background-color: #f0f2f5;
+  padding: 10px;
+  border-radius: 5px;
+  resize: none;
+}
+
+textarea:focus {
+  outline: none !important;
+  border: 2px solid #1877f2;
+  padding: 9px !important;
 }
 
 .add-comment button {

@@ -47,7 +47,11 @@ export function Friends({ profile }) {
                 return (
                   <div className="friend" key={index}>
                     <Link to={`/profile/${friend.id}`}>
-                      <img src={friend.profilePicUrl} alt="avatar" />
+                      <img
+                        src={friend.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />
                     </Link>
                     <Link to={`/profile/${friend.id}`}>
                       <p className="username">{friend.fullname}</p>

@@ -5,21 +5,17 @@
   margin: 10px 10px 80px;
 }
 
-.post-profile-pic,
-.home-suggested-profile img,
-.friend img,
-.requests img,
-.suggested-profile img,
-.search-section img,
-.result-user img,
-.side-menu-container img {
+.avatar-pic {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   image-rendering: -webkit-optimize-contrast;
   object-fit: cover;
 }
-
+.pic-30px {
+  width: 30px;
+  height: 30px;
+}
 .add-post,
 .post {
   display: flex;

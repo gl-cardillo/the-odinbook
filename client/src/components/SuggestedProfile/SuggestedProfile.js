@@ -58,7 +58,11 @@ export function SuggestedProfile() {
             suggestedProfile.map((profile, index) => {
               return (
                 <div className="suggested-profile" key={index}>
-                  <img src={profile.profilePicUrl} alt="avatar" />
+                  <img
+                    src={profile.profilePicUrl}
+                    className="avatar-pic"
+                    alt="avatar"
+                  />
                   <Link to={`/profile/${profile.id}`}>
                     <p className="username">{profile.fullname}</p>
                   </Link>

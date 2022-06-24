@@ -94,7 +94,11 @@ export function Navbar() {
                     }}
                   >
                     <div className="result-user">
-                      <img src={userSearch.profilePicUrl} alt="avatar" />
+                      <img
+                        src={userSearch.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />
                       <p>{userSearch.fullname}</p>
                     </div>
                   </Link>
@@ -119,8 +123,11 @@ export function Navbar() {
           <Link to="/friends" className=" icon icon-friend">
             <FiUsers />
           </Link>
-          <FiUser
-            className=" user-icon icon"
+          <img
+            src={user.profilePicUrl}
+            alt="profile button"
+            role="button"
+            className="avatar-pic pic-30px"
             onClick={() => setShowSidebar(!showSidebar)}
           />
           <div className={showSidebar ? "sidebar sidebar-open" : "sidebar"}>
@@ -129,10 +136,17 @@ export function Navbar() {
               onClick={() => setShowSidebar(false)}
               to={`/profile/${user._id}`}
             >
-              <FaUser /> &nbsp;Profile
+              <img
+                src={user.profilePicUrl}
+                alt="avatar"
+   
+                className="avatar-pic pic-30px"
+
+              />
+              &nbsp;Profile
             </Link>
             <p onClick={logoutUser}>
-              <FaSignOutAlt /> &nbsp;Log out
+              <FaSignOutAlt className="pic-30px" /> &nbsp;Log out
             </p>
             <p
               className="delete-account"

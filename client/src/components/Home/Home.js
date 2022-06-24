@@ -70,7 +70,7 @@ export function Home() {
                     return (
                       <div key={index}>
                         <Link to={`/profile/${profile.id}`}>
-                          <img src={profile.profilePicUrl} alt="avatar" />
+                          <img src={profile.profilePicUrl} className="avatar-pic" alt="avatar" />
                         </Link>
                         <Link to={`/profile/${profile.id}`}>
                           <p className="none1024px">{profile.firstname}</p>

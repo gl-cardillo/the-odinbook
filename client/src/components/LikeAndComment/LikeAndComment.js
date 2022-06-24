@@ -1,11 +1,11 @@
 import "./likeAndComment.css";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { FaRegComment, FaComment } from "react-icons/fa";
 import { BsX } from "react-icons/bs";
 import { AiOutlineLike, AiFillLike, AiOutlineClose } from "react-icons/ai";
 import { useForm } from "react-hook-form";
+import { Comment } from "../Comment/Comment";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,10 +15,10 @@ export function LikeAndComment({ user, post }) {
   const [expandComments, setExpandComments] = useState(false);
   const [comments, setComments] = useState(null);
   const [likes, setLikes] = useState([]);
-  const [profilePicUrl, setProfilePicUrl] = useState(null);
   const [showNewComment, setShowNewComment] = useState(false);
   const [render, setRender] = useState(1);
   const [showLikes, setShowLikes] = useState(false);
+  const [author, setAuthor] = useState("");
 
   const addLike = (postId) => {
     axios
@@ -46,7 +46,7 @@ export function LikeAndComment({ user, post }) {
 
   useEffect(() => {
     const getData = async () => {
-      await axios
+      axios
         .get(`/comments/${post._id}`)
         .then((res) => {
           setComments(res.data);
@@ -55,7 +55,7 @@ export function LikeAndComment({ user, post }) {
           console.log(err);
         });
 
-      await axios
+      axios
         .get(`/posts/getLikes/${post._id}`)
         .then((res) => {
           setLikes(res.data);
@@ -63,20 +63,7 @@ export function LikeAndComment({ user, post }) {
         .catch((err) => {
           console.log(err);
         });
-      await axios
-        .get(`/user/profilePic/${post.userId}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
-        .then((res) => {
-          setProfilePicUrl(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
     };
     getData();
   }, [render, post._id]);
@@ -107,25 +94,6 @@ export function LikeAndComment({ user, post }) {
         console.log(err);
       });
     reset();
-  };
-
-  const deleteComment = (id) => {
-    axios
-      .delete("/comments/deleteComment", {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-        data: {
-          id,
-        },
-      })
-      .then(() => {
-        setRender((render) => render + 1);
-        setShowNewComment(!showNewComment);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const schema = yup.object().shape({
@@ -176,7 +144,11 @@ export function LikeAndComment({ user, post }) {
                 {likes.map((user, index) => {
                   return (
                     <div key={index} className="likes">
-                      <img src={user.profilePicUrl} alt="avatar" />
+                      <img
+                        src={user.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />
                       <p>{user.fullname}</p>
                     </div>
                   );
@@ -234,30 +206,13 @@ export function LikeAndComment({ user, post }) {
             //show the comments
             comments.map((comment, index) => {
               return (
-                <div key={index} className="comment-container">
-                  <img src={profilePicUrl} alt="avatar" />
-                  <div className="comment-info">
-                    <div className="comment-author-message">
-                      <Link to={`/profile/${comment.userId}`}>
-                        <p className="author">{comment.userFullname}</p>
-                      </Link>
-                      <p className="comment-message">{comment.text}</p>
-                    </div>
-                    <div className="comment-option">
-                      <p>like</p>
-                      <p className="time">{comment.date_formatted}</p>
-                    </div>
-                  </div>
-                  {comment.userId === user._id && (
-                    //is the comment author is the user show delete button
-                    <button
-                      className="delete-button"
-                      onClick={() => deleteComment(comment._id)}
-                    >
-                      <AiOutlineClose />
-                    </button>
-                  )}
-                </div>
+                <Comment
+                  key={index}
+                  comment={comment}
+                  setRender={setRender}
+                  setShowNewComment={setShowNewComment}
+                  showNewComment={showNewComment}
+                />
               );
             })
           ) : (

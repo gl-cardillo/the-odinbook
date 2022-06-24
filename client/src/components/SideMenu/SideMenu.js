@@ -82,7 +82,8 @@ export function SideMenu({ render, setRender }) {
     <div className="side-menu-container">
       <div className="s-m-profile">
         <Link to={`/profile/${user._id}`}>
-          <img src={user.profilePicUrl} alt="" /> &nbsp;Profile
+          <img src={user.profilePicUrl} className="avatar-pic" alt="" />{" "}
+          &nbsp;{user.fullname}
         </Link>
         <p onClick={logoutUser}>
           <FaSignOutAlt className="s-m-profile-icon" /> &nbsp;Log out
@@ -100,7 +101,11 @@ export function SideMenu({ render, setRender }) {
               {requests.map((request, index) => {
                 return (
                   <div className="s-m-div" key={index}>
-                    <img src={request.profilePicUrl} alt="avatar" />
+                    <img
+                      src={request.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
                     <Link to={`/profile/${request.id}`}>
                       <p>{request.fullname}</p>
                     </Link>
@@ -134,7 +139,11 @@ export function SideMenu({ render, setRender }) {
               {friends.map((friend, index) => {
                 return (
                   <div className="s-m-div" key={index}>
-                    <img src={friend.profilePicUrl} alt="avatar" />
+                    <img
+                      src={friend.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
                     <Link to={`/profile/${friend.id}`}>
                       <p>{friend.fullname}</p>{" "}
                     </Link>

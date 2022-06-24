@@ -8,10 +8,11 @@ import { deletePost } from "../../utils/utils";
 
 export function Post({ post, user, setRender, render, index }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
+  const [author, setAuthor] = useState("");
 
   useEffect(() => {
     const getData = async () => {
-      await axios
+      axios
         .get(`/user/profilePic/${post.userId}`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
@@ -25,6 +26,10 @@ export function Post({ post, user, setRender, render, index }) {
         .catch((err) => {
           console.log(err);
         });
+
+      axios.get(`/posts/getAuthor/${post.userId}`).then((res) => {
+        setAuthor(res.data);
+      });
     };
     getData();
   }, [post.userId, render]);
@@ -34,11 +39,11 @@ export function Post({ post, user, setRender, render, index }) {
       <div className="post">
         <div className="post-info">
           <Link to={`/profile/${post.userId}`}>
-            <img className="post-profile-pic" src={profilePicUrl} alt="avatar" />
+            <img className="avatar-pic" src={profilePicUrl} alt="avatar" />
           </Link>
           <div className="author-time">
             <Link to={`/profile/${post.userId}`}>
-              <p className="author">{post.userFullname}</p>
+              <p className="author">{author}</p>
             </Link>
             <p className="time">{post.date_formatted}</p>
           </div>

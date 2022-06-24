@@ -16,7 +16,11 @@ export function SearchPage() {
             return (
               <Link to={`/profile/${user.id}`}>
                 <div key={index}>
-                  <img src={user.profilePicUrl} alt="avatar" />
+                  <img
+                    src={user.profilePicUrl}
+                    className="avatar-pic"
+                    alt="avatar"
+                  />
                   <p>{user.fullname}</p>
                 </div>
               </Link>

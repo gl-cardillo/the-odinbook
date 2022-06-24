@@ -48,7 +48,11 @@ export function FriendRequests() {
                 return (
                   <div className="requests" key={index}>
                     <Link to={`profile/${request.id}`}>
-                      <img src={request.profilePicUrl} alt="avatar" />{" "}
+                      <img
+                        src={request.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />{" "}
                     </Link>{" "}
                     <Link to={`profile/${request.id}`}>
                       <p>{request.fullname}</p>

@@ -119,7 +119,6 @@ exports.createPost = [
       const post = await new Post({
         text,
         userId,
-        userFullname,
         picUrl,
       });
       const savedPost = await post.save();
@@ -133,7 +132,7 @@ exports.createPost = [
 exports.deletePost = async (req, res) => {
   try {
     const deletedPost = await Post.findByIdAndDelete(req.body.id);
-    
+
     //check if there is an image in the post
     if (deletedPost.picUrl !== "") {
       //if there is dele it
@@ -192,6 +191,18 @@ exports.addLike = async (req, res) => {
         });
       }
     }
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getAuthor = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: "No user found" });
+    }
+    return res.status(200).json(user.fullname);
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }

@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 export function About({ profile, setRender, render }) {
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [edit, setEdit] = useState(false);
 
   const schema = yup.object().shape({
@@ -59,7 +59,7 @@ export function About({ profile, setRender, render }) {
   });
 
   const updateInfo = (data) => {
-    console.log(data)
+    console.log(data);
     axios
       .put(
         "/user/updateProfile",
@@ -83,14 +83,18 @@ export function About({ profile, setRender, render }) {
         }
       )
       .then(() => {
-        setEdit(false);
-        setRender(render + 1);
+        axios.get(`/user/profile/${profile.id}`).then((res) => {
+          localStorage.setItem("user", JSON.stringify(res.data));
+          setUser(res.data)
+          setEdit(false);
+          setRender(render + 1);
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  console.log(profile)
+
   return (
     <div className="about-container">
       {profile.id === user.id && (
@@ -163,7 +167,7 @@ export function About({ profile, setRender, render }) {
                 {...register("gender")}
                 id="gender"
                 name="gender"
-                defaultValue={{ label: "gender", value: "" }}
+                value={""}
               >
                 <option value="Male"> Male</option>
                 <option value="Female"> Female</option>
@@ -177,7 +181,7 @@ export function About({ profile, setRender, render }) {
                 {...register("relationship")}
                 id="relationship"
                 name="relationship"
-                defaultValue={{ label: "relationship", value: "" }}
+                value={""}
               >
                 <option value="Single">Single</option>
                 <option value="In a relationship">In a relationship</option>

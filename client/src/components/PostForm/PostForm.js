@@ -40,7 +40,6 @@ export function PostForm({ user, setRender, render }) {
         {
           text: text,
           userId: user._id,
-          userFullname: user.fullname,
           picUrl: imageUrl,
         },
         {

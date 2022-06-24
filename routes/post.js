@@ -11,6 +11,8 @@ router.get("/byUserId/:userId", postController.getPostsByUserId);
 
 router.get("/getFriendsPost/:userId", postController.getFriendsPost);
 
+router.get("/getAuthor/:userId", postController.getAuthor)
+
 router.post("/createPost", verifyToken, postController.createPost);
 
 router.get("/getLikes/:postId", postController.getWhoLiked);
@@ -18,5 +20,7 @@ router.get("/getLikes/:postId", postController.getWhoLiked);
 router.put("/addLike", verifyToken, postController.addLike);
 
 router.delete("/deletePost", verifyToken, postController.deletePost);
+
+
 
 module.exports = router;

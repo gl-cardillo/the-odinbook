@@ -162,32 +162,32 @@ exports.deletePost = async (req, res) => {
 
 exports.addLike = async (req, res) => {
   try {
-    const { postId, userId } = req.body;
+    const { id, userId } = req.body;
     const postLiked = await Post.find({
-      _id: postId,
+      _id: id,
       likes: { $elemMatch: { $eq: userId } },
     });
 
     //if post is not liked by the user add like
     if (postLiked.length == 0) {
-      const postAddLike = await Post.findByIdAndUpdate(postId, {
+      const postAddLike = await Post.findByIdAndUpdate(id, {
         $push: { likes: userId },
       });
 
       if (postAddLike) {
         return res.status(200).json({
-          message: `User with id ${userId} added a like from post with id ${postId}`,
+          message: `User with id ${userId} added a like from post with id ${id}`,
         });
       }
       // else remove the like from the array
     } else {
-      const postRemoveLike = await Post.findByIdAndUpdate(postId, {
+      const postRemoveLike = await Post.findByIdAndUpdate(id, {
         $pull: { likes: userId },
       });
 
       if (postRemoveLike) {
         return res.status(200).json({
-          message: `User with id ${userId} removed the like from post with id ${postId}`,
+          message: `User with id ${userId} removed the like from post with id ${id}`,
         });
       }
     }

@@ -58,32 +58,32 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.addLike = async (req, res) => {
   try {
-    const { commentId, userId } = req.body;
+    const { id, userId } = req.body;
     const commentLiked = await Comment.find({
-      _id: commentId,
+      _id: id,
       likes: { $elemMatch: { $eq: userId } },
     });
 
     //if comment is not liked by the user add like
     if (commentLiked.length == 0) {
-      const commentAddLike = await Comment.findByIdAndUpdate(commentId, {
+      const commentAddLike = await Comment.findByIdAndUpdate(id, {
         $push: { likes: userId },
       });
 
       if (commentAddLike) {
         return res.status(200).json({
-          message: `User with id ${userId} added a like from comment with id ${commentId}`,
+          message: `User with id ${userId} added a like from comment with id ${id}`,
         });
       }
       // else remove the like from the array
     } else {
-      const commentRemoveLike = await Comment.findByIdAndUpdate(commentId, {
+      const commentRemoveLike = await Comment.findByIdAndUpdate(id, {
         $pull: { likes: userId },
       });
 
       if (commentRemoveLike) {
         return res.status(200).json({
-          message: `User with id ${userId} removed the like from comment with id ${commentId}`,
+          message: `User with id ${userId} removed the like from comment with id ${id}`,
         });
       }
     }

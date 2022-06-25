@@ -105,15 +105,14 @@ textarea:focus {
   border-radius: 50%;
   color: white;
   padding: 2px;
-
 }
 
 .like-comment-count {
-position: absolute;
-    align-items: center;
-    margin-left: -15px;
-    font-size: 15px;
-    display: flex;
+  position: absolute;
+  align-items: center;
+  margin-left: -20px;
+  font-size: 15px;
+  display: flex;
 }
 
 .black-screen {

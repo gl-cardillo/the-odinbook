@@ -14,8 +14,5 @@ const PostSchema = new Schema({
 PostSchema.set("toObject", { virtuals: true });
 PostSchema.set("toJSON", { virtuals: true });
 
-PostSchema.virtual("date_formatted").get(function () {
-  return DateTime.fromJSDate(this.date).toRelativeCalendar();
-});
 
 module.exports = mongoose.model("Post", PostSchema);

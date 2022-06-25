@@ -15,6 +15,7 @@ import {
   addFriendRequest,
   removeFriendRequest,
   removeFriend,
+  changePic
 } from "../../utils/utils";
 
 export function Profile() {
@@ -51,61 +52,6 @@ export function Profile() {
     getData();
   }, [render, profileId]);
 
-  const changePic = async (profileOrCover, file) => {
-    if (
-      file.type === "image/bmp" ||
-      file.type === "image/gif" ||
-      file.type === "image/jpeg" ||
-      file.type === "image/png" ||
-      file.type === "image/tiff" ||
-      file.type === "image/webp"
-    ) {
-      try {
-        // create url to store image
-        const url = await axios.get(`/user/generateUrlS3/`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        });
-        // sotre image to the url
-        await axios.put(url.data, file, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        const imageUrl = url.data.split("?")[0];
-
-        // update the user in the database with the right url
-        await axios.put(
-          `/user/changePic`,
-          {
-            imageUrl,
-            id: user.id,
-            profileOrCover,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
-        );
-
-        const userUpdate = await axios.get(`/user/profile/${user._id}`);
-        localStorage.setItem("user", JSON.stringify(userUpdate.data));
-        setRender((render) => render + 1);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      alert("Insert a vaild image format (bmp, gif, jpeg, png, tiff, webp)");
-    }
-  };
-
   const changePage = (page) => {
     if (page === "posts") {
       setShowPosts(true);
@@ -125,7 +71,6 @@ export function Profile() {
   return (
     <div className="main-page">
       <div className="profile">
-        {" "}
         {profile ? (
           <div className="profile-info-container">
             <div className="cover-container">
@@ -144,7 +89,12 @@ export function Profile() {
                       id="cover-pic"
                       accept="image/*"
                       onChange={(e) =>
-                        changePic("coverPicUrl", e.target.files[0])
+                        changePic(
+                          "coverPicUrl",
+                          e.target.files[0],
+                          user,
+                          setRender
+                        )
                       }
                     />
                   </div>
@@ -164,7 +114,12 @@ export function Profile() {
                       id="profile-pic"
                       accept="image/*"
                       onChange={(e) =>
-                        changePic("profilePicUrl", e.target.files[0])
+                        changePic(
+                          "profilePicUrl",
+                          e.target.files[0],
+                          user,
+                          setRender
+                        )
                       }
                     />
                   </div>
@@ -209,7 +164,7 @@ export function Profile() {
                         addFriendRequest(profileId, user._id, setRender, render)
                       }
                     >
-                      Add friend 
+                      Add friend
                     </button>
                   )
                 ) : (

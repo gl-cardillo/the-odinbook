@@ -21,6 +21,4 @@ router.put("/addLike", verifyToken, postController.addLike);
 
 router.delete("/deletePost", verifyToken, postController.deletePost);
 
-
-
 module.exports = router;

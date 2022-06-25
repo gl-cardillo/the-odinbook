@@ -11,11 +11,8 @@ const CommentSchema = new Schema({
   date: { type: Date, default: Date.now },
   likes: { type: Array },
 });
+
 CommentSchema.set("toObject", { virtuals: true });
 CommentSchema.set("toJSON", { virtuals: true });
-
-CommentSchema.virtual("date_formatted").get(function () {
-  return DateTime.fromJSDate(this.date).toRelativeCalendar();
-});
 
 module.exports = mongoose.model("Comment", CommentSchema);

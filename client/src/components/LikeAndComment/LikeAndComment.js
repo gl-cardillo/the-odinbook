@@ -6,7 +6,7 @@ import { BsX } from "react-icons/bs";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { Comment } from "../Comment/Comment";
-import { Like } from "../Likes/Likes";
+import { nFormatter, addLike } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,30 +19,6 @@ export function LikeAndComment({ user, post }) {
   const [showNewComment, setShowNewComment] = useState(false);
   const [render, setRender] = useState(1);
   const [showLikes, setShowLikes] = useState(false);
-
-  const addLike = (postId) => {
-    axios
-      .put(
-        "/posts/addLike",
-        {
-          userId: user._id,
-          postId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      )
-      .then(() => {
-        setRender((render) => render + 1);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
 
   useEffect(() => {
     const getData = async () => {
@@ -63,7 +39,6 @@ export function LikeAndComment({ user, post }) {
         .catch((err) => {
           console.log(err);
         });
-
     };
     getData();
   }, [render, post._id]);
@@ -117,7 +92,8 @@ export function LikeAndComment({ user, post }) {
             likes.length > 1 ? (
               // if there are more then 1 like show the first name like plus the number of like
               <p onClick={() => setShowLikes(true)} className="like-count">
-                liked by {likes[0].fullname} and an other {likes.length - 1}
+                liked by {likes[0].fullname} and an other{" "}
+                {nFormatter(likes.length - 1)}
               </p>
             ) : (
               // otherwise if the like is only one show the number who likes
@@ -162,7 +138,9 @@ export function LikeAndComment({ user, post }) {
             //show number of comment per post
             comments.length > 0 ? (
               comments.length > 1 ? (
-                <p className="comment-count">{comments.length} comments</p>
+                <p className="comment-count">
+                  {nFormatter(comments.length)} comments
+                </p>
               ) : (
                 <p className="comment-count">1 comment</p>
               )
@@ -175,7 +153,7 @@ export function LikeAndComment({ user, post }) {
         </div>
       </div>
       <div className="post-buttons">
-        <button onClick={() => addLike(post.id)}>
+        <button onClick={() => addLike("posts", post.id, user, setRender)}>
           {
             //if user liked the post, show blue like instead of trasparent
             likes.filter((profile) => profile.id === user.id).length > 0 ? (

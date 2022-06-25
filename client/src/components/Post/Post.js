@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
 import { AiOutlineClose } from "react-icons/ai";
+import { nFormatter, getTime } from "../../utils/utils";
 import { deletePost } from "../../utils/utils";
 
 export function Post({ post, user, setRender, render, index }) {
@@ -45,7 +46,7 @@ export function Post({ post, user, setRender, render, index }) {
             <Link to={`/profile/${post.userId}`}>
               <p className="author">{author}</p>
             </Link>
-            <p className="time">{post.date_formatted}</p>
+            <p className="time">{getTime(post.date)}</p>
           </div>
           {
             //if author posts is the user show delete button

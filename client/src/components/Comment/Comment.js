@@ -4,6 +4,7 @@ import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
 import { BsX } from "react-icons/bs";
 import { AiFillLike, AiOutlineClose } from "react-icons/ai";
+import { nFormatter, getTime, addLike } from "../../utils/utils";
 
 export function Comment({
   comment,
@@ -69,30 +70,6 @@ export function Comment({
       });
   };
 
-  const addLike = (commentId) => {
-    axios
-      .put(
-        "/comments/addLike",
-        {
-          userId: user._id,
-          commentId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      )
-      .then(() => {
-        setRender((render) => render + 1);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
     <div className="comment-container">
       <img src={profilePicUrl} className="avatar-pic" alt="avatar" />
@@ -111,7 +88,7 @@ export function Comment({
           </p>
           {comment.likes.length > 0 && (
             <p className="like-comment-count">
-              {comment.likes.length}
+              {nFormatter(comment.likes.length)}
               <AiFillLike className="like-comment" />
             </p>
           )}
@@ -145,8 +122,11 @@ export function Comment({
           )}
         </div>
         <div className="comment-option">
-          <p className="time">{comment.date_formatted}</p>
-          <p className="like-button" onClick={() => addLike(comment.id)}>
+          <p className="time">{getTime(comment.date)}</p>
+          <p
+            className="like-button"
+            onClick={() => addLike("comments", comment.id, user, setRender)}
+          >
             {comment.likes.includes(user.id) ? "liked" : "like"}
           </p>
         </div>

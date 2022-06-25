@@ -42,7 +42,7 @@
   color: #8d8989;
   font-size: 12px;
   gap: 5px;
-  margin-left: 5px;
+  margin: 10px 5px 0 5px;
 }
 
 .add-comment textarea {
@@ -93,6 +93,27 @@ textarea:focus {
 
 .like-count {
   cursor: pointer;
+}
+.like-button {
+  cursor: pointer;
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.like-comment {
+  background-color: #1877f2;
+  border-radius: 50%;
+  color: white;
+  padding: 2px;
+
+}
+
+.like-comment-count {
+position: absolute;
+    align-items: center;
+    margin-left: -15px;
+    font-size: 15px;
+    display: flex;
 }
 
 .black-screen {

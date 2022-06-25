@@ -3,9 +3,10 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { FaRegComment, FaComment } from "react-icons/fa";
 import { BsX } from "react-icons/bs";
-import { AiOutlineLike, AiFillLike, AiOutlineClose } from "react-icons/ai";
+import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { Comment } from "../Comment/Comment";
+import { Like } from "../Likes/Likes";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,7 +19,6 @@ export function LikeAndComment({ user, post }) {
   const [showNewComment, setShowNewComment] = useState(false);
   const [render, setRender] = useState(1);
   const [showLikes, setShowLikes] = useState(false);
-  const [author, setAuthor] = useState("");
 
   const addLike = (postId) => {
     axios
@@ -133,7 +133,7 @@ export function LikeAndComment({ user, post }) {
             <div className="black-screen">
               <div className="screen-container">
                 <div className="title-button">
-                  <h4>Liked by</h4>
+                  <h4>Post liked by</h4>
                   <BsX
                     className="delete-button"
                     onClick={() => {

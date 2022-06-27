@@ -143,7 +143,6 @@ export function Home() {
                 <Post
                   key={index}
                   post={post}
-                  user={user}
                   setRender={setRender}
                   render={render}
                 />

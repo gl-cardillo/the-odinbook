@@ -10,6 +10,7 @@ let userId;
 let users;
 let postId;
 let commentId;
+let authorPostId;
 
 const { initializeMongoServer } = require("./mongoConfigTesting");
 const { seed } = require("./seed");
@@ -41,15 +42,14 @@ beforeAll(async () => {
 
 describe("GET /posts", () => {
   it("should return 6 posts", async () => {
-    const res = await await request(app)
+    const res = await request(app)
       .get("/posts")
       .set("Authorization", token);
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.body[0]).toHaveProperty("_id");
-    expect(res.body[0]).toHaveProperty("userId");
+    expect(res.body[0]).toHaveProperty("authorId");
     expect(res.body[0]).toHaveProperty("text");
-    expect(res.body[0]).toHaveProperty("userFullname");
-    expect(res.body[0]).toHaveProperty("date_formatted");
+    expect(res.body[0]).toHaveProperty("date");
     expect(res.body[0]).toHaveProperty("likes");
     expect(res.statusCode).toEqual(200);
     expect(res.body.length).toEqual(30);
@@ -63,10 +63,9 @@ describe("GET /posts/byUserId/:userId", () => {
       .set("Accept", "application/json");
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.body[0]).toHaveProperty("_id");
-    expect(res.body[0]).toHaveProperty("userId", users[0].id);
+    expect(res.body[0]).toHaveProperty("authorId", users[0].id);
     expect(res.body[0]).toHaveProperty("text");
-    expect(res.body[0]).toHaveProperty("userFullname");
-    expect(res.body[0]).toHaveProperty("date_formatted");
+    expect(res.body[0]).toHaveProperty("date");
     expect(res.body[0]).toHaveProperty("likes");
     expect(res.statusCode).toEqual(200);
     expect(res.body.length).toEqual(5);
@@ -81,7 +80,7 @@ describe("Get posts/getFriendsPost/:userId", () => {
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.statusCode).toEqual(200);
     expect(res.body.length).toEqual(5);
-    expect(res.body[0]).toHaveProperty("userId", users[0].id);
+    expect(res.body[0]).toHaveProperty("authorId", users[0].id);
   });
 });
 
@@ -91,18 +90,17 @@ describe("Post /posts/", () => {
       .post("/posts/createPost")
       .send({
         text: "Post example",
-        userFullname: user.fullname,
-        userId: user.id,
+        authorId: user.id,
       })
       .set("Authorization", token)
       .set("Accept", "application/json");
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.body).toHaveProperty("post");
-    expect(res.body.post.userFullname).toEqual(user.fullname);
     expect(res.body.post.text).toEqual("Post example");
     expect(res.statusCode).toEqual(200);
 
     postId = res.body.post.id;
+    authorPostId = res.body.post.authorId;
     //add likes to post
     const post = await Post.findById(postId);
     post.likes = [users[0].id, users[1].id];
@@ -111,6 +109,7 @@ describe("Post /posts/", () => {
 });
 
 describe("POST /comments/createComment", () => {
+
   it("should create a new comment", async () => {
     const res = await request(app)
       .post("/comments/createComment")
@@ -119,16 +118,29 @@ describe("POST /comments/createComment", () => {
       .send({
         text: "Comment example",
         postId,
-        userFullname: user.fullname,
-        userId: user.id,
+        authorId : user.id,
+        authorFullname: user.fullname,
+        authorPostId: userId
       });
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.statusCode).toEqual(200);
-    expect(res.body.userFullname).toEqual(user.fullname);
     expect(res.body.text).toEqual("Comment example");
     expect(res.body.postId).toEqual(postId);
 
     commentId = res.body.id;
+  });
+
+  it("should send a notification to post author", async () => {
+    const res = await request(app)
+      .get(`/user/getNotification/${userId}`)
+      .set("Accept", "application/json")
+      .set("Authorization", token);
+    expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
+    expect(res.statusCode).toEqual(200);
+
+    expect(res.body[0].message).toEqual(`${user.fullname} commented your post`);
+    expect(res.body[0].seen).toEqual(false);
+    expect(res.body[0].elementId).toEqual(postId);
   });
 });
 
@@ -138,8 +150,8 @@ describe("GET /comments/:postId", () => {
       .get(`/comments/${postId}`)
       .set("Accept", "application/json");
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
-    expect(res.statusCode).toEqual(200);
-    expect(res.body[0].userFullname).toEqual(user.fullname);
+    expect(res.statusCode).toEqual(200)
+    expect(res.body[0].authorId).toEqual(authorPostId);
     expect(res.body[0].text).toEqual("Comment example");
     expect(res.body[0].postId).toEqual(postId);
   });
@@ -169,7 +181,7 @@ describe("DELETE /comments/deleteComment", () => {
   });
 });
 
-describe("GET posts/getLikes/:posId", () => {
+describe("GET posts/getLikes/:postId", () => {
   it("should return the number of likes per post", async () => {
     const res = await request(app)
       .get(`/posts/getLikes/${postId}`)
@@ -187,8 +199,10 @@ describe("PUT posts/addLike", () => {
     const res = await request(app)
       .put("/posts/addLike")
       .send({
-        postId,
+        elementId: postId,
         userId,
+        elementAuthorId: authorPostId,
+        userFullname: user.fullname,
       })
       .set("Accept", "application/json")
       .set("Authorization", token);
@@ -199,12 +213,26 @@ describe("PUT posts/addLike", () => {
     );
   });
 
+    it("should send a notification to post author", async () => {
+      const res = await request(app)
+        .get(`/user/getNotification/${authorPostId}`)
+        .set("Accept", "application/json")
+        .set("Authorization", token);
+      expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
+      expect(res.statusCode).toEqual(200);
+      expect(res.body[0].message).toEqual(`${user.fullname} liked your post`);
+      expect(res.body[0].seen).toEqual(false);
+      expect(res.body[0].elementId).toEqual(postId);
+    });
+
   it("should remove the like", async () => {
     const res = await request(app)
       .put("/posts/addLike")
       .send({
-        postId,
+        elementId: postId,
         userId,
+        elementAuthorId: authorPostId,
+        userFullname: user.fullname,
       })
       .set("Accept", "application/json")
       .set("Authorization", token);

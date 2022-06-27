@@ -141,13 +141,15 @@ export function handleSearch(e, set, users) {
 }
 
 
-export const addLike = (type, id, user, set) => {
+export const addLike = (type, element, user, set) => {
   axios
     .put(
       `/${type}/addLike`,
       {
         userId: user._id,
-        id,
+        userFullname: user.fullname,
+        elementId: element.id,
+        elementAuthorId: element.authorId,
       },
       {
         headers: {

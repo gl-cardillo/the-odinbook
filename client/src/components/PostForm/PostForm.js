@@ -40,7 +40,7 @@ export function PostForm({ user, setRender, render }) {
         "/posts/createPost",
         {
           text: text,
-          userId: user._id,
+          authorId: user._id,
           picUrl: imageUrl,
         },
         {

@@ -1,20 +1,22 @@
 import "./post.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
 import { AiOutlineClose } from "react-icons/ai";
 import { nFormatter, getTime } from "../../utils/utils";
 import { deletePost } from "../../utils/utils";
 
-export function Post({ post, user, setRender, render, index }) {
+export function Post({ post, setRender, render, index }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
   const [author, setAuthor] = useState("");
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/user/profilePic/${post.userId}`, {
+        .get(`/user/profilePic/${post.authorId}`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
@@ -28,12 +30,12 @@ export function Post({ post, user, setRender, render, index }) {
           console.log(err);
         });
 
-      axios.get(`/posts/getAuthor/${post.userId}`).then((res) => {
+      axios.get(`/posts/getAuthor/${post.authorId}`).then((res) => {
         setAuthor(res.data);
       });
     };
     getData();
-  }, [post.userId, render]);
+  }, [post.authorId, render]);
 
   return (
     <div key={index}>
@@ -62,7 +64,7 @@ export function Post({ post, user, setRender, render, index }) {
         </div>
         <p className="post-message">{post.text}</p>
         <img className="post-image" src={post.picUrl} />
-        <LikeAndComment user={user} post={post} />
+        <LikeAndComment post={post} authorPostId={post.authorId} />
       </div>
     </div>
   );

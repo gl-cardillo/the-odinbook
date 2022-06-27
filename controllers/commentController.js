@@ -1,10 +1,10 @@
 const Comment = require("../models/comment");
-const User = require("../models/user")
+const User = require("../models/user");
 const { body, validationResult } = require("express-validator");
 
 exports.getCommentsByPostId = async (req, res, next) => {
   try {
-    const comments = await Comment.find({ commentId: req.params.commentId });
+    const comments = await Comment.find({ postId: req.params.postId });
     if (comments.length < 1) {
       return res.status(200).json([]);
     }
@@ -17,7 +17,7 @@ exports.getCommentsByPostId = async (req, res, next) => {
 exports.createComment = [
   body("text").trim().isLength(1),
   async (req, res, next) => {
-    const { text, commentId, userId, userFullname } = req.body;
+    const { text, postId, authorId, authorFullname, authorPostId } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -26,15 +26,30 @@ exports.createComment = [
     try {
       const comment = await new Comment({
         text,
-        commentId,
-        userId,
-        userFullname,
+        postId,
+        authorId,
       });
+      //if the user who post the comment is not the same as the user who create post
+      //send a notification
+      if (authorId !== authorPostId) {
+   
+        const sendNotification = await User.findByIdAndUpdate(authorPostId, {
+          $push: {
+            notification: {
+              message: `${authorFullname} commented your post`,
+              time: Date.now(),
+              seen: false,
+              elementId: postId,
+            },
+          },
+        });
+        await sendNotification.save();
+      }
 
       const savedComment = await comment.save();
-      if (savedComment)
-        return res.status(200).json(comment);
+      if (savedComment) return res.status(200).json(comment);
     } catch (err) {
+
       return res.status(500).json({ message: err.message });
     }
   },
@@ -55,40 +70,54 @@ exports.deleteComment = async (req, res, next) => {
   }
 };
 
-
 exports.addLike = async (req, res) => {
   try {
-    const { id, userId } = req.body;
+    const { elementId, userId, elementAuthorId, userFullname } = req.body;
     const commentLiked = await Comment.find({
-      _id: id,
+      _id: elementId,
       likes: { $elemMatch: { $eq: userId } },
     });
 
     //if comment is not liked by the user add like
     if (commentLiked.length == 0) {
-      const commentAddLike = await Comment.findByIdAndUpdate(id, {
+      const commentAddLike = await Comment.findByIdAndUpdate(elementId, {
         $push: { likes: userId },
       });
 
+      //if the user who liked the post is not the comment author send a notification
+      if (userId !== elementAuthorId) {
+        const sendNotification = await User.findByIdAndUpdate(elementAuthorId, {
+          $push: {
+            notification: {
+              message: `${userFullname} liked your comment`,
+              time: Date.now(),
+              seen: false,
+              elementId,
+            },
+          },
+        });
+        await sendNotification.save();
+      }
+
       if (commentAddLike) {
         return res.status(200).json({
-          message: `User with id ${userId} added a like from comment with id ${id}`,
+          message: `User with id ${userId} added a like from comment with id ${elementId}`,
         });
       }
       // else remove the like from the array
     } else {
-      const commentRemoveLike = await Comment.findByIdAndUpdate(id, {
+      const commentRemoveLike = await Comment.findByIdAndUpdate(elementId, {
         $pull: { likes: userId },
       });
 
       if (commentRemoveLike) {
         return res.status(200).json({
-          message: `User with id ${userId} removed the like from comment with id ${id}`,
+          message: `User with id ${userId} removed the like from comment with id ${elementId}`,
         });
       }
     }
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -115,6 +144,7 @@ exports.getWhoLiked = async (req, res, next) => {
     }
     return res.status(200).json(userList);
   } catch (err) {
+    console.log(err.message)
     return res.status(500).json({ message: err.message });
   }
 };

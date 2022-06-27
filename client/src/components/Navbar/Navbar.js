@@ -5,9 +5,10 @@ import { useState, useRef, useContext, useEffect } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { IoSearch, IoHomeSharp } from "react-icons/io5";
 import { BsX } from "react-icons/bs";
+import { IoNotificationsOutline } from "react-icons/io5";
 import { FiUserPlus, FiUsers, FiUser } from "react-icons/fi";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
-import { handleSearch, blur } from "../../utils/utils";
+import { handleSearch, blur, getTime } from "../../utils/utils";
 
 export function Navbar() {
   let navigate = useNavigate();
@@ -15,23 +16,43 @@ export function Navbar() {
   const [search, setSearch] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [users, setUsers] = useState([]);
   const inputRef = useRef(null);
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
-    axios
-      .get("/user/")
-      .then((res) => {
-        // remove user from the search
-        const usersFilters = res.data.filter(
-          (profile) => profile.id !== user._id
-        );
-        setUsers(usersFilters);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const getData = () => {
+      axios
+        .get("/user/")
+        .then((res) => {
+          // remove user from the search
+          const usersFilters = res.data.filter(
+            (profile) => profile.id !== user._id
+          );
+          setUsers(usersFilters);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      axios
+        .get(`/user/getNotification/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(
+              localStorage.getItem("token")
+            )}`,
+          },
+        })
+        .then((res) => {
+          setNotifications(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    getData();
   }, []);
 
   const logoutUser = () => {
@@ -113,6 +134,26 @@ export function Navbar() {
             <IoSearch className="icon icon-search" />
           </Link>
         </div>
+        <div className="notification-icon">
+  <IoNotificationsOutline
+            onClick={() => setShowNotification(!showNotification)}
+            className="icon icon-search"
+          />
+
+          {showNotification && (
+            <div className="notifications-container">
+              <h2>Notifications</h2>
+              {notifications.length > 0 ?  notifications.map((notification, index) => {
+                return (
+                  <div className="notification" key={index}>
+                    <p className="notification-text">{notification.message}</p>
+                    <p className="time">{getTime(notification.time)}</p>
+                  </div>
+                );
+              }) : "No notifications at the moment"}
+            </div>
+          )}        
+        </div>
         {
           // nav-bar buttons is the bar at the bottom for screen < 425px
         }
@@ -139,9 +180,7 @@ export function Navbar() {
               <img
                 src={user.profilePicUrl}
                 alt="avatar"
-   
                 className="avatar-pic pic-30px"
-
               />
               &nbsp;Profile
             </Link>

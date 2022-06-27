@@ -1,7 +1,7 @@
 .navbar {
   display: flex;
   justify-content: space-around;
-  padding: 20px 15px;
+  padding: 15px;
   background-color: #3b5998;
   align-items: center;
 }
@@ -141,11 +141,11 @@
   font-size: 16px;
 }
 
-.sidebar a, .sidebar p {
-     display: flex;
-    align-items: center;
-    gap: 10px;
-
+.sidebar a,
+.sidebar p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sidebar-open {
@@ -156,6 +156,34 @@
   align-self: flex-end;
   font-size: 28px;
   color: #3b5998;
+}
+
+.notifications-container {
+  position: absolute;
+  z-index: 2;
+  background-color: #ffffff;
+  margin-left: -160px;
+  margin-right: 10px;
+  padding: 10px;
+  border: 2px solid #1877f2;
+  border-radius: 5px;
+}
+
+.notifications-container h2 {
+  margin-bottom: 10px;
+}
+
+.notification {
+  padding: 10px 0;
+  border-bottom: 1px solid #3b5998;
+}
+
+.notification-icon {
+  align-self: flex-end;
+}
+
+.notification-text {
+  font-size: 14px;
 }
 
 @media screen and (min-width: 375px) {

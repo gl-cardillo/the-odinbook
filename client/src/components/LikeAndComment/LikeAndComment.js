@@ -1,6 +1,7 @@
 import "./likeAndComment.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../../dataContext/dataContext";
 import { FaRegComment, FaComment } from "react-icons/fa";
 import { BsX } from "react-icons/bs";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
@@ -12,13 +13,15 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-export function LikeAndComment({ user, post }) {
+export function LikeAndComment({ post, authorPostId }) {
   const [expandComments, setExpandComments] = useState(false);
   const [comments, setComments] = useState(null);
   const [likes, setLikes] = useState([]);
   const [showNewComment, setShowNewComment] = useState(false);
   const [render, setRender] = useState(1);
   const [showLikes, setShowLikes] = useState(false);
+
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const getData = async () => {
@@ -50,8 +53,9 @@ export function LikeAndComment({ user, post }) {
         {
           text: data.text,
           postId: post.id,
-          userId: user._id,
-          userFullname: user.fullname,
+          authorId: user._id,
+          authorFullname: user.fullname,
+          authorPostId,
         },
         {
           headers: {
@@ -153,7 +157,7 @@ export function LikeAndComment({ user, post }) {
         </div>
       </div>
       <div className="post-buttons">
-        <button onClick={() => addLike("posts", post.id, user, setRender)}>
+        <button onClick={() => addLike("posts", post, user, setRender)}>
           {
             //if user liked the post, show blue like instead of trasparent
             likes.filter((profile) => profile.id === user.id).length > 0 ? (

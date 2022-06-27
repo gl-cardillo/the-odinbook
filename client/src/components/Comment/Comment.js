@@ -21,7 +21,7 @@ export function Comment({
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/user/profilePic/${comment.userId}`, {
+        .get(`/user/profilePic/${comment.authorId}`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
@@ -35,7 +35,7 @@ export function Comment({
           console.log(err);
         });
 
-      axios.get(`/posts/getAuthor/${comment.userId}`).then((res) => {
+      axios.get(`/posts/getAuthor/${comment.authorId}`).then((res) => {
         setAuthor(res.data);
       });
 
@@ -75,7 +75,7 @@ export function Comment({
       <img src={profilePicUrl} className="avatar-pic" alt="avatar" />
       <div className="comment-info">
         <div className="comment-author-message">
-          <Link to={`/profile/${comment.userId}`}>
+          <Link to={`/profile/${comment.authorId}`}>
             <p className="author">{author}</p>
           </Link>
           <p
@@ -125,7 +125,7 @@ export function Comment({
           <p className="time">{getTime(comment.date)}</p>
           <p
             className="like-button"
-            onClick={() => addLike("comments", comment.id, user, setRender)}
+            onClick={() => addLike("comments", comment, user, setRender)}
           >
             {comment.likes.includes(user.id) ? "liked" : "like"}
           </p>

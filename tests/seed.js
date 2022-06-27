@@ -21,11 +21,9 @@ const generateUser = () => {
 
 const generatePost = (user) => {
   const post = new Post({
-    userId: user._id,
-    userFullname: `${user.firstname} ${user.lastname}`,
+    authorId: user._id,
     text: faker.lorem.paragraphs(),
     date: faker.date.between(),
-    comments: [],
   });
   posts.push(post);
 };
@@ -41,9 +39,8 @@ const addPostsToUser = () => {
 const generateComment = (user) => {
   posts.forEach((post) => {
     const comment = new Comment({
-      userId: user.id,
+      authorId: user.id,
       postId: post.id,
-      userFullname: `${user.firstname} ${user.lastname}`,
       text: faker.lorem.paragraphs(),
       date: faker.date.between(),
     });

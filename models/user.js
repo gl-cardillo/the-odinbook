@@ -13,6 +13,7 @@ const UserSchema = new Schema({
   coverPicUrl: { type: String },
   friends: { type: Array },
   friendRequests: { type: Array },
+  notification: {type: Array},
   gender: { type: String },
   hometown: { type: String },
   dateOfBirth: { type: Date },

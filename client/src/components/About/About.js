@@ -59,7 +59,6 @@ export function About({ profile, setRender, render }) {
   });
 
   const updateInfo = (data) => {
-    console.log(data);
     axios
       .put(
         "/user/updateProfile",
@@ -167,7 +166,7 @@ export function About({ profile, setRender, render }) {
                 {...register("gender")}
                 id="gender"
                 name="gender"
-                value={""}
+                defaultValue={""}
               >
                 <option value="Male"> Male</option>
                 <option value="Female"> Female</option>
@@ -181,7 +180,7 @@ export function About({ profile, setRender, render }) {
                 {...register("relationship")}
                 id="relationship"
                 name="relationship"
-                value={""}
+                defaultValue={""}
               >
                 <option value="Single">Single</option>
                 <option value="In a relationship">In a relationship</option>

@@ -1,10 +1,11 @@
 import "./postform.css";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { BsX } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
 
 export function PostForm({ user, setRender, render }) {
+  const imageInput = useRef(null);
   const [previewPicture, setPreviewPicture] = useState(null);
   const [error, setError] = useState("");
   const [text, setText] = useState("");
@@ -92,6 +93,7 @@ export function PostForm({ user, setRender, render }) {
   const removePic = () => {
     setFile(null);
     setPreviewPicture(null);
+    imageInput.current.value = null
   };
 
   return (
@@ -119,6 +121,7 @@ export function PostForm({ user, setRender, render }) {
               type="file"
               id="file-input"
               accept="image/*"
+              ref={imageInput}
               onChange={(e) => handlePreview(e)}
             />
             <RiImageAddLine className="icon-image" />

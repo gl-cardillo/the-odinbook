@@ -41,6 +41,7 @@ exports.createComment = [
               date: Date.now(),
               seen: false,
               elementId: postId,
+              link: `/singlePost/${postId}`,
             },
           },
         });
@@ -50,7 +51,7 @@ exports.createComment = [
       const savedComment = await comment.save();
       if (savedComment) return res.status(200).json(comment);
     } catch (err) {
-
+console.log(err.message)
       return res.status(500).json({ message: err.message });
     }
   },
@@ -96,6 +97,7 @@ exports.addLike = async (req, res) => {
               date: Date.now(),
               seen: false,
               elementId: postId,
+              link: `/singlePost/${postId}`
             },
           },
         });

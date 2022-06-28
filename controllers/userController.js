@@ -50,6 +50,18 @@ exports.sendFriendRequest = async (req, res, next) => {
         .json({ message: "User cannot send friend request to friend" });
     }
 
+    await User.findByIdAndUpdate(profileId, {
+      $push: {
+        notifications: {
+          userId,
+          message: `sent you a friend request`,
+          date: Date.now(),
+          seen: false,
+          link: `/friendRequests`,
+        },
+      },
+    });
+
     user.friendRequests.push(userId);
     await user.save();
 
@@ -75,8 +87,17 @@ exports.removeFriendRequest = async (req, res, next) => {
     );
 
     user.friendRequests = newFriendRequestsList;
-    await user.save();
 
+    await User.findByIdAndUpdate(profileId, {
+      $pull: {
+        notifications: {
+          userId,
+          message: `sent you a friend request`,
+        },
+      },
+    });
+
+    await user.save();
     return res.status(204).json({
       message: `User with id ${userId} removed friend request to user with id ${profileId}`,
     });
@@ -286,6 +307,28 @@ exports.acceptFriendRequest = async (req, res, next) => {
     profile.friends.push(userId);
     await profile.save();
 
+    //remove notification of friend requests from the user
+    await User.findByIdAndUpdate(userId, {
+      $pull: {
+        notifications: {
+          userId: profileId,
+          message: `sent you a friend request`,
+        },
+      },
+    });
+    // add notification the friensdhip is been accepted to the other user
+    await User.findByIdAndUpdate(profileId, {
+      $push: {
+        notifications: {
+          userId,
+          message: `accepted your friend requests`,
+          date: Date.now(),
+          seen: false,
+          link: `/profile/${userId}`,
+        },
+      },
+    });
+
     return res.status(200).json({
       message: `Users with id ${userId} accepted friend request of user with id ${profileId}`,
     });
@@ -372,7 +415,7 @@ exports.deleteAccount = async (req, res, next) => {
     }
 
     // find the post to delte
-    const postPicToDelete = await Post.find({ userId: id });
+    const postPicToDelete = await Post.find({ authorId: id });
 
     for (let i = 0; i < postPicToDelete.length; i++) {
       //check if in any on of them ther is a picture
@@ -383,14 +426,14 @@ exports.deleteAccount = async (req, res, next) => {
     }
 
     // delete users' post
-    const deletePost = await Post.deleteMany({ userId: id });
+    const deletePost = await Post.deleteMany({ authorId: id });
 
     if (!deletePost) {
       return res.status(500).json({ message: "Cannot remove posts" });
     }
 
     // delete users' comment
-    const deleteComments = await Comment.deleteMany({ userId: id });
+    const deleteComments = await Comment.deleteMany({ authorId: id });
     if (!deleteComments) {
       return res.status(500).json({ message: "Cannot remove comments" });
     }
@@ -413,6 +456,16 @@ exports.deleteAccount = async (req, res, next) => {
       }
     );
     if (!removeFriendRequest) {
+      return res.status(500).json({ message: "Cannot remove friends" });
+    }
+    //remove notifications from made from this user
+    const removeNotification = await User.updateMany(
+      {},
+      {
+        $pull: { notifications: { userId: id } },
+      }
+    );
+    if (!removeNotification) {
       return res.status(500).json({ message: "Cannot remove friends" });
     }
 
@@ -542,7 +595,7 @@ exports.checkNotification = async (req, res, next) => {
     const checkNotification = await User.updateOne(
       { id: req.body.id, "notifications.seen": false },
       { $set: { "notifications.$[].seen": true } },
-      {"multi": true}
+      { multi: true }
     );
 
     if (!checkNotification) {

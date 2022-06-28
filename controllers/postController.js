@@ -146,7 +146,18 @@ exports.deletePost = async (req, res) => {
       const deletedComments = await Comment.deleteMany({
         postId: deletedPost.id,
       });
-      //if the post has a picture delete it from amazon s3
+  
+
+      //remove notifications from made from this user
+      const removeNotification = await User.updateMany(
+        {},
+        {
+          $pull: { notifications: { elementId: req.body.id } },
+        }
+      );
+      if (!removeNotification) {
+        return res.status(500).json({ message: "Cannot remove friends" });
+      }
 
       if (deletedComments) {
         return res.status(200).json({
@@ -157,6 +168,7 @@ exports.deletePost = async (req, res) => {
       }
     }
   } catch (err) {
+    console.log(err.message)
     return res.status(500).json({ message: err.message });
   }
 };
@@ -185,6 +197,7 @@ exports.addLike = async (req, res) => {
               date: Date.now(),
               seen: false,
               elementId,
+              link: `/singlePost/${elementId}`,
             },
           },
         });

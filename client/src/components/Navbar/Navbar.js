@@ -175,7 +175,7 @@ export function Navbar() {
                 <div>
                   {notifications.slice(0, 4).map((notification, index) => {
                     return (
-                      <Link to={`/singlePost/${notification.elementId}`}>
+                      <Link to={notification.link}>
                         <div
                           className={
                             notification.seen === true

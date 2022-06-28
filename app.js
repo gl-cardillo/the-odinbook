@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const passport = require("passport");
 require("dotenv").config();
-//require("./config/mongoDB");
+require("./config/mongoDB");
 require("./config/passport");
 
 const usersRouter = require("./routes/user");

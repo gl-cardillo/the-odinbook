@@ -163,7 +163,7 @@ exports.deletePost = async (req, res) => {
 
 exports.addLike = async (req, res) => {
   try {
-    const { elementId, userId, elementAuthorId, userFullname } = req.body;
+    const { elementId, userId, elementAuthorId} = req.body;
     const postLiked = await Post.find({
       _id: elementId,
       likes: { $elemMatch: { $eq: userId } },
@@ -179,9 +179,10 @@ exports.addLike = async (req, res) => {
       if (userId !== elementAuthorId) {
         const sendNotification = await User.findByIdAndUpdate(elementAuthorId, {
           $push: {
-            notification: {
-              message: `${userFullname} liked your post`,
-              time: Date.now(),
+            notifications: {
+              userId,
+              message: `liked your post`,
+              date: Date.now(),
               seen: false,
               elementId,
             },

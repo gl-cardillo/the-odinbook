@@ -57,7 +57,7 @@ export function Home() {
 
   return (
     <div className="main-page">
-      <div className="home">
+      <div className="containers">
         <PostForm user={user} setRender={setRender} render={render} />
         <div>
           {suggestedProfile ? (

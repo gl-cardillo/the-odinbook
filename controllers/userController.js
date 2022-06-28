@@ -12,6 +12,7 @@ exports.getUser = async (req, res, next) => {
     }
     return res.status(200).json(users);
   } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -460,6 +461,7 @@ exports.getProfilePic = async (req, res) => {
     const user = await User.findById(req.params.userId);
     return res.status(200).json(user.profilePicUrl);
   } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -508,17 +510,48 @@ exports.updateProfile = [
 exports.getNofication = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
-    //  console.log(user)
+
     if (!user) {
       return res.status(404).json({ message: "No user found" });
     }
 
-    if (user.notification.length < 1) {
-      return res.status(200).json([]);
+    if (user.notifications.length < 1) {
+      return res.status(200).json({ notifications: [], unchecked: [] });
     }
-    return res.status(200).json(user.notification);
+    // get profile picture and name of the user and add it to the notification message
+    for (let i = 0; i < user.notifications.length; i++) {
+      const userInfo = await User.findById(user.notifications[i].userId);
+      user.notifications[i].profilePicUrl = userInfo.profilePicUrl;
+      user.notifications[i].fullname = userInfo.fullname;
+    }
+
+    const unchecked = user.notifications.filter(
+      (notification) => notification.seen === false
+    );
+    // order notification from the most recent
+    const notifications = user.notifications.sort((a, b) => -a.date);
+    return res.status(200).json({ notifications, unchecked });
   } catch (err) {
-    // console.log(err.message)
+    console.log(err.message);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.checkNotification = async (req, res, next) => {
+  try {
+    const checkNotification = await User.updateOne(
+      { id: req.body.id, "notifications.seen": false },
+      { $set: { "notifications.$[].seen": true } },
+      {"multi": true}
+    );
+
+    if (!checkNotification) {
+      return res.status(404).json({ message: "No notifications found" });
+    }
+
+    return res.status(200).json({ message: "Notification checked" });
+  } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };

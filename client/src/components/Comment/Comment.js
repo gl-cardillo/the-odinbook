@@ -5,13 +5,17 @@ import { Link } from "react-router-dom";
 import { BsX } from "react-icons/bs";
 import { AiFillLike, AiOutlineClose } from "react-icons/ai";
 import { nFormatter, getTime, addLike } from "../../utils/utils";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export function Comment({
   comment,
   setRender,
   setShowNewComment,
   showNewComment,
+  postId
 }) {
+
   const [author, setAuthor] = useState("");
   const [profilePicUrl, setProfilePicUrl] = useState(null);
   const [showLikes, setShowLikes] = useState(false);
@@ -72,11 +76,17 @@ export function Comment({
 
   return (
     <div className="comment-container">
-      <img src={profilePicUrl} className="avatar-pic" alt="avatar" />
+      {profilePicUrl ? (
+        <img className="avatar-pic" src={profilePicUrl} alt="avatar" />
+      ) : (
+        <Skeleton height={50} width={50} circle={true} />
+      )}
       <div className="comment-info">
         <div className="comment-author-message">
           <Link to={`/profile/${comment.authorId}`}>
-            <p className="author">{author}</p>
+            <p className="author">
+              {author ? author : <Skeleton height={20} width={100} />}
+            </p>
           </Link>
           <p
             onClick={() => {
@@ -125,13 +135,13 @@ export function Comment({
           <p className="time">{getTime(comment.date)}</p>
           <p
             className="like-button"
-            onClick={() => addLike("comments", comment, user, setRender)}
+            onClick={() => addLike("comments", comment, user, setRender, postId)}
           >
             {comment.likes.includes(user.id) ? "liked" : "like"}
           </p>
         </div>
       </div>
-      {comment.userId === user._id && (
+      {comment.authorId === user._id && (
         //is the comment author is the user show delete button
         <button
           className="delete-button"

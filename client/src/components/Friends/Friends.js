@@ -37,7 +37,7 @@ export function Friends({ profile }) {
 
   return (
     <div className="main-page">
-      <div className="friends">
+      <div className="containers friends">
         {!profile && <h2>Friends</h2>}
         <div className="friends-container">
           {friends ? (

@@ -17,7 +17,7 @@ exports.getCommentsByPostId = async (req, res, next) => {
 exports.createComment = [
   body("text").trim().isLength(1),
   async (req, res, next) => {
-    const { text, postId, authorId, authorFullname, authorPostId } = req.body;
+    const { text, postId, authorId, authorPostId } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -35,9 +35,10 @@ exports.createComment = [
    
         const sendNotification = await User.findByIdAndUpdate(authorPostId, {
           $push: {
-            notification: {
-              message: `${authorFullname} commented your post`,
-              time: Date.now(),
+            notifications: {
+              userId: authorId,
+              message: `commented your post`,
+              date: Date.now(),
               seen: false,
               elementId: postId,
             },
@@ -72,7 +73,8 @@ exports.deleteComment = async (req, res, next) => {
 
 exports.addLike = async (req, res) => {
   try {
-    const { elementId, userId, elementAuthorId, userFullname } = req.body;
+    const { elementId, userId, elementAuthorId, postId } = req.body;
+
     const commentLiked = await Comment.find({
       _id: elementId,
       likes: { $elemMatch: { $eq: userId } },
@@ -88,11 +90,12 @@ exports.addLike = async (req, res) => {
       if (userId !== elementAuthorId) {
         const sendNotification = await User.findByIdAndUpdate(elementAuthorId, {
           $push: {
-            notification: {
-              message: `${userFullname} liked your comment`,
-              time: Date.now(),
+            notifications: {
+              userId,
+              message: `liked your comment`,
+              date: Date.now(),
               seen: false,
-              elementId,
+              elementId: postId,
             },
           },
         });

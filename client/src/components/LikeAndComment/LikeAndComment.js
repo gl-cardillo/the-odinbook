@@ -54,7 +54,6 @@ export function LikeAndComment({ post, authorPostId }) {
           text: data.text,
           postId: post.id,
           authorId: user._id,
-          authorFullname: user.fullname,
           authorPostId,
         },
         {
@@ -194,6 +193,7 @@ export function LikeAndComment({ post, authorPostId }) {
                   setRender={setRender}
                   setShowNewComment={setShowNewComment}
                   showNewComment={showNewComment}
+                  postId={post.id}
                 />
               );
             })

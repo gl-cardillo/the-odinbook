@@ -6,8 +6,8 @@ import { UserContext } from "../../dataContext/dataContext";
 import { IoSearch, IoHomeSharp } from "react-icons/io5";
 import { BsX } from "react-icons/bs";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { FiUserPlus, FiUsers, FiUser } from "react-icons/fi";
-import { FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FiUserPlus, FiUsers } from "react-icons/fi";
+import { FaSignOutAlt } from "react-icons/fa";
 import { handleSearch, blur, getTime } from "../../utils/utils";
 
 export function Navbar() {
@@ -18,6 +18,7 @@ export function Navbar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [notificationUnchecked, setNotificationUnchecked] = useState([]);
   const [users, setUsers] = useState([]);
   const inputRef = useRef(null);
   const { user, setUser } = useContext(UserContext);
@@ -46,7 +47,8 @@ export function Navbar() {
           },
         })
         .then((res) => {
-          setNotifications(res.data);
+          setNotifications(res.data.notifications);
+          setNotificationUnchecked(res.data.unchecked);
         })
         .catch((err) => {
           console.log(err);
@@ -79,6 +81,31 @@ export function Navbar() {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleNotification = () => {
+    if (notificationUnchecked.length > 0) {
+      console.log("called");
+      axios
+        .put(
+          "/user/checkNotification",
+          { id: user.id },
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
+        .then(() => {
+          setNotificationUnchecked([]);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setShowNotification(!showNotification);
   };
 
   return (
@@ -124,35 +151,68 @@ export function Navbar() {
                     </div>
                   </Link>
                 );
-              })}{" "}
+              })}
             </div>
           ) : (
             ""
           )}
-
           <Link to="/searchPage" state={{ search }}>
             <IoSearch className="icon icon-search" />
           </Link>
         </div>
-        <div className="notification-icon">
-  <IoNotificationsOutline
-            onClick={() => setShowNotification(!showNotification)}
-            className="icon icon-search"
+        <div className="notification-icon-conatiner">
+          <IoNotificationsOutline
+            onClick={() => handleNotification()}
+            className="icon notification-icon"
           />
-
+          {notificationUnchecked.length > 0 && (
+            <p className="notification-count">{notificationUnchecked.length}</p>
+          )}
           {showNotification && (
             <div className="notifications-container">
               <h2>Notifications</h2>
-              {notifications.length > 0 ?  notifications.map((notification, index) => {
-                return (
-                  <div className="notification" key={index}>
-                    <p className="notification-text">{notification.message}</p>
-                    <p className="time">{getTime(notification.time)}</p>
-                  </div>
-                );
-              }) : "No notifications at the moment"}
+              {notifications.length > 0 ? (
+                <div>
+                  {notifications.slice(0, 4).map((notification, index) => {
+                    return (
+                      <Link to={`/singlePost/${notification.elementId}`}>
+                        <div
+                          className={
+                            notification.seen === true
+                              ? "notification"
+                              : "notification unseen"
+                          }
+                          key={index}
+                        >
+                          <div>
+                            <img
+                              src={notification.profilePicUrl}
+                              className="avatar-pic pic-30px"
+                              alt="avatar"
+                            />
+                            <p className="notification-text">
+                              {notification.fullname} {notification.message}
+                            </p>
+                          </div>
+                          <p className="time">{getTime(notification.date)}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                  <Link to="/notifications" state={{ notifications }}>
+                    <p
+                      className="see-more see-more-notification"
+                      onClick={() => setShowNotification(false)}
+                    >
+                      See more..
+                    </p>
+                  </Link>
+                </div>
+              ) : (
+                "No notifications at the moment"
+              )}
             </div>
-          )}        
+          )}
         </div>
         {
           // nav-bar buttons is the bar at the bottom for screen < 425px

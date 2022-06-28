@@ -70,7 +70,7 @@ export function Profile() {
 
   return (
     <div className="main-page">
-      <div className="profile">
+      <div className="containers">
         {profile ? (
           <div className="profile-info-container">
             <div className="cover-container">

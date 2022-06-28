@@ -17,3 +17,171 @@ a {
 button {
   cursor: pointer;
 }
+
+.friend-requests,
+.friends {
+  margin-top: 20px;
+}
+
+.containers h2,
+.containers h3,
+.search-section h2 {
+  color: #3b5998;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.requests-container,
+.friends-container,
+.sugested-profile-container,
+.search-container,
+.notification-container {
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px 1px #bbbbc2;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notification-container {
+  max-width: 400px;
+  margin: auto;
+}
+
+.notification-container .notification {
+  padding: 10px 50px;
+}
+
+.notification-container p {
+  font-size: 16px;
+}
+
+.requests,
+.friend,
+.suggested-profile {
+  display: flex;
+  gap: 5px;
+  border-bottom: 1px solid #c4c4c4;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.friend {
+  justify-content: flex-start !important;
+  gap: 20px;
+}
+
+.friends-container {
+  max-width: 390px;
+  margin: auto !important;
+}
+
+.suggested-profile {
+  background-color: #fff;
+  box-shadow: 0px 0px 5px 1px #bbbbc2;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.requests p,
+.friends p {
+  font-weight: bold;
+}
+
+.requests button,
+.friend button,
+.suggested-profile button {
+  border: 0;
+  font-weight: bold;
+  padding: 5px;
+  color: #fff;
+  font-family: "Roboto", "Droid Sans", Helvetica, sans-serif;
+  border-radius: 5px;
+  margin-right: 5px;
+  background-color: #1877f2;
+}
+
+.add-button {
+  background-color: #1877f2;
+}
+
+.remove-button {
+  background-color: #f21818;
+}
+
+.suggested-profile-page,
+.search-section {
+  margin-top: 30px;
+}
+
+.suggested-profile-page h2 {
+  text-align: center;
+  color: #1877f2;
+  margin-bottom: 20px;
+}
+
+.friend-requests-button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.notification-page {
+  text-align: center;
+}
+
+.notification-page div {
+  border: 1px solid blue;
+  border-radius: 10px;
+}
+
+.notification-page .notification {
+  border: 0;
+  background-color: #fff;
+}
+
+@media screen and (min-width: 425px) {
+  .friend {
+    padding: 10px;
+  }
+
+  .requests button,
+  .friend button,
+  .suggested-profile button {
+    padding: 5px;
+  }
+
+  .friend-requests-button {
+    display: block;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .requests button,
+  .friend button,
+  .suggested-profile button {
+    padding: 10px;
+  }
+
+  .home,
+  .profile,
+  .friend-requests,
+  .friends {
+    margin: 10px 10px 80px;
+  }
+
+  .suggested-profile-page,
+  .search-section,
+  .containers {
+    width: 50%;
+  }
+
+  .main-page {
+    display: flex;
+    justify-content: space-around;
+  }
+}

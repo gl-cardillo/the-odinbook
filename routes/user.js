@@ -25,6 +25,8 @@ router.get("/generateUrlS3", verifyToken, userController.generateUrlS3);
 
 router.get("/getNotification/:userId", verifyToken, userController.getNofication);
 
+router.put("/checkNotification", verifyToken, userController.checkNotification);
+
 router.put("/changePic", verifyToken, userController.changePic);
 
 router.put("/sendFriendRequest", verifyToken, userController.sendFriendRequest);

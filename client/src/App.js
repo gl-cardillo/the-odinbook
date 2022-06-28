@@ -10,6 +10,8 @@ import { Friends } from "./components/Friends/Friends";
 import { SearchPage } from "./components/SearchPage/SearchPage";
 import { FriendRequests } from "./components/FriendRequests/FriendRequests";
 import { SuggestedProfile } from "./components/SuggestedProfile/SuggestedProfile";
+import { Notifications } from "./components/Notifications/Notifications";
+import { SinglePost } from "./components/SinglePost/SinglePost";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { UserContext } from "./dataContext/dataContext";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -34,11 +36,10 @@ function App() {
                 <Route path="/profile/:profileId" element={<Profile />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/friendRequests" element={<FriendRequests />} />
-                <Route
-                  path="/suggestedProfiles"
-                  element={<SuggestedProfile />}
-                />
+                <Route path="/suggestedProfiles" element={<SuggestedProfile/>}/>
                 <Route path="/searchPage" element={<SearchPage />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/singlePost/:postId" element={<SinglePost />} />
               </Route>
             </Route>
           </Routes>

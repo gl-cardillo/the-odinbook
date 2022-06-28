@@ -1,4 +1,3 @@
-import "./friendRequests.css";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
@@ -38,7 +37,7 @@ export function FriendRequests() {
 
   return (
     <div className="main-page">
-      <div className="friend-requests">
+      <div className="containers friend-requests">
         <h2>Friend Requests</h2>
         <div className="requests-container">
           {requests ? (
@@ -52,8 +51,8 @@ export function FriendRequests() {
                         src={request.profilePicUrl}
                         className="avatar-pic"
                         alt="avatar"
-                      />{" "}
-                    </Link>{" "}
+                      />
+                    </Link>
                     <Link to={`profile/${request.id}`}>
                       <p>{request.fullname}</p>
                     </Link>

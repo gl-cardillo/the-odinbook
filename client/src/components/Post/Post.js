@@ -5,10 +5,12 @@ import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
 import { AiOutlineClose } from "react-icons/ai";
-import { nFormatter, getTime } from "../../utils/utils";
+import { getTime } from "../../utils/utils";
 import { deletePost } from "../../utils/utils";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
-export function Post({ post, setRender, render, index }) {
+export function Post({ post, setRender, render}) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
   const [author, setAuthor] = useState("");
   const { user } = useContext(UserContext);
@@ -38,21 +40,27 @@ export function Post({ post, setRender, render, index }) {
   }, [post.authorId, render]);
 
   return (
-    <div key={index}>
+    <div>
       <div className="post">
         <div className="post-info">
           <Link to={`/profile/${post.userId}`}>
-            <img className="avatar-pic" src={profilePicUrl} alt="avatar" />
+            {profilePicUrl ? (
+              <img className="avatar-pic" src={profilePicUrl} alt="avatar" />
+            ) : (
+              <Skeleton height={50} width={50} circle={true} />
+            )}
           </Link>
           <div className="author-time">
             <Link to={`/profile/${post.userId}`}>
-              <p className="author">{author}</p>
+              <p className="author">
+                {author ? author : <Skeleton height={20} width={100} />}
+              </p>
             </Link>
             <p className="time">{getTime(post.date)}</p>
           </div>
           {
             //if author posts is the user show delete button
-            post.userId === user._id && (
+            post.authorId === user._id && (
               <button
                 className="delete-button"
                 onClick={() => deletePost(post, setRender, render)}

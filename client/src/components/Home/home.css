@@ -1,8 +1,6 @@
-.home,
-.profile,
-.friend-requests,
-.friends {
+.containers {
   margin: 10px 10px 80px;
+  text-align: center;
 }
 
 .avatar-pic {
@@ -25,6 +23,7 @@
   border-radius: 5px;
   box-shadow: 0px 0px 5px 1px #bbbbc2;
   margin: 20px 0;
+  text-align: left;
 }
 
 .home-suggested-profile-container {
@@ -57,7 +56,6 @@
   border-radius: 10px;
   padding: 10px 5px;
   box-shadow: 0px 0px 9px 0px #d1d1d1;
-
   width: 90px;
 }
 .home-suggested-profile img {
@@ -105,33 +103,6 @@ button[disabled] {
   align-items: center;
   gap: 30px;
   font-weight: bold;
-}
-@media screen and (min-width: 768px) {
-  .home,
-  .profile,
-  .friend-requests,
-  .friends {
-    margin: 10px 10px 80px;
-  }
-}
-
-@media screen and (min-width: 768px) {
-  .home,
-  .profile,
-  .suggested-profile-page,
-  .search-section {
-    width: 50%;
-  }
-
-  .friend-requests,
-  .friends {
-    width: 80%;
-  }
-
-  .main-page {
-    display: flex;
-    justify-content: space-around;
-  }
 }
 
 @media screen and (min-width: 1024px) {

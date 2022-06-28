@@ -1,7 +1,7 @@
 .navbar {
   display: flex;
-  justify-content: space-around;
-  padding: 15px;
+  justify-content: space-between;
+  padding: 15px ;
   background-color: #3b5998;
   align-items: center;
 }
@@ -61,11 +61,11 @@
   display: flex;
   position: fixed;
   bottom: 0;
-  justify-content: space-around;
+  justify-content: space-between;
   left: 0;
   background-color: #3b5998;
   width: 100%;
-  padding-top: 10px;
+  padding: 15px 15px 5px 15px;
   z-index: 1;
 }
 
@@ -162,7 +162,7 @@
   position: absolute;
   z-index: 2;
   background-color: #ffffff;
-  margin-left: -160px;
+  margin-left: -200px;
   margin-right: 10px;
   padding: 10px;
   border: 2px solid #1877f2;
@@ -174,21 +174,60 @@
 }
 
 .notification {
-  padding: 10px 0;
+  padding: 10px 5px;
   border-bottom: 1px solid #3b5998;
 }
 
-.notification-icon {
-  align-self: flex-end;
+.unseen {
+  background-color: #c1cef0;
 }
 
 .notification-text {
   font-size: 14px;
 }
 
+.notification div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.notification-count {
+  position: absolute;
+  margin-top: -10px;
+  margin-left: 10px;
+  width: 20px;
+  background-color: red;
+  display: flex;
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.see-more-notification {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 10px;
+}
+.notification-icon-conatiner {
+  align-self: flex-end;
+}
+.notification-icon {
+  font-size :30px;
+}
+
 @media screen and (min-width: 375px) {
   .profile-option {
     margin-left: 160px;
+  }
+  .navbar-buttons {
+    padding: 15px 30px 5px;
+  }
+  .navbar {
+    padding: 15px 20px;
   }
 }
 

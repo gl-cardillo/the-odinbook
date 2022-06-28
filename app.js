@@ -31,4 +31,8 @@ app.use("/user", usersRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
+
 module.exports = app;

@@ -12,6 +12,7 @@ import { FriendRequests } from "./components/FriendRequests/FriendRequests";
 import { SuggestedProfile } from "./components/SuggestedProfile/SuggestedProfile";
 import { Notifications } from "./components/Notifications/Notifications";
 import { SinglePost } from "./components/SinglePost/SinglePost";
+import { GenericNotFound } from "./components/GenericNotFound/GenericNotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { UserContext } from "./dataContext/dataContext";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/singlePost/:postId" element={<SinglePost />} />
               </Route>
             </Route>
+            <Route path="*" element={<GenericNotFound />} />
           </Routes>
         </BrowserRouter>
       </SkeletonTheme>

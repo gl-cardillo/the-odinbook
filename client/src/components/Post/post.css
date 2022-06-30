@@ -1,7 +1,7 @@
 .post-info,
 .comment-container {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   text-align: left;
 }
 .author-time {
@@ -30,8 +30,11 @@
   background-color: transparent;
 }
 
-.post-image {
+.delete-button-container {
+  width: 20px;
+}
 
+.post-image {
   object-fit: contain;
   max-height: 600px;
 }
@@ -39,4 +42,11 @@
 .icon-remove-pic {
   align-self: flex-end;
   font-size: 25px;
+}
+
+@media screen and (min-width: 425px) {
+  .post-info,
+  .comment-container {
+    gap: 10px;
+  }
 }

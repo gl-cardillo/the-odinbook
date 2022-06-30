@@ -469,6 +469,17 @@ exports.deleteAccount = async (req, res, next) => {
       return res.status(500).json({ message: "Cannot remove friends" });
     }
 
+    //remove reply to comments from made from this user
+    const removeReply = await Comment.updateMany(
+      {},
+      {
+        $pull: { reply: { authorId: id } },
+      }
+    );
+    if (!removeReply) {
+      return res.status(500).json({ message: "Cannot remove reply" });
+    }
+
     return res.status(200).json({ message: "User deleted" });
   } catch (err) {
     console.log(err.message);

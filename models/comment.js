@@ -8,6 +8,7 @@ const CommentSchema = new Schema({
   postId: { type: String, required: true },
   text: { type: String, required: true },
   date: { type: Date, default: Date.now },
+  reply: { type: Array, default: [] },
   likes: { type: Array },
 });
 
@@ -15,3 +16,4 @@ CommentSchema.set("toObject", { virtuals: true });
 CommentSchema.set("toJSON", { virtuals: true });
 
 module.exports = mongoose.model("Comment", CommentSchema);
+ 

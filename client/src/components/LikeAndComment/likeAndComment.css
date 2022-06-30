@@ -22,8 +22,8 @@
 }
 
 .comment-container {
-  padding: 20px 0;
-  border-bottom: 1px solid #c2c1c1;
+  padding: 20px 0 10px;
+  position: relative;
 }
 
 .comment-author-message {
@@ -45,7 +45,8 @@
   margin: 10px 5px 0 5px;
 }
 
-.add-comment textarea {
+.add-comment textarea,
+.add-reply textarea {
   width: 100%;
   margin-top: 10px;
   background-color: #f0f2f5;
@@ -60,7 +61,12 @@ textarea:focus {
   padding: 9px !important;
 }
 
-.add-comment button {
+.add-comment {
+  margin-top: 10px;
+  border-top: 1px solid #cfcfcf;
+}
+
+.add-comment button, .add-reply button {
   width: 100%;
   border: 0;
   color: #fff;
@@ -74,7 +80,7 @@ textarea:focus {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  margin: 5px 15px;
+  margin: 5px;
   height: 15px;
 }
 
@@ -94,7 +100,7 @@ textarea:focus {
 .like-count {
   cursor: pointer;
 }
-.like-button {
+.comment-option .button {
   cursor: pointer;
   font-weight: bold;
   padding-left: 10px;
@@ -105,14 +111,17 @@ textarea:focus {
   border-radius: 50%;
   color: white;
   padding: 2px;
+  font-size: 17px;
 }
 
 .like-comment-count {
   position: absolute;
   align-items: center;
-  margin-left: -20px;
   font-size: 15px;
+  bottom: 40px;
+  right: 18px;
   display: flex;
+  gap: 1px;
 }
 
 .black-screen {
@@ -164,4 +173,40 @@ textarea:focus {
 .likes-count-container .delete-button {
   align-self: end;
   font-size: 25px;
+}
+
+.reply-count {
+  margin-left: 60px;
+  display: flex;
+  gap: 5px;
+  align-items: self-end;
+}
+
+
+.reply-container {
+  margin-left: 60px;
+}
+
+
+.reply-container .comment-container {
+  padding-top: 10px;
+}
+
+.add-reply {
+  padding:  0 20px 0 60px;
+}
+
+.add-reply div {
+  display: flex;
+align-items: center;
+}
+
+.icon-arrow {
+  font-size: 20px;
+}
+
+.add-reply textarea {
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 5px;
 }

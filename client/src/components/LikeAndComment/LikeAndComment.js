@@ -141,11 +141,20 @@ export function LikeAndComment({ post, authorPostId }) {
             //show number of comment per post
             comments.length > 0 ? (
               comments.length > 1 ? (
-                <p className="comment-count">
+                <p
+                  className="comment-count"
+                  onClick={() => setExpandComments(!expandComments)}
+                >
+                  {" "}
                   {nFormatter(comments.length)} comments
                 </p>
               ) : (
-                <p className="comment-count">1 comment</p>
+                <p
+                  className="comment-count"
+                  onClick={() => setExpandComments(!expandComments)}
+                >
+                  1 comment
+                </p>
               )
             ) : (
               ""
@@ -167,19 +176,15 @@ export function LikeAndComment({ post, authorPostId }) {
           }
           like
         </button>
-        {
-          //if user click on the button below show comments
-          //set the comment icon blue instead of trasparent
-          expandComments ? (
-            <button onClick={() => setExpandComments(false)}>
-              <FaComment className="blue" /> comment
-            </button>
-          ) : (
-            <button onClick={() => setExpandComments(true)}>
-              <FaRegComment /> comment
-            </button>
-          )
-        }
+
+        <button onClick={() => setExpandComments(!expandComments)}>
+          {
+            //if user click on the button below show comments
+            //set the comment icon blue instead of trasparent
+            expandComments ? <FaComment className="blue" /> : <FaRegComment />
+          }
+          comment
+        </button>
       </div>
       {expandComments && (
         <div>

@@ -146,7 +146,6 @@ exports.deletePost = async (req, res) => {
       const deletedComments = await Comment.deleteMany({
         postId: deletedPost.id,
       });
-  
 
       //remove notifications from made from this user
       const removeNotification = await User.updateMany(
@@ -168,14 +167,14 @@ exports.deletePost = async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
 
 exports.addLike = async (req, res) => {
   try {
-    const { elementId, userId, elementAuthorId} = req.body;
+    const { elementId, userId, elementAuthorId } = req.body;
     const postLiked = await Post.find({
       _id: elementId,
       likes: { $elemMatch: { $eq: userId } },

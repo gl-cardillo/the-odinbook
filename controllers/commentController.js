@@ -1,5 +1,6 @@
 const Comment = require("../models/comment");
 const User = require("../models/user");
+const Post = require("../models/post");
 const { body, validationResult } = require("express-validator");
 
 exports.getCommentsByPostId = async (req, res, next) => {
@@ -10,6 +11,37 @@ exports.getCommentsByPostId = async (req, res, next) => {
     }
     return res.status(200).json(comments);
   } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getReplyByCommentsId = async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    if (comment.reply.length < 1) {
+      return res.status(200).json([]);
+    }
+
+    let replyList = [];
+
+    for (let i = 0; i < comment.reply.length; i++) {
+      const user = await User.findById(comment.reply[i].authorId);
+
+      const reply = {
+        authorId: comment.reply[i].authorId,
+        text: comment.reply[i].text,
+        profilePicUrl: user.profilePicUrl,
+        authorFullname: user.fullname,
+        date: comment.reply[i].date,
+      };
+      replyList.push(reply);
+    }
+    return res.status(200).json(replyList);
+  } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -32,7 +64,6 @@ exports.createComment = [
       //if the user who post the comment is not the same as the user who create post
       //send a notification
       if (authorId !== authorPostId) {
-   
         const sendNotification = await User.findByIdAndUpdate(authorPostId, {
           $push: {
             notifications: {
@@ -51,7 +82,53 @@ exports.createComment = [
       const savedComment = await comment.save();
       if (savedComment) return res.status(200).json(comment);
     } catch (err) {
-console.log(err.message)
+      return res.status(500).json({ message: err.message });
+    }
+  },
+];
+
+exports.createReply = [
+  body("text").trim().isLength(1),
+  async (req, res, next) => {
+    const { text, commentId, authorId, authorCommentId, postId } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ errors: errors.array() });
+    }
+    try {
+      const date = Date.now();
+      const reply = await Comment.findByIdAndUpdate(commentId, {
+        $push: {
+          reply: {
+            text,
+            commentId,
+            authorId,
+            date,
+          },
+        },
+      });
+      //if the user who post the reply is not the same as the user who create the comment
+      //send a notification
+      if (authorId !== authorCommentId) {
+        const sendNotification = await User.findByIdAndUpdate(authorCommentId, {
+          $push: {
+            notifications: {
+              userId: authorId,
+              message: `reply to  your comment`,
+              date,
+              seen: false,
+              elementId: commentId,
+              link: `/singlePost/${postId}`,
+            },
+          },
+        });
+        await sendNotification.save();
+      }
+
+      return res.status(200).json(reply);
+    } catch (err) {
+      console.log(err.message);
       return res.status(500).json({ message: err.message });
     }
   },
@@ -59,14 +136,50 @@ console.log(err.message)
 
 exports.deleteComment = async (req, res, next) => {
   try {
-    const deleteComment = await Comment.findByIdAndDelete(req.body.id);
-    if (deleteComment) {
-      return res
-        .status(200)
-        .json({ message: `Comment with id ${req.body.id} deleted` });
-    } else {
+    let { id, postId, date } = req.body;
+    const deleteComment = await Comment.findByIdAndDelete(id);
+    if (!deleteComment) {
       return res.status(400).json({ message: "Comment not found" });
     }
+    //Find the authorId
+    const post = await Post.findById(postId);
+
+    date = Date.parse(date);
+    //remove notifications from made from this user
+
+    const removeNotification = await User.findByIdAndUpdate(post.authorId, {
+      $pull: { notifications: { elementId: postId, date: date } },
+    });
+    if (!removeNotification) {
+      return res.status(500).json({ message: "Cannot remove notification" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: `Comment with id ${req.body.id} deleted` });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+exports.deleteReply = async (req, res, next) => {
+  try {
+    let { commentId, authorCommentId, authorReplyId, date } = req.body;
+    const replyUpdate = await Comment.findByIdAndUpdate(commentId, {
+      $pull: { reply: { authorId: authorReplyId, date } },
+    });
+
+    const removeNotification = await User.findByIdAndUpdate(authorCommentId, {
+      $pull: { notifications: { elementId: commentId, date: date } },
+    });
+    if (!removeNotification) {
+      return res.status(500).json({ message: "Cannot remove notification" });
+    }
+
+    if (!replyUpdate) {
+      return res.status(500).json({ message: "Cannot remove reply" });
+    }
+    return res.status(200).json({ message: "Reply deleted" });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -97,7 +210,7 @@ exports.addLike = async (req, res) => {
               date: Date.now(),
               seen: false,
               elementId: postId,
-              link: `/singlePost/${postId}`
+              link: `/singlePost/${postId}`,
             },
           },
         });
@@ -149,7 +262,7 @@ exports.getWhoLiked = async (req, res, next) => {
     }
     return res.status(200).json(userList);
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };

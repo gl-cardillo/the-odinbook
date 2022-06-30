@@ -76,7 +76,7 @@ export function Signin({ setIsAuth }) {
     <div>
       <div className="signlog-section">
         <div>
-          <img src={require("../../images/home-pic.png")} alt="" />
+          <img src={require("../../images/home-pic.png")} alt="logo" />
           <h1>Odinbook</h1>
           <h2 className="text1024px">
             Connect with friends and the world around you on Odinbook.

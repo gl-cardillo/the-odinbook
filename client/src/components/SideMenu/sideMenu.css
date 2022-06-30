@@ -1,13 +1,12 @@
 .side-menu-container {
   display: none;
 }
-  .delete-account {
-    padding: 8px;
-    border: 2px solid #f11313;
-    color: #f11313;
-    width: 130px;
-  }
-
+.delete-account {
+  padding: 8px;
+  border: 2px solid #f11313;
+  color: #f11313;
+  width: 130px;
+}
 
 @media screen and (min-width: 768px) {
   .side-menu-container {
@@ -62,6 +61,12 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+  }
+
+  .s-m-profile div {
+    display: flex;
+    gap: 15px;
+    align-items: center;
   }
 }
 

@@ -24,6 +24,7 @@ the goal is to build a full-stack application similar to Facebook
 - Check who sent you a friend request.
 - See other users' friends.
 - See and update profile info.
+- Notifications for likes, comments and friendship.
 - Delete post.
 - Delete comments.
 - Delete users.
@@ -32,4 +33,4 @@ the goal is to build a full-stack application similar to Facebook
 
 ---
 
-Not available at the moment
+Check the [demo](https://the-odinbook.herokuapp.com/) 

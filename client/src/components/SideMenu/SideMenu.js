@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link, useNavigate } from "react-router-dom";
 import { acceptRequest } from "../../utils/utils";
-import { FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaSignOutAlt } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -82,8 +82,18 @@ export function SideMenu({ render, setRender }) {
     <div className="side-menu-container">
       <div className="s-m-profile">
         <Link to={`/profile/${user._id}`}>
-          <img src={user.profilePicUrl} className="avatar-pic" alt="" />{" "}
-          &nbsp;{user.fullname}
+          {user ? (
+            <div>
+              <img
+                src={user.profilePicUrl}
+                className="avatar-pic"
+                alt=""
+              />
+              {user.fullname}
+            </div>
+          ) : (
+            <Skeleton width={100} height={50} />
+          )}
         </Link>
         <p onClick={logoutUser}>
           <FaSignOutAlt className="s-m-profile-icon" /> &nbsp;Log out

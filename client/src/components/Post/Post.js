@@ -51,7 +51,7 @@ export function Post({ post, setRender, render}) {
             )}
           </Link>
           <div className="author-time">
-            <Link to={`/profile/${post.userId}`}>
+            <Link to={`/profile/${post.authorId}`}>
               <p className="author">
                 {author ? author : <Skeleton height={20} width={100} />}
               </p>

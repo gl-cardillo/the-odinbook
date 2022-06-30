@@ -175,14 +175,13 @@ export function Navbar() {
                 <div>
                   {notifications.slice(0, 4).map((notification, index) => {
                     return (
-                      <Link to={notification.link}>
+                      <Link key={index} to={notification.link}>
                         <div
                           className={
                             notification.seen === true
                               ? "notification"
                               : "notification unseen"
                           }
-                          key={index}
                         >
                           <div>
                             <img

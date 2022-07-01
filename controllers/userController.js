@@ -12,7 +12,6 @@ exports.getUser = async (req, res, next) => {
     }
     return res.status(200).json(users);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -168,7 +167,6 @@ exports.friendRequestsByUserId3 = async (req, res, next) => {
 
     return res.status(200).json(friendRequestsData);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -279,7 +277,6 @@ exports.getFriendsByUserId3 = async (req, res, next) => {
 
     return res.status(200).json(friendsData);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -482,7 +479,6 @@ exports.deleteAccount = async (req, res, next) => {
 
     return res.status(200).json({ message: "User deleted" });
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -525,7 +521,6 @@ exports.getProfilePic = async (req, res) => {
     const user = await User.findById(req.params.userId);
     return res.status(200).json(user.profilePicUrl);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -596,7 +591,6 @@ exports.getNofication = async (req, res, next) => {
     const notifications = user.notifications.sort((a, b) => -a.date);
     return res.status(200).json({ notifications, unchecked });
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -615,7 +609,6 @@ exports.checkNotification = async (req, res, next) => {
 
     return res.status(200).json({ message: "Notification checked" });
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };

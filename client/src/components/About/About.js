@@ -38,6 +38,7 @@ export function About({ profile, setRender, render }) {
       }),
     worksAt: yup.string().max(15),
     school: yup.string().max(15),
+    dateOfBirth: yup.date().max(new Date(), "Are you from the future?"),
   });
 
   const {
@@ -84,7 +85,7 @@ export function About({ profile, setRender, render }) {
       .then(() => {
         axios.get(`/user/profile/${profile.id}`).then((res) => {
           localStorage.setItem("user", JSON.stringify(res.data));
-          setUser(res.data)
+          setUser(res.data);
           setEdit(false);
           setRender(render + 1);
         });
@@ -106,7 +107,7 @@ export function About({ profile, setRender, render }) {
         <div>
           <form className="about-form" onSubmit={handleSubmit(updateInfo)}>
             <label htmlFor="firstname">
-              <p>First name:</p>
+              <h4>First name:</h4>
               <input
                 {...register("firstname")}
                 type="text"
@@ -114,8 +115,9 @@ export function About({ profile, setRender, render }) {
                 label="First Name"
               />
             </label>
+            <p className="error-about">{errors?.firstname?.message}</p>
             <label htmlFor="lastname">
-              <p> Last name:</p>
+              <h4> Last name:</h4>
 
               <input
                 {...register("lastname")}
@@ -124,8 +126,9 @@ export function About({ profile, setRender, render }) {
                 name="lastname"
               />
             </label>
+            <p className="error-about">{errors?.lastname?.message}</p>
             <label htmlFor="dateOfBirth">
-              <p> Date of birth:</p>
+              <h4> Date of birth:</h4>
               <input
                 {...register("dateOfBirth")}
                 type="date"
@@ -133,8 +136,9 @@ export function About({ profile, setRender, render }) {
                 id="dateOfBirth"
               />
             </label>
+            <p className="error-about">{errors?.dateOfBirth?.message}</p>
             <label htmlFor="hometown">
-              <p> Hometown:</p>
+              <h4> Hometown:</h4>
               <input
                 {...register("hometown")}
                 type="text"
@@ -142,8 +146,9 @@ export function About({ profile, setRender, render }) {
                 id="hometown"
               />
             </label>
+            <p className="error-about">{errors?.hometown?.message}</p>
             <label htmlFor="worksAt">
-              <p> Works at:</p>
+              <h4> Works at:</h4>
               <input
                 {...register("worksAt")}
                 type="text"
@@ -151,8 +156,9 @@ export function About({ profile, setRender, render }) {
                 id="worksAt"
               />
             </label>
+            <p className="error-about">{errors?.worksAt?.message}</p>
             <label htmlFor="school">
-              <p>Studied at:</p>
+              <h4>Studied at:</h4>
               <input
                 {...register("school")}
                 type="text"
@@ -160,8 +166,9 @@ export function About({ profile, setRender, render }) {
                 id="school"
               />
             </label>
+            <p className="error-about">{errors?.school?.message}</p>
             <label htmlFor="gender">
-              <p>Gender:</p>
+              <h4>Gender:</h4>
               <select
                 {...register("gender")}
                 id="gender"
@@ -174,8 +181,9 @@ export function About({ profile, setRender, render }) {
                 <option value=""> Perefer not to say</option>
               </select>
             </label>
+            <p className="error-about"></p>
             <label htmlFor="relationship">
-              <p>Relationship:</p>
+              <h4>Relationship:</h4>
               <select
                 {...register("relationship")}
                 id="relationship"
@@ -192,6 +200,7 @@ export function About({ profile, setRender, render }) {
                 <option value=""> Perefer not to say</option>
               </select>
             </label>
+            <p className="error-about"></p>
             <div className="buttons">
               <button onClick={() => setEdit(false)} type="button">
                 Cancel

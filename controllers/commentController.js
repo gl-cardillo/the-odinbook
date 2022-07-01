@@ -41,7 +41,6 @@ exports.getReplyByCommentsId = async (req, res, next) => {
     }
     return res.status(200).json(replyList);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -128,7 +127,6 @@ exports.createReply = [
 
       return res.status(200).json(reply);
     } catch (err) {
-      console.log(err.message);
       return res.status(500).json({ message: err.message });
     }
   },
@@ -235,7 +233,6 @@ exports.addLike = async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -262,7 +259,6 @@ exports.getWhoLiked = async (req, res, next) => {
     }
     return res.status(200).json(userList);
   } catch (err) {
-    console.log(err.message);
     return res.status(500).json({ message: err.message });
   }
 };

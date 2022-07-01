@@ -78,7 +78,6 @@ exports.login = [
         return res.status(400).json({ message: "Password is incorrect" });
       }
     } catch (err) {
-      console.log(err.message);
       return res.status(500).json({ message: err.message });
     }
   },

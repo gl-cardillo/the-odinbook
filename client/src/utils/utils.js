@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const deletePost = (post, set, render) => {
   axios
-    .delete('http://localhost:5000/posts/deletePost', {
+    .delete('/posts/deletePost', {
       headers: {
         Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
       },
@@ -22,7 +22,7 @@ export const deletePost = (post, set, render) => {
 export const addFriendRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      'http://localhost:5000/user/sendFriendRequest',
+      '/user/sendFriendRequest',
       {
         profileId,
         userId,
@@ -42,7 +42,7 @@ export const addFriendRequest = async (profileId, userId, set, render) => {
 export const removeFriendRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      'http://localhost:5000/user/removeFriendRequest',
+      '/user/removeFriendRequest',
       {
         profileId,
         userId,
@@ -62,7 +62,7 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
 export const removeFriend = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      'http://localhost:5000/user/removeFriend',
+      '/user/removeFriend',
       {
         userId,
         profileId,
@@ -82,7 +82,7 @@ export const removeFriend = async (profileId, userId, set, render) => {
 export const acceptRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      'http://localhost:5000/user/acceptFriendRequest',
+      '/user/acceptFriendRequest',
       {
         userId,
         profileId,
@@ -102,7 +102,7 @@ export const acceptRequest = async (profileId, userId, set, render) => {
 export const declineRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      'http://localhost:5000/user/declineFriendRequest',
+      '/user/declineFriendRequest',
       {
         userId,
         profileId,

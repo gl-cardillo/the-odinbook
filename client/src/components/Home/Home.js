@@ -150,7 +150,7 @@ export function Home() {
             })
           ) : (
             <div className="post">
-              <p>No post available :(</p>
+              <p>No post at the moment :(</p>
             </div>
           )
         ) : (

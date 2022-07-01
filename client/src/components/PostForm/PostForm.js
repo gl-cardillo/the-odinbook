@@ -10,8 +10,10 @@ export function PostForm({ user, setRender, render }) {
   const [error, setError] = useState("");
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
+  const [loadingPost, setLoadingPost] = useState(false);
 
   const addPost = async (e) => {
+    setLoadingPost(true);
     e.preventDefault();
     if (text === "") {
       setError("text is required");
@@ -53,8 +55,10 @@ export function PostForm({ user, setRender, render }) {
       );
       setFile(null);
       setPreviewPicture(null);
-      setText("");
       setRender(render + 1);
+      setLoadingPost(false);
+      imageInput.current.value = null;
+      setText("");
       setError("");
     } catch (error) {
       console.log(error);
@@ -93,7 +97,7 @@ export function PostForm({ user, setRender, render }) {
   const removePic = () => {
     setFile(null);
     setPreviewPicture(null);
-    imageInput.current.value = null
+    imageInput.current.value = null;
   };
 
   return (
@@ -112,6 +116,7 @@ export function PostForm({ user, setRender, render }) {
         {previewPicture && (
           <div className="form-image-container">
             <BsX className="icon-remove-pic" onClick={() => removePic()} />
+            {loadingPost && <div className="loader"></div>}
             <img src={previewPicture} alt="insert picture" />
           </div>
         )}
@@ -126,7 +131,9 @@ export function PostForm({ user, setRender, render }) {
             />
             <RiImageAddLine className="icon-image" />
           </label>
-          <button type="submit">Add Post</button>
+          <button type="submit" disabled={loadingPost}>
+            Add Post
+          </button>
         </div>
       </form>
     </div>

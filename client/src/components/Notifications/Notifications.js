@@ -1,9 +1,6 @@
-import axios from "axios";
-import { useState, useEffect, useContext } from "react";
-import { UserContext } from "../../dataContext/dataContext";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { useLocation } from "react-router-dom";
-import { handleSearch, blur, getTime } from "../../utils/utils";
+import { getTime } from "../../utils/utils";
 
 export function Notifications() {
   const data = useLocation();

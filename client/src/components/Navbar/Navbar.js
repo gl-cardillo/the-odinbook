@@ -208,7 +208,7 @@ export function Navbar() {
                   </Link>
                 </div>
               ) : (
-                "No notifications at the moment"
+                <p>No notifications at the moment</p>
               )}
             </div>
           )}

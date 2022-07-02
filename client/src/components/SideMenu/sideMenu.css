@@ -2,10 +2,10 @@
   display: none;
 }
 .delete-account {
-  padding: 8px;
+  padding: 5px;
   border: 2px solid #f11313;
   color: #f11313;
-  width: 130px;
+  width: 125px;
 }
 
 @media screen and (min-width: 768px) {
@@ -42,8 +42,8 @@
 
   .s-m-profile img,
   .s-m-profile-icon {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
   }
 
   .s-m-div {

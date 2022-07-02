@@ -526,11 +526,11 @@ exports.getProfilePic = async (req, res) => {
 };
 
 exports.updateProfile = [
-  body("firstname", "First name required").trim().escape(),
-  body("lastname", "Last name required").trim().escape(),
-  body("hometown").trim().escape(),
-  body("worksAt").trim().escape(),
-  body("relationship").trim().escape(),
+  body("firstname", "First name required").trim(),
+  body("lastname", "Last name required").trim(),
+  body("hometown").trim(),
+  body("worksAt").trim(),
+  body("relationship").trim(),
   async (req, res) => {
     const {
       id,
@@ -548,6 +548,8 @@ exports.updateProfile = [
       return res.json({ errors: errors.array() });
     }
     try {
+      //const date = dateOfBirth.split("T")[0] + "T00:00:00.000Z"
+
       const user = await User.findByIdAndUpdate(id, {
         firstname,
         lastname,
@@ -561,6 +563,7 @@ exports.updateProfile = [
       await user.save();
       return res.status(200).json({ message: "Profile updated" });
     } catch (err) {
+      console.log(err.message)
       return res.status(500).json({ message: err.message });
     }
   },

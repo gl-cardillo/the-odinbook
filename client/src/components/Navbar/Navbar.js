@@ -85,7 +85,6 @@ export function Navbar() {
 
   const handleNotification = () => {
     if (notificationUnchecked.length > 0) {
-      console.log("called");
       axios
         .put(
           "/user/checkNotification",

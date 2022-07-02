@@ -95,13 +95,13 @@ export function LikeAndComment({ post, authorPostId }) {
             likes.length > 1 ? (
               // if there are more then 1 like show the first name like plus the number of like
               <p onClick={() => setShowLikes(true)} className="like-count">
-                liked by {likes[0].fullname} and an other{" "}
-                {nFormatter(likes.length - 1)}
+                <AiFillLike className="like-comment" /> {likes[0].fullname} and
+                an other {nFormatter(likes.length - 1)}
               </p>
             ) : (
               // otherwise if the like is only one show the number who likes
               <p onClick={() => setShowLikes(true)} className="like-count">
-                liked by {likes[0].fullname}
+                <AiFillLike className="like-comment" /> {likes[0].fullname}
               </p>
             )
           ) : (

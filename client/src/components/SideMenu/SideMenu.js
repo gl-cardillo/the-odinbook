@@ -84,11 +84,7 @@ export function SideMenu({ render, setRender }) {
         <Link to={`/profile/${user._id}`}>
           {user ? (
             <div>
-              <img
-                src={user.profilePicUrl}
-                className="avatar-pic"
-                alt=""
-              />
+              <img src={user.profilePicUrl} className="avatar-pic" alt="" />
               {user.fullname}
             </div>
           ) : (
@@ -98,9 +94,11 @@ export function SideMenu({ render, setRender }) {
         <p onClick={logoutUser}>
           <FaSignOutAlt className="s-m-profile-icon" /> &nbsp;Log out
         </p>
-        <p className="delete-account" onClick={() => deleteAccount(user.id)}>
-          Delete account
-        </p>
+        {user.email !== "test-account@example.com" && (
+          <p className="delete-account" onClick={() => deleteAccount(user.id)}>
+            Delete account
+          </p>
+        )}
       </div>
       <div className="s-m-friendRequests">
         <h3>Requests</h3>

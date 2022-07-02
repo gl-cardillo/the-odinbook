@@ -66,7 +66,8 @@ textarea:focus {
   border-top: 1px solid #cfcfcf;
 }
 
-.add-comment button, .add-reply button {
+.add-comment button,
+.add-reply button {
   width: 100%;
   border: 0;
   color: #fff;
@@ -99,6 +100,10 @@ textarea:focus {
 
 .like-count {
   cursor: pointer;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .comment-option .button {
   cursor: pointer;
@@ -182,23 +187,21 @@ textarea:focus {
   align-items: self-end;
 }
 
-
 .reply-container {
   margin-left: 60px;
 }
-
 
 .reply-container .comment-container {
   padding-top: 10px;
 }
 
 .add-reply {
-  padding:  0 20px 0 60px;
+  padding: 0 20px 0 60px;
 }
 
 .add-reply div {
   display: flex;
-align-items: center;
+  align-items: center;
 }
 
 .icon-arrow {

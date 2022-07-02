@@ -259,12 +259,13 @@ export function Comment({
             replies.map((reply, index) => {
               return (
                 <div key={index} className="comment-container">
-                          <Link to={`/profile/${reply.authorId}`}>
-                  <img
-                    src={reply.profilePicUrl}
-                    className="avatar-pic"
-                    alt="avatar"
-                  /></Link>
+                  <Link to={`/profile/${reply.authorId}`}>
+                    <img
+                      src={reply.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
+                  </Link>
                   <div className="comment-info">
                     <div className="comment-author-message">
                       <Link to={`/profile/${reply.authorId}`}>

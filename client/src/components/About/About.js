@@ -17,7 +17,7 @@ export function About({ profile, setRender, render }) {
     firstname: yup
       .string()
       .min(2)
-      .max(15)
+      .max(20)
       .matches(/^[a-zA-Z0-9]{0,}$/, {
         message: "Special character not allowed.",
       })
@@ -25,19 +25,19 @@ export function About({ profile, setRender, render }) {
     lastname: yup
       .string()
       .min(2)
-      .max(15)
+      .max(20)
       .matches(/^[a-zA-Z0-9]{0,}$/, {
         message: "Special character not allowed.",
       })
       .required("Last name is a requited field"),
     hometown: yup
       .string()
-      .max(15)
+      .max(30)
       .matches(/^[a-zA-Z0-9]{0,}$/, {
         message: "Special character not allowed.",
       }),
-    worksAt: yup.string().max(15),
-    school: yup.string().max(15),
+    worksAt: yup.string().max(30),
+    school: yup.string().max(30),
     dateOfBirth: yup.date().max(new Date(), "Are you from the future?"),
   });
 
@@ -50,7 +50,7 @@ export function About({ profile, setRender, render }) {
       firstname: profile.firstname,
       lastname: profile.lastname,
       gender: profile.gender,
-      dateOfBirth: profile.dateOfBirth_toISODate,
+      dateOfBirth: profile.dateOfBirth_formatted,
       hometown: profile.hometown,
       worksAt: profile.worksAt,
       school: profile.school,
@@ -60,6 +60,11 @@ export function About({ profile, setRender, render }) {
   });
 
   const updateInfo = (data) => {
+    // only way i found to store date of birth witout time in mongodb
+    const date = new Date(data.dateOfBirth);
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const dateOfBirth = new Date(date.getTime() - userTimezoneOffset);
+
     axios
       .put(
         "/user/updateProfile",
@@ -68,7 +73,7 @@ export function About({ profile, setRender, render }) {
           firstname: data.firstname,
           lastname: data.lastname,
           gender: data.gender,
-          dateOfBirth: data.dateOfBirth,
+          dateOfBirth,
           hometown: data.hometown,
           worksAt: data.worksAt,
           school: data.school,

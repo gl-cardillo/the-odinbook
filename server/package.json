@@ -5,10 +5,8 @@
   "main": "index.js",
   "scripts": {
     "client-install": "npm install --prefix client",
-    "start": "node ./bin/www",
+    "start": "node ./app.js",
     "server": "nodemon ./bin/www",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run app.js\" \"npm run client\"",
     "test": "jest  --runInBand --detectOpenHandles"
   },
   "author": "",

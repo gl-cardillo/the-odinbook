@@ -8,9 +8,9 @@ const path = require("path");
 
 const s3 = new aws.S3({
   region: process.env.AWS_BUCKET_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  sifnatureVersion: "v4",
+  accessKeyId: process.env.AWS_ACCESS_S3_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_S3_ACCESS_KEY,
+  signatureVersion: "v4",
 });
 
 exports.generateUploadURL = async () => {

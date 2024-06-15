@@ -17,7 +17,7 @@ export function FriendRequests() {
     const getRequests = async () => {
       try {
         const requestsList = await axios.get(
-          `/user/friendRequests/${user.id}`,
+          `${process.env.REACT_APP_API_URL}/user/friendRequests/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${JSON.parse(

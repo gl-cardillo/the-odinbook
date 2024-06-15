@@ -20,13 +20,16 @@ export function Friends({ profile }) {
         } else {
           id = profile.id;
         }
-        const friendsList = await axios.get(`/user/friends/${id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        });
+        const friendsList = await axios.get(
+          `${process.env.REACT_APP_API_URL}/user/friends/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        );
         setfriends(friendsList.data);
       } catch (err) {
         console.log(err);

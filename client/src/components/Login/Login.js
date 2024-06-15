@@ -33,7 +33,7 @@ export function Login({ setIsAuth }) {
 
   const login = (data) => {
     axios
-      .post("/auth/login", {
+      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
         email: data.email,
         password: data.password,
       })
@@ -51,9 +51,9 @@ export function Login({ setIsAuth }) {
 
   const loginTestAccount = () => {
     axios
-      .post("/auth/login", {
+      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
         email: "test-account@example.com",
-        password: '',
+        password: "",
       })
       .then((res) => {
         setIsAuth(true);

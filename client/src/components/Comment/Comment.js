@@ -30,13 +30,16 @@ export function Comment({
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/user/profilePic/${comment.authorId}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setProfilePicUrl(res.data);
         })
@@ -44,12 +47,16 @@ export function Comment({
           console.log(err);
         });
 
-      axios.get(`/posts/getAuthor/${comment.authorId}`).then((res) => {
-        setAuthor(res.data);
-      });
+      axios
+        .get(
+          `${process.env.REACT_APP_API_URL}/posts/getAuthor/${comment.authorId}`
+        )
+        .then((res) => {
+          setAuthor(res.data);
+        });
 
       axios
-        .get(`/comments/getLikes/${comment.id}`)
+        .get(`${process.env.REACT_APP_API_URL}/comments/getLikes/${comment.id}`)
         .then((res) => {
           setLikes(res.data);
         })
@@ -62,7 +69,7 @@ export function Comment({
 
   const deleteComment = (id, commentDate) => {
     axios
-      .delete("/comments/deleteComment", {
+      .delete(`${process.env.REACT_APP_API_URL}/comments/deleteComment`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
         },
@@ -84,7 +91,7 @@ export function Comment({
   const getReply = () => {
     setShowReply(!showReply);
     axios
-      .get(`/comments/getReply/${comment.id}`)
+      .get(`${process.env.REACT_APP_API_URL}/comments/getReply/${comment.id}`)
       .then((res) => {
         setReplies(res.data);
       })
@@ -96,7 +103,7 @@ export function Comment({
   const addReply = (data) => {
     axios
       .post(
-        "/comments/createReply",
+        `${process.env.REACT_APP_API_URL}/comments/createReply`,
         {
           text: data.text,
           commentId: comment.id,
@@ -125,7 +132,7 @@ export function Comment({
 
   const deleteReply = (commentId, authorCommentId, authorReplyId, date) => {
     axios
-      .delete("/comments/deleteReply", {
+      .delete(`${process.env.REACT_APP_API_URL}/comments/deleteReply`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
         },

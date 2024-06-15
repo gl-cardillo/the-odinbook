@@ -67,7 +67,7 @@ export function About({ profile, setRender, render }) {
 
     axios
       .put(
-        "/user/updateProfile",
+        `${process.env.REACT_APP_API_URL}/user/updateProfile`,
         {
           id: profile.id,
           firstname: data.firstname,
@@ -88,12 +88,14 @@ export function About({ profile, setRender, render }) {
         }
       )
       .then(() => {
-        axios.get(`/user/profile/${profile.id}`).then((res) => {
-          localStorage.setItem("user", JSON.stringify(res.data));
-          setUser(res.data);
-          setEdit(false);
-          setRender(render + 1);
-        });
+        axios
+          .get(`${process.env.REACT_APP_API_URL}/user/profile/${profile.id}`)
+          .then((res) => {
+            localStorage.setItem("user", JSON.stringify(res.data));
+            setUser(res.data);
+            setEdit(false);
+            setRender(render + 1);
+          });
       })
       .catch((err) => {
         console.log(err);

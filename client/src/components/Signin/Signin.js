@@ -53,7 +53,7 @@ export function Signin({ setIsAuth }) {
 
   const signin = (data) => {
     axios
-      .post("/auth/signin", {
+      .post(`${process.env.REACT_APP_API_URL}/auth/signin`, {
         firstname: data.firstname,
         lastname: data.lastname,
         email: data.email,

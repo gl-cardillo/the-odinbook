@@ -15,13 +15,16 @@ export function SuggestedProfile() {
   useEffect(() => {
     const getData = async () => {
       await axios
-        .get(`/user/getSuggestedProfile/${user._id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setsuggestedProfile(res.data);
         })
@@ -30,13 +33,16 @@ export function SuggestedProfile() {
         });
 
       await axios
-        .get(`/user/friendRequests/${user._id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setFriendRequests(res.data);
         })

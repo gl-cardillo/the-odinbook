@@ -21,7 +21,9 @@ export function Home() {
   useEffect(() => {
     const getData = async () => {
       await axios
-        .get(`/posts/getFriendsPost/${user._id}`)
+        .get(
+          `${process.env.REACT_APP_API_URL}/posts/getFriendsPost/${user._id}`
+        )
         .then((res) => {
           setPosts(res.data);
         })
@@ -29,7 +31,9 @@ export function Home() {
           console.log(err);
         });
       await axios
-        .get(`/user/get3SuggestedProfile/${user._id}`)
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/get3SuggestedProfile/${user._id}`
+        )
         .then((res) => {
           setSuggestedProfile(res.data);
         })
@@ -37,13 +41,16 @@ export function Home() {
           console.log(err);
         });
       await axios
-        .get(`/user/friendRequests/${user._id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setFriendRequests(res.data);
         })

@@ -15,7 +15,7 @@ import {
   addFriendRequest,
   removeFriendRequest,
   removeFriend,
-  changePic
+  changePic,
 } from "../../utils/utils";
 
 export function Profile() {
@@ -32,7 +32,7 @@ export function Profile() {
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/user/profile/${profileId}`)
+        .get(`${process.env.REACT_APP_API_URL}/user/profile/${profileId}`)
         .then((res) => {
           setProfile(res.data);
         })
@@ -40,7 +40,7 @@ export function Profile() {
           console.log(err);
         });
       await axios
-        .get(`/posts/byUserId/${profileId}`)
+        .get(`${process.env.REACT_APP_API_URL}/posts/byUserId/${profileId}`)
         .then((res) => {
           setProfilePosts(res.data);
         })

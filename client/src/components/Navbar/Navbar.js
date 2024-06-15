@@ -26,7 +26,7 @@ export function Navbar() {
   useEffect(() => {
     const getData = () => {
       axios
-        .get("/user/")
+        .get(`${process.env.REACT_APP_API_URL}/user/`)
         .then((res) => {
           // remove user from the search
           const usersFilters = res.data.filter(
@@ -39,13 +39,16 @@ export function Navbar() {
         });
 
       axios
-        .get(`/user/getNotification/${user.id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/getNotification/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setNotifications(res.data.notifications);
           setNotificationUnchecked(res.data.unchecked);
@@ -65,7 +68,7 @@ export function Navbar() {
 
   const deleteAccount = (id) => {
     axios
-      .delete("/user/deleteAccount", {
+      .delete(`${process.env.REACT_APP_API_URL}/user/deleteAccount`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
         },
@@ -87,7 +90,7 @@ export function Navbar() {
     if (notificationUnchecked.length > 0) {
       axios
         .put(
-          "/user/checkNotification",
+          `${process.env.REACT_APP_API_URL}/user/checkNotification`,
           { id: user.id },
           {
             headers: {

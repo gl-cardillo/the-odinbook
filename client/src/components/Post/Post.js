@@ -10,7 +10,7 @@ import { deletePost } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-export function Post({ post, setRender, render}) {
+export function Post({ post, setRender, render }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
   const [author, setAuthor] = useState("");
   const { user } = useContext(UserContext);
@@ -18,13 +18,16 @@ export function Post({ post, setRender, render}) {
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/user/profilePic/${post.authorId}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setProfilePicUrl(res.data);
         })
@@ -32,9 +35,13 @@ export function Post({ post, setRender, render}) {
           console.log(err);
         });
 
-      axios.get(`/posts/getAuthor/${post.authorId}`).then((res) => {
-        setAuthor(res.data);
-      });
+      axios
+        .get(
+          `${process.env.REACT_APP_API_URL}/posts/getAuthor/${post.authorId}`
+        )
+        .then((res) => {
+          setAuthor(res.data);
+        });
     };
     getData();
   }, [post.authorId, render]);

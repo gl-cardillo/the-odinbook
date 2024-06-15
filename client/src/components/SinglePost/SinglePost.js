@@ -16,7 +16,7 @@ export function SinglePost({}) {
   useEffect(() => {
     const getData = async () => {
       await axios
-        .get(`/posts/byPostId/${postId}`)
+        .get(`${process.env.REACT_APP_API_URL}/posts/byPostId/${postId}`)
         .then((res) => {
           setPost(res.data);
         })

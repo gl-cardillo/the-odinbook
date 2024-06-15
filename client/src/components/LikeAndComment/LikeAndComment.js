@@ -26,7 +26,7 @@ export function LikeAndComment({ post, authorPostId }) {
   useEffect(() => {
     const getData = async () => {
       axios
-        .get(`/comments/${post._id}`)
+        .get(`${process.env.REACT_APP_API_URL}/comments/${post._id}`)
         .then((res) => {
           setComments(res.data);
         })
@@ -35,7 +35,7 @@ export function LikeAndComment({ post, authorPostId }) {
         });
 
       axios
-        .get(`/posts/getLikes/${post._id}`)
+        .get(`${process.env.REACT_APP_API_URL}/posts/getLikes/${post._id}`)
         .then((res) => {
           setLikes(res.data);
         })
@@ -49,7 +49,7 @@ export function LikeAndComment({ post, authorPostId }) {
   const addComment = (data) => {
     axios
       .post(
-        "/comments/createComment",
+        `${process.env.REACT_APP_API_URL}/comments/createComment`,
         {
           text: data.text,
           postId: post.id,

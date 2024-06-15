@@ -17,13 +17,16 @@ export function SideMenu({ render, setRender }) {
   useEffect(() => {
     const getRequests = async () => {
       await axios
-        .get(`/user/friendRequests3/${user.id}`, {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        })
+        .get(
+          `${process.env.REACT_APP_API_URL}/user/friendRequests3/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("token")
+              )}`,
+            },
+          }
+        )
         .then((res) => {
           setRequests(res.data);
         })
@@ -31,9 +34,10 @@ export function SideMenu({ render, setRender }) {
           console.log(err);
         });
     };
+
     const getFriends = async () => {
       await axios
-        .get(`/user/friends3/${user.id}`, {
+        .get(`${process.env.REACT_APP_API_URL}/user/friends3/${user.id}`, {
           headers: {
             Authorization: `Bearer ${JSON.parse(
               localStorage.getItem("token")
@@ -60,7 +64,7 @@ export function SideMenu({ render, setRender }) {
 
   const deleteAccount = (id) => {
     axios
-      .delete("/user/deleteAccount", {
+      .delete(`${process.env.REACT_APP_API_URL}/user/deleteAccount`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
         },

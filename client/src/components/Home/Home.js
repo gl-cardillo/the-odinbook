@@ -156,8 +156,8 @@ export function Home() {
               );
             })
           ) : (
-            <div className="post">
-              <p>No post at the moment :(</p>
+            <div className=" post no-post-available">
+              <p>No post at the moment</p>
             </div>
           )
         ) : (

@@ -4,7 +4,6 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link, useNavigate } from "react-router-dom";
 import { acceptRequest } from "../../utils/utils";
-import { FaSignOutAlt } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -56,32 +55,6 @@ export function SideMenu({ render, setRender }) {
     getFriends();
   }, [render, user.id]);
 
-  const logoutUser = () => {
-    localStorage.clear();
-    navigate("/");
-    setUser(null);
-  };
-
-  const deleteAccount = (id) => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/user/deleteAccount`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-        data: {
-          id,
-        },
-      })
-      .then(() => {
-        localStorage.clear();
-        setUser(null);
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
     <div className="side-menu-container">
       <div className="s-m-profile">
@@ -95,14 +68,6 @@ export function SideMenu({ render, setRender }) {
             <Skeleton width={100} height={50} />
           )}
         </Link>
-        <p onClick={logoutUser}>
-          <FaSignOutAlt className="s-m-profile-icon" /> &nbsp;Log out
-        </p>
-        {user.email !== "test-account@example.com" && (
-          <p className="delete-account" onClick={() => deleteAccount(user.id)}>
-            Delete account
-          </p>
-        )}
       </div>
       <div className="s-m-friendRequests">
         <h3>Requests</h3>
@@ -167,7 +132,7 @@ export function SideMenu({ render, setRender }) {
               </Link>
             </div>
           ) : (
-            <p>No friends at the moment :(</p>
+            <p>No friends at the moment </p>
           )
         ) : (
           <Skeleton height={30} style={{ margin: "5px 0" }} count={3} />

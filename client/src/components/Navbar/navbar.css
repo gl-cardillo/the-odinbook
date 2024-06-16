@@ -1,9 +1,10 @@
 .navbar {
   display: flex;
   justify-content: space-between;
-  padding: 15px ;
+  padding: 15px;
   background-color: #3b5998;
   align-items: center;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .title-navbar {
@@ -137,7 +138,7 @@
   border: 2px solid #3b5998;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
   font-size: 16px;
 }
 
@@ -158,15 +159,41 @@
   color: #3b5998;
 }
 
-.notifications-container {
+.settings {
+  display: none;
+}
+
+.notifications-container,
+.settings-container {
   position: absolute;
   z-index: 2;
   background-color: #ffffff;
-  margin-left: -200px;
+  margin-left: -250px;
   margin-right: 10px;
+    right: 40px;
   padding: 10px;
-  border: 2px solid #1877f2;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   border-radius: 5px;
+}
+
+.settings-container {
+  margin-right: 0;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+.inner-settings-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.delete-text {
+  color: red;
 }
 
 .notifications-container h2 {
@@ -215,8 +242,17 @@
 .notification-icon-conatiner {
   align-self: flex-end;
 }
+
 .notification-icon {
-  font-size :30px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.icon-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: relative;
 }
 
 @media screen and (min-width: 375px) {
@@ -244,6 +280,10 @@
 
   .home-navbar {
     display: none;
+  }
+
+  .settings {
+    display: block;
   }
 
   .title-navbar {

@@ -9,7 +9,7 @@ export function Notifications() {
   return (
     <div className="main-page">
       <div className="containers">
-        <h2>Notifications</h2>
+        <h2>Notification</h2>
         <div className="notification-container">
           {notifications.map((notification, index) => {
             return (

@@ -63,7 +63,7 @@ export function Friends({ profile }) {
                 );
               })
             ) : (
-              <h3>No friends at the moment :(</h3>
+              <h3>No friends at the moment</h3>
             )
           ) : (
             <Skeleton height={80} style={{ margin: "10px 0" }} count={3} />

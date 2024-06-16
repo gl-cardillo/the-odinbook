@@ -3,11 +3,16 @@ import axios from "axios";
 import { Link, useNavigate, Outlet } from "react-router-dom";
 import { useState, useRef, useContext, useEffect } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { IoSearch, IoHomeSharp } from "react-icons/io5";
+import {
+  IoSearch,
+  IoHomeSharp,
+  IoNotificationsOutline,
+  IoSettingsOutline,
+} from "react-icons/io5";
 import { BsX } from "react-icons/bs";
-import { IoNotificationsOutline } from "react-icons/io5";
 import { FiUserPlus, FiUsers } from "react-icons/fi";
 import { FaSignOutAlt } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { handleSearch, blur, getTime } from "../../utils/utils";
 
 export function Navbar() {
@@ -19,8 +24,11 @@ export function Navbar() {
   const [showNotification, setShowNotification] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationUnchecked, setNotificationUnchecked] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
   const [users, setUsers] = useState([]);
   const inputRef = useRef(null);
+  const notificationRef = useRef(null);
+  const settingsRef = useRef(null);
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -28,7 +36,6 @@ export function Navbar() {
       axios
         .get(`${process.env.REACT_APP_API_URL}/user/`)
         .then((res) => {
-          // remove user from the search
           const usersFilters = res.data.filter(
             (profile) => profile.id !== user._id
           );
@@ -58,6 +65,25 @@ export function Navbar() {
         });
     };
     getData();
+  }, [user.id]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotification(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const logoutUser = () => {
@@ -122,65 +148,60 @@ export function Navbar() {
             type="text"
             id="search"
             placeholder="Search..."
-            // ref is used in blur for remove the searchresult
-            // when user click somewhere else in the page
             ref={inputRef}
             onChange={(e) => handleSearch(e, setSearch, users)}
             onFocus={() => setShowSearch(true)}
           />
 
-          {showSearch ? (
-            // show users result from research and like to account
+          {showSearch && (
             <div className="search-result">
-              {search.map((userSearch, index) => {
-                return (
-                  <Link
-                    key={index}
-                    to={`/profile/${userSearch.id}`}
-                    style={{ textDecoration: "none" }}
-                    onClick={() => {
-                      inputRef.current.value = "";
-                      setSearch([]);
-                    }}
-                  >
-                    <div className="result-user">
-                      <img
-                        src={userSearch.profilePicUrl}
-                        className="avatar-pic"
-                        alt="avatar"
-                      />
-                      <p>{userSearch.fullname}</p>
-                    </div>
-                  </Link>
-                );
-              })}
+              {search.map((userSearch, index) => (
+                <Link
+                  key={index}
+                  to={`/profile/${userSearch.id}`}
+                  style={{ textDecoration: "none" }}
+                  onClick={() => {
+                    inputRef.current.value = "";
+                    setSearch([]);
+                  }}
+                >
+                  <div className="result-user">
+                    <img
+                      src={userSearch.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
+                    <p>{userSearch.fullname}</p>
+                  </div>
+                </Link>
+              ))}
             </div>
-          ) : (
-            ""
           )}
           <Link to="/searchPage" state={{ search }}>
             <IoSearch className="icon icon-search" />
           </Link>
         </div>
-        <div className="notification-icon-conatiner">
-          <IoNotificationsOutline
-            onClick={() => handleNotification()}
-            className="icon notification-icon"
-          />
-          {notificationUnchecked.length > 0 && (
-            <p className="notification-count">{notificationUnchecked.length}</p>
-          )}
-          {showNotification && (
-            <div className="notifications-container">
-              <h2>Notifications</h2>
-              {notifications.length > 0 ? (
-                <div>
-                  {notifications.slice(0, 4).map((notification, index) => {
-                    return (
+        <div className="icon-container">
+          <div className="notification-icon-container" ref={notificationRef}>
+            <IoNotificationsOutline
+              onClick={handleNotification}
+              className="icon notification-icon"
+            />
+            {notificationUnchecked.length > 0 && (
+              <p className="notification-count">
+                {notificationUnchecked.length}
+              </p>
+            )}
+            {showNotification && (
+              <div className="notifications-container">
+                <h2 className="notification-title">Notifications</h2>
+                {notifications.length > 0 ? (
+                  <div>
+                    {notifications.slice(0, 4).map((notification, index) => (
                       <Link key={index} to={notification.link}>
                         <div
                           className={
-                            notification.seen === true
+                            notification.seen
                               ? "notification"
                               : "notification unseen"
                           }
@@ -198,31 +219,59 @@ export function Navbar() {
                           <p className="time">{getTime(notification.date)}</p>
                         </div>
                       </Link>
-                    );
-                  })}
-                  <Link to="/notifications" state={{ notifications }}>
-                    <p
-                      className="see-more see-more-notification"
-                      onClick={() => setShowNotification(false)}
-                    >
-                      See more..
-                    </p>
-                  </Link>
+                    ))}
+                    <Link to="/notifications" state={{ notifications }}>
+                      <p
+                        className="see-more see-more-notification"
+                        onClick={() => setShowNotification(false)}
+                      >
+                        See more..
+                      </p>
+                    </Link>
+                  </div>
+                ) : (
+                  <p>No notifications at the moment</p>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="settings" ref={settingsRef}>
+            <IoSettingsOutline
+              onClick={() => setShowSettings(!showSettings)}
+              className="icon notification-icon"
+            />
+            {showSettings && (
+              <div
+                className={`settings-container ${
+                  user.email !== "test-account@example.com"
+                    ? "margin-150"
+                    : "margin-50"
+                }`}
+              >
+                <div className="inner-settings-container" onClick={logoutUser}>
+                  <FaSignOutAlt size={20} />
+                  <p>Log out</p>
                 </div>
-              ) : (
-                <p>No notifications at the moment</p>
-              )}
-            </div>
-          )}
+                {user.email !== "test-account@example.com" && (
+                  <div className="inner-settings-container">
+                    <MdDelete size={20} color="red" />
+                    <p
+                      className="delete-text"
+                      onClick={() => deleteAccount(user.id)}
+                    >
+                      Delete account
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-        {
-          // nav-bar buttons is the bar at the bottom for screen < 425px
-        }
         <div className="navbar-buttons">
-          <Link to="/friendRequests" className=" icon icon-friend">
+          <Link to="/friendRequests" className="icon icon-friend">
             <FiUserPlus />
           </Link>
-          <Link to="/friends" className=" icon icon-friend">
+          <Link to="/friends" className="icon icon-friend">
             <FiUsers />
           </Link>
           <img
@@ -245,15 +294,20 @@ export function Navbar() {
               />
               &nbsp;Profile
             </Link>
-            <p onClick={logoutUser}>
-              <FaSignOutAlt className="pic-30px" /> &nbsp;Log out
-            </p>
-            <p
-              className="delete-account"
-              onClick={() => deleteAccount(user.id)}
-            >
-              Delete account
-            </p>
+            <div className="inner-settings-container" onClick={logoutUser}>
+              <FaSignOutAlt size={24} /> <p>Log out</p>
+            </div>
+            {user.email !== "test-account@example.com" && (
+              <div className="inner-settings-container">
+                <MdDelete size={24} color="red" />
+                <p
+                  className="delete-text"
+                  onClick={() => deleteAccount(user.id)}
+                >
+                  Delete account
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

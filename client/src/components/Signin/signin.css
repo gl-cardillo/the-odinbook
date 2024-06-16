@@ -22,11 +22,12 @@
 .text-signlog-form {
   font-weight: bold;
   margin: 20px 0;
-  font-size: 20px;
+  font-size: 27px;
+  color: #374151;
 }
 
 .signlog-form {
-  box-shadow: 0px 0px 20px 0px black;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   width: 300px;
   padding: 15px 20px;
   border-radius: 10px;
@@ -87,6 +88,7 @@
 
 .text1024px {
   display: none;
+  color: #374151;
 }
 
 .new-account {

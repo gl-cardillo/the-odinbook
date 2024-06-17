@@ -16,12 +16,21 @@
 
 .about-form {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+}
 
+.about-form div {
+  position: relative;
 }
 
 .about-form label {
-  margin: auto;
+  position: absolute;
+  top: -8px;
+  left: 10px;
+  background-color: #fff;
+  padding: 0px 6px;
+  font-size: 13px;
+  color: rgb(65, 65, 65);
 }
 
 .about-form h4 {
@@ -38,23 +47,19 @@
   color: #848484;
 }
 
-.about-form input {
-  padding: 20px 10px 5px;
-  width: 220px;
-  border-radius: 15px;
-  border: 1px solid gray;
-}
-
 .about-form input:focus {
   outline: none !important;
   border: 2px solid #1877f2;
   padding: 19px 9px 4px;
 }
-.about-form select {
+
+.about-form select,
+.about-form input {
   width: 220px;
-  border-radius: 15px;
-  padding: 20px 5px 5px;
+  border-radius: 4px;
+  padding: 10px;
   font-size: 12px;
+  border: 1px solid rgb(186, 186, 186);
 }
 
 .relationship {
@@ -67,7 +72,9 @@
 .about-form .buttons {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 20px;
+  width: 100%;
 }
 
 .about-form button {
@@ -75,7 +82,7 @@
   color: #ffffff;
   width: 100px;
   font-weight: 800;
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 10px;
   border: 0;
 }
@@ -101,8 +108,13 @@
   font-size: 14px;
   margin-bottom: 5px;
 }
+
 @media screen and (min-width: 768px) {
   .about-container {
-    max-width: 340px;
+    max-width: 490px;
+  }
+  
+  .about-form div:nth-child(even) {
+    margin-left: 20px;
   }
 }

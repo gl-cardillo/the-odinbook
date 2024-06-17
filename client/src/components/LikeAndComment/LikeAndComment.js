@@ -174,7 +174,7 @@ export function LikeAndComment({ post, authorPostId }) {
               <AiOutlineLike />
             )
           }
-          like
+          Like
         </button>
 
         <button onClick={() => setExpandComments(!expandComments)}>
@@ -183,7 +183,7 @@ export function LikeAndComment({ post, authorPostId }) {
             //set the comment icon blue instead of trasparent
             expandComments ? <FaComment className="blue" /> : <FaRegComment />
           }
-          comment
+          Comment
         </button>
       </div>
       {expandComments && (

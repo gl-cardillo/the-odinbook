@@ -78,7 +78,7 @@ export function FriendRequests() {
                 );
               })
             ) : (
-              <h3>No friend requests at the moment :(</h3>
+              <h3>No friend requests at the moment</h3>
             )
           ) : (
             <Skeleton height={80} style={{ margin: "5px 0" }} count={3} />

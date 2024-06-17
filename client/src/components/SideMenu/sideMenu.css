@@ -82,7 +82,8 @@
 
 @media screen and (min-width: 1440px) {
   .side-menu-container {
-    padding: 30px 40px;
+       width: 20%;
+    padding: 20px;
     font-size: 18px;
   }
 

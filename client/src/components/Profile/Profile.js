@@ -227,8 +227,8 @@ export function Profile() {
                   );
                 })
               ) : (
-                <div className="post">
-                  <p>No post available :(</p>
+                <div className="post no-data-available-container">
+                  <p>No post available</p>
                 </div>
               )
             ) : (

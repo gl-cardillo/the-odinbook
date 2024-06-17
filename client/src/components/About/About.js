@@ -113,69 +113,69 @@ export function About({ profile, setRender, render }) {
       {edit ? (
         <div>
           <form className="about-form" onSubmit={handleSubmit(updateInfo)}>
-            <label htmlFor="firstname">
-              <h4>First name:</h4>
+            <div>
+              <label htmlFor="firstname">First name</label>
               <input
                 {...register("firstname")}
                 type="text"
                 id="firtsname"
                 label="First Name"
               />
-            </label>
-            <p className="error-about">{errors?.firstname?.message}</p>
-            <label htmlFor="lastname">
-              <h4> Last name:</h4>
-
+              <p className="error-about">{errors?.firstname?.message}</p>
+            </div>
+            <div>
+              <label htmlFor="lastname">Last name</label>
               <input
                 {...register("lastname")}
                 type="text"
                 id="lastname"
                 name="lastname"
               />
-            </label>
-            <p className="error-about">{errors?.lastname?.message}</p>
-            <label htmlFor="dateOfBirth">
-              <h4> Date of birth:</h4>
+              <p className="error-about">{errors?.lastname?.message}</p>
+            </div>
+            <div>
+              <label htmlFor="dateOfBirth">Date of birth</label>
               <input
                 {...register("dateOfBirth")}
                 type="date"
                 name="dateOfBirth"
                 id="dateOfBirth"
               />
-            </label>
-            <p className="error-about">{errors?.dateOfBirth?.message}</p>
-            <label htmlFor="hometown">
-              <h4> Hometown:</h4>
+              <p className="error-about">{errors?.dateOfBirth?.message}</p>
+            </div>
+            <div>
+              <label htmlFor="hometown">Hometown</label>
               <input
                 {...register("hometown")}
                 type="text"
                 name="hometown"
                 id="hometown"
               />
-            </label>
-            <p className="error-about">{errors?.hometown?.message}</p>
-            <label htmlFor="worksAt">
-              <h4> Works at:</h4>
+              <p className="error-about">{errors?.hometown?.message}</p>
+            </div>
+
+            <div>
+              <label htmlFor="worksAt">Works at</label>
               <input
                 {...register("worksAt")}
                 type="text"
                 name="worksAt"
                 id="worksAt"
               />
-            </label>
-            <p className="error-about">{errors?.worksAt?.message}</p>
-            <label htmlFor="school">
-              <h4>Studied at:</h4>
+              <p className="error-about">{errors?.worksAt?.message}</p>
+            </div>
+            <div>
+              <label htmlFor="school">Studied at</label>
               <input
                 {...register("school")}
                 type="text"
                 name="school"
                 id="school"
               />
-            </label>
-            <p className="error-about">{errors?.school?.message}</p>
-            <label htmlFor="gender">
-              <h4>Gender:</h4>
+              <p className="error-about">{errors?.school?.message}</p>
+            </div>
+            <div>
+              <label htmlFor="gender">Gender</label>
               <select
                 {...register("gender")}
                 id="gender"
@@ -187,10 +187,10 @@ export function About({ profile, setRender, render }) {
                 <option value="Non-binary"> Non-binary</option>
                 <option value=""> Perefer not to say</option>
               </select>
-            </label>
-            <p className="error-about"></p>
-            <label htmlFor="relationship">
-              <h4>Relationship:</h4>
+              <p className="error-about"></p>
+            </div>
+            <div>
+              <label htmlFor="relationship">Relationship</label>
               <select
                 {...register("relationship")}
                 id="relationship"
@@ -206,12 +206,12 @@ export function About({ profile, setRender, render }) {
                 <option value="Divorced"> Divorced</option>
                 <option value=""> Perefer not to say</option>
               </select>
-            </label>
-            <p className="error-about"></p>
+              <p className="error-about"></p>
+            </div>
             <div className="buttons">
               <button onClick={() => setEdit(false)} type="button">
                 Cancel
-              </button>{" "}
+              </button>
               <button type="submit">Save</button>
             </div>
           </form>
@@ -228,7 +228,7 @@ export function About({ profile, setRender, render }) {
           )}
           {profile.dateOfBirth && (
             <p>
-              <FaBirthdayCake className="about-icon" />{" "}
+              <FaBirthdayCake className="about-icon" />
               {profile.dateOfBirth_formatted}
             </p>
           )}

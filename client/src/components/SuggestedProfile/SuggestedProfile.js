@@ -109,7 +109,9 @@ export function SuggestedProfile() {
               );
             })
           ) : (
-            <h3>No profiles available at the moment :(</h3>
+            <div className="post no-data-available-container">
+              <p>No profiles available at the moment</p>
+            </div>
           )}
         </div>
       </div>

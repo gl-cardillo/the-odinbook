@@ -31,14 +31,7 @@ export function Comment({
     const getData = async () => {
       axios
         .get(
-          `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
+          `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`
         )
         .then((res) => {
           setProfilePicUrl(res.data);
@@ -70,9 +63,6 @@ export function Comment({
   const deleteComment = (id, commentDate) => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/comments/deleteComment`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
         data: {
           id,
           postId,

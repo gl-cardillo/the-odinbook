@@ -66,27 +66,17 @@ export function About({ profile, setRender, render }) {
     const dateOfBirth = new Date(date.getTime() - userTimezoneOffset);
 
     axios
-      .put(
-        `${process.env.REACT_APP_API_URL}/user/updateProfile`,
-        {
-          id: profile.id,
-          firstname: data.firstname,
-          lastname: data.lastname,
-          gender: data.gender,
-          dateOfBirth,
-          hometown: data.hometown,
-          worksAt: data.worksAt,
-          school: data.school,
-          relationship: data.relationship,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      )
+      .put(`${process.env.REACT_APP_API_URL}/user/updateProfile`, {
+        id: profile.id,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        gender: data.gender,
+        dateOfBirth,
+        hometown: data.hometown,
+        worksAt: data.worksAt,
+        school: data.school,
+        relationship: data.relationship,
+      })
       .then(() => {
         axios
           .get(`${process.env.REACT_APP_API_URL}/user/profile/${profile.id}`)

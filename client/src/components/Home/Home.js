@@ -18,45 +18,30 @@ export function Home() {
   const [friendRequests, setFriendRequests] = useState([]);
   const [render, setRender] = useState(0);
 
+  const isMoreThen768 = window.matchMedia("(min-width: 768px)");
+
   useEffect(() => {
     const getData = async () => {
-      await axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/posts/getFriendsPost/${user._id}`
-        )
-        .then((res) => {
-          setPosts(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      await axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/get3SuggestedProfile/${user._id}`
-        )
-        .then((res) => {
-          setSuggestedProfile(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      await axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
-        )
-        .then((res) => {
-          setFriendRequests(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/posts/getFriendsPost/${user._id}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/get3SuggestedProfile/${user._id}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+          ),
+        ];
+
+        const results = await Promise.all(requests);
+        setPosts(results[0].data);
+        setSuggestedProfile(results[1].data);
+        setFriendRequests(results[2].data);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     getData();
@@ -164,7 +149,9 @@ export function Home() {
           <Skeleton height={300} style={{ margin: "10px 0" }} count={3} />
         )}
       </div>
-      <SideMenu render={render} setRender={setRender} />
+      {isMoreThen768.matches && (
+        <SideMenu render={render} setRender={setRender} />
+      )}
     </div>
   );
 }

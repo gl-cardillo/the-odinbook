@@ -24,14 +24,7 @@ export function PostForm({ user, setRender, render }) {
     try {
       if (file) {
         const url = await axios.get(
-          `${process.env.REACT_APP_API_URL}/user/generateUrlS3`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
+          `${process.env.REACT_APP_API_URL}/user/generateUrlS3`
         );
 
         await axios.put(url.data, file, {
@@ -41,21 +34,11 @@ export function PostForm({ user, setRender, render }) {
         });
         imageUrl = url.data.split("?")[0];
       }
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/posts/createPost`,
-        {
-          text: text,
-          authorId: user._id,
-          picUrl: imageUrl,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      );
+      await axios.post(`${process.env.REACT_APP_API_URL}/posts/createPost`, {
+        text: text,
+        authorId: user._id,
+        picUrl: imageUrl,
+      });
       setFile(null);
       setPreviewPicture(null);
       setRender(render + 1);

@@ -19,14 +19,7 @@ export function Post({ post, setRender, render }) {
     const getData = async () => {
       axios
         .get(
-          `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
+          `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`
         )
         .then((res) => {
           setProfilePicUrl(res.data);

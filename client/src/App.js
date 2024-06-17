@@ -1,6 +1,7 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import axios from "axios";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Signin } from "./components/Signin/Signin";
 import { Login } from "./components/Login/Login";
 import { Home } from "./components/Home/Home";
@@ -24,6 +25,17 @@ function App() {
     JSON.parse(localStorage.getItem("user")) || null
   );
 
+
+  useEffect(() => {
+    let token = JSON.parse(localStorage.getItem("token"));
+    if (user && token) {
+      setIsAuth(true);
+      axios.defaults.headers.Authorization = `Bearer ${token}`;
+    } else {
+      setIsAuth(false);
+    }
+  }, [user]);
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <SkeletonTheme baseColor="#9b9b9b;" highlightColor="#979797">
@@ -37,7 +49,10 @@ function App() {
                 <Route path="/profile/:profileId" element={<Profile />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/friendRequests" element={<FriendRequests />} />
-                <Route path="/suggestedProfiles" element={<SuggestedProfile/>}/>
+                <Route
+                  path="/suggestedProfiles"
+                  element={<SuggestedProfile />}
+                />
                 <Route path="/searchPage" element={<SearchPage />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/singlePost/:postId" element={<SinglePost />} />

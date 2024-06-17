@@ -48,22 +48,12 @@ export function LikeAndComment({ post, authorPostId }) {
 
   const addComment = (data) => {
     axios
-      .post(
-        `${process.env.REACT_APP_API_URL}/comments/createComment`,
-        {
-          text: data.text,
-          postId: post.id,
-          authorId: user._id,
-          authorPostId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      )
+      .post(`${process.env.REACT_APP_API_URL}/comments/createComment`, {
+        text: data.text,
+        postId: post.id,
+        authorId: user._id,
+        authorPostId,
+      })
       .then(() => {
         setRender((render) => render + 1);
         setShowNewComment(!showNewComment);

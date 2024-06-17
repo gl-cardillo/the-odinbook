@@ -29,40 +29,32 @@ export function Navbar() {
   const inputRef = useRef(null);
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
+  const [friendRequestsLength, setFriendRequestsLength] = useState(0);
+
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
-    const getData = () => {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/user/`)
-        .then((res) => {
-          const usersFilters = res.data.filter(
-            (profile) => profile.id !== user._id
-          );
-          setUsers(usersFilters);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const getData = async () => {
+      try {
+        const requests = [
+          axios.get(`${process.env.REACT_APP_API_URL}/user/`),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/getNotification/${user.id}`
+          ),
+        ];
 
-      axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/getNotification/${user.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
-        )
-        .then((res) => {
-          setNotifications(res.data.notifications);
-          setNotificationUnchecked(res.data.unchecked);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        const results = await Promise.all(requests);
+
+        setUsers(results[0].data.filter((profile) => profile.id !== user._id));
+        setFriendRequestsLength(results[1].data.length);
+        setNotifications(results[2].data.notifications);
+        setNotificationUnchecked(results[2].data.unchecked);
+      } catch (error) {
+        console.log(error);
+      }
     };
     getData();
   }, [user.id]);
@@ -90,6 +82,7 @@ export function Navbar() {
     localStorage.clear();
     navigate("/");
     setUser(null);
+    delete axios.defaults.headers.Authorization;
   };
 
   const deleteAccount = (id) => {
@@ -269,6 +262,9 @@ export function Navbar() {
         </div>
         <div className="navbar-buttons">
           <Link to="/friendRequests" className="icon icon-friend">
+            {friendRequestsLength > 0 && (
+              <p className="request-count">{friendRequestsLength}</p>
+            )}
             <FiUserPlus />
           </Link>
           <Link to="/friends" className="icon icon-friend">

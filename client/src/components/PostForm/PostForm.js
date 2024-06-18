@@ -16,7 +16,7 @@ export function PostForm({ user, setRender, render }) {
     setLoadingPost(true);
     e.preventDefault();
     if (text === "") {
-      setError("text is required");
+      setError("Text is required");
       return;
     }
     let imageUrl = "";

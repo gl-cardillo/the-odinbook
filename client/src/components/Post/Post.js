@@ -9,6 +9,7 @@ import { getTime } from "../../utils/utils";
 import { deletePost } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { MdDelete } from "react-icons/md";
 
 export function Post({ post, setRender, render }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -65,7 +66,7 @@ export function Post({ post, setRender, render }) {
                 className="delete-button"
                 onClick={() => deletePost(post, setRender, render)}
               >
-                <AiOutlineClose />
+                <MdDelete color="red" size={17} />
               </button>
             )
           }

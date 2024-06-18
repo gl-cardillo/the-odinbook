@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { MdDelete } from "react-icons/md";
 
 export function Comment({
   comment,
@@ -238,7 +239,7 @@ export function Comment({
               className="delete-button"
               onClick={() => deleteComment(comment._id, comment.date)}
             >
-              <AiOutlineClose />
+              <MdDelete color="red" size={16}/>
             </button>
           )}
         </div>
@@ -285,7 +286,7 @@ export function Comment({
                         )
                       }
                     >
-                      <AiOutlineClose />
+                      <MdDelete color="red" size={16} />
                     </button>
                   )}
                 </div>

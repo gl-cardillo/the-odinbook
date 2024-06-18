@@ -56,7 +56,7 @@ export function Home() {
             // show profiles the user is not friend with
             suggestedProfile.length > 0 && (
               <div className="home-suggested-profile-container">
-                <h3>People you may know..</h3>
+                <h3>People you may know...</h3>
                 <div className="home-suggested-profile">
                   {suggestedProfile.map((profile, index) => {
                     return (
@@ -120,7 +120,7 @@ export function Home() {
                   })}
                 </div>
                 <Link to={"/suggestedProfiles"}>
-                  <p className="see-more">See more..</p>
+                  <p className="see-more">See more...</p>
                 </Link>
               </div>
             )

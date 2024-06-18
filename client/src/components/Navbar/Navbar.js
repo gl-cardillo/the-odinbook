@@ -108,17 +108,9 @@ export function Navbar() {
   const handleNotification = () => {
     if (notificationUnchecked.length > 0) {
       axios
-        .put(
-          `${process.env.REACT_APP_API_URL}/user/checkNotification`,
-          { id: user.id },
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
-        )
+        .put(`${process.env.REACT_APP_API_URL}/user/checkNotification`, {
+          id: user.id,
+        })
         .then(() => {
           setNotificationUnchecked([]);
         })
@@ -146,28 +138,33 @@ export function Navbar() {
             onFocus={() => setShowSearch(true)}
           />
 
-          {showSearch && (
+          {showSearch && inputRef.current.value.length > 0 && (
             <div className="search-result">
-              {search.map((userSearch, index) => (
-                <Link
-                  key={index}
-                  to={`/profile/${userSearch.id}`}
-                  style={{ textDecoration: "none" }}
-                  onClick={() => {
-                    inputRef.current.value = "";
-                    setSearch([]);
-                  }}
-                >
-                  <div className="result-user">
-                    <img
-                      src={userSearch.profilePicUrl}
-                      className="avatar-pic"
-                      alt="avatar"
-                    />
-                    <p>{userSearch.fullname}</p>
-                  </div>
-                </Link>
-              ))}
+              {search.length > 0 ? (
+                search.map((userSearch, index) => (
+                  <Link
+                    key={index}
+                    to={`/profile/${userSearch.id}`}
+                    style={{ textDecoration: "none" }}
+                    onClick={() => {
+                      inputRef.current.value = "";
+                      setSearch([]);
+                    }}
+                  >
+                    <div className="result-user">
+                      <img
+                        src={userSearch.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />
+
+                      <p>{userSearch.fullname}</p>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="no-user-found">No users found</p>
+              )}
             </div>
           )}
           <Link to="/searchPage" state={{ search }}>

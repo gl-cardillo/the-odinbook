@@ -1,20 +1,23 @@
 .add-post textarea {
   resize: none;
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .add-post button,
 .add-post label {
   border: 0;
-  border-radius: 10px;
+  border-radius: 5px;
   color: #fff;
   background-color: #1877f2;
   font-weight: 600;
   padding: 7px;
   font-size: 16px;
   width: 40%;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .add-post img {

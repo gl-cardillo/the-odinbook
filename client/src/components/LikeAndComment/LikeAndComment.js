@@ -203,7 +203,7 @@ export function LikeAndComment({ post, authorPostId }) {
               placeholder="Write a comment..."
             />
             <p className="error-form-comment">{errors?.text?.message}</p>
-            <button type="submit">Add comment</button>
+            <button type="submit">Add Comment</button>
           </form>
         </div>
       )}

@@ -174,17 +174,20 @@
   display: none;
 }
 
+.notification-icon-container {
+  position: relative;
+}
+
 .notifications-container,
 .settings-container {
   position: absolute;
   z-index: 2;
   background-color: #ffffff;
-  margin-left: -250px;
-  margin-right: 10px;
-  right: 40px;
+  right: 10px;
   padding: 10px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   border-radius: 5px;
+  width: 270px;
 }
 
 .settings-container {

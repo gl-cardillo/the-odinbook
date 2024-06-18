@@ -563,7 +563,7 @@ exports.updateProfile = [
       await user.save();
       return res.status(200).json({ message: "Profile updated" });
     } catch (err) {
-      console.log(err.message)
+      console.log(err.message);
       return res.status(500).json({ message: err.message });
     }
   },
@@ -600,17 +600,28 @@ exports.getNofication = async (req, res, next) => {
 
 exports.checkNotification = async (req, res, next) => {
   try {
-    const checkNotification = await User.updateOne(
-      { id: req.body.id, "notifications.seen": false },
-      { $set: { "notifications.$[].seen": true } },
-      { multi: true }
-    );
-
-    if (!checkNotification) {
-      return res.status(404).json({ message: "No notifications found" });
+    // Ensure the request body contains an id
+    if (!req.body.id) {
+      return res.status(400).json({ message: "User ID is required" });
     }
 
-    return res.status(200).json({ message: "Notification checked" });
+    // Update all notifications to mark them as seen
+    const checkNotification = await User.findByIdAndUpdate(
+      req.body.id,
+      { $set: { "notifications.$[].seen": true } },
+      { new: true } // This option returns the updated document
+    );
+
+    // Check if the user's notifications were updated
+    if (!checkNotification) {
+      return res
+        .status(404)
+        .json({ message: "User not found or no notifications updated" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "All notifications checked", user: checkNotification });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }

@@ -42,6 +42,7 @@
 .icon-remove-pic {
   align-self: flex-end;
   font-size: 25px;
+  cursor: pointer;
 }
 
 @media screen and (min-width: 425px) {

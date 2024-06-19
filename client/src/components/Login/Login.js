@@ -41,6 +41,7 @@ export function Login({ setIsAuth }) {
         setIsAuth(true);
         localStorage.setItem("user", JSON.stringify(res.data.user));
         localStorage.setItem("token", JSON.stringify(res.data.token));
+        axios.defaults.headers.Authorization = `Bearer ${res.data.token}`;
         setUser(res.data.user);
         navigate("/home", { replace: true });
       })
@@ -59,6 +60,7 @@ export function Login({ setIsAuth }) {
         setIsAuth(true);
         localStorage.setItem("user", JSON.stringify(res.data.user));
         localStorage.setItem("token", JSON.stringify(res.data.token));
+        axios.defaults.headers.Authorization = `Bearer ${res.data.token}`;
         setUser(res.data.user);
         navigate("/home", { replace: true });
       })

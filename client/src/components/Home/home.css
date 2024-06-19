@@ -69,11 +69,12 @@
 
 .home-suggested-profile button {
   margin-top: 10px;
-  padding: 3px 8px;
+  padding: 5px 10px;
   color: #ffffff;
   background-color: #1877f2;
   border: 0;
   border-radius: 5px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .home-suggested-profile-container h3 {
@@ -92,9 +93,7 @@
 
 button:disabled,
 button[disabled] {
-  border: 1px solid #999999 !important;
-  background-color: #9aacfa !important;
-  color: #e6e6e6 !important;
+  opacity: 0.6;
 }
 
 .search-container {

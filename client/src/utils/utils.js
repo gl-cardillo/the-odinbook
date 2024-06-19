@@ -48,11 +48,6 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
         profileId,
         userId,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -68,11 +63,6 @@ export const removeFriend = async (profileId, userId, set, render) => {
         userId,
         profileId,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
     );
     set((renderPost) => renderPost + 1);
   } catch (error) {
@@ -88,11 +78,6 @@ export const acceptRequest = async (profileId, userId, set, render) => {
         userId,
         profileId,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -108,11 +93,6 @@ export const declineRequest = async (profileId, userId, set, render) => {
         userId,
         profileId,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -151,11 +131,6 @@ export const addLike = (type, element, user, set, postId) => {
         elementAuthorId: element.authorId,
         postId,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
     )
     .then(() => {
       set((render) => render + 1);
@@ -177,42 +152,30 @@ export const changePic = async (profileOrCover, file, user, set) => {
     try {
       // create url to store image
       const url = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/generateUrlS3/`,
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
+        `${process.env.REACT_APP_API_URL}/user/generateUrlS3/`
       );
+  
       // sotre image to the url
       await axios.put(url.data, file, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "Authorization": null
         },
       });
+
 
       const imageUrl = url.data.split("?")[0];
 
       // update the user in the database with the right url
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/user/changePic`,
-        {
-          imageUrl,
-          id: user.id,
-          profileOrCover,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      );
+      await axios.put(`${process.env.REACT_APP_API_URL}/user/changePic`, {
+        imageUrl,
+        id: user.id,
+        profileOrCover,
+      });
 
-      const userUpdate = await axios.get(`/user/profile/${user._id}`);
+      const userUpdate = await axios.get(
+        `${process.env.REACT_APP_API_URL}/user/profile/${user._id}`
+      );
       localStorage.setItem("user", JSON.stringify(userUpdate.data));
       set((render) => render + 1);
     } catch (error) {
@@ -277,7 +240,6 @@ export const swalStyle = {
     popup: "animate__animated animate__fadeOutUp animate__faster",
   },
 };
-
 
 export const handleError = (text) => {
   Swal.fire({

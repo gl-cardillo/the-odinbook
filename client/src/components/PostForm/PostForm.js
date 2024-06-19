@@ -30,6 +30,7 @@ export function PostForm({ user, setRender, render }) {
         await axios.put(url.data, file, {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: null,
           },
         });
         imageUrl = url.data.split("?")[0];

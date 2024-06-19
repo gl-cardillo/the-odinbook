@@ -1,4 +1,5 @@
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const deletePost = (post, set, render) => {
   axios
@@ -256,3 +257,59 @@ export function getTime(time) {
     return date.toLocaleDateString("en-UK");
   }
 }
+
+export const swalStyle = {
+  allowOutsideClick: false,
+  backdrop: false,
+  customClass: {
+    popup: "swal-popup dark-mode",
+    modal: "swal-modal",
+    actions: "swal-actions",
+    confirmButton: "swal-confirm-button",
+    cancelButton: "swal-cancel-button",
+    title: "swal-title dark-mode",
+    htmlContainer: "swal-html-container dark-mode",
+  },
+  showClass: {
+    popup: "animate__animated animate__slideInDown animate__faster",
+  },
+  hideClass: {
+    popup: "animate__animated animate__fadeOutUp animate__faster",
+  },
+};
+
+
+export const handleError = (text) => {
+  Swal.fire({
+    title: "Something went wrong",
+    text,
+    position: "top",
+    confirmButtonText: "Close",
+    ...swalStyle,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.close();
+    }
+  });
+};
+
+export const handleSuccess = (title, refresh = false) => {
+  Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 2000,
+  })
+    .fire({
+      icon: "success",
+      title,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        if (refresh) {
+          window.location.reload();
+        }
+        Swal.close();
+      }
+    });
+};

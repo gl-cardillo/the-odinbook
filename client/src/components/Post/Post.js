@@ -10,6 +10,8 @@ import { deletePost } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
+import { swalStyle, handleSuccess } from "../../utils/utils";
 
 export function Post({ post, setRender, render }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -40,6 +42,25 @@ export function Post({ post, setRender, render }) {
     getData();
   }, [post.authorId, render]);
 
+  const confirmDelete = () => {
+    Swal.fire({
+      title: "Are you sure you want to delete this post?",
+      position: "top",
+      showCancelButton: true,
+      confirmButtonText: "Close",
+      cancelButtonText: "Delete",
+      ...swalStyle,
+    }).then((result) => {
+      if (result.isDismissed) {
+        deletePost(post, setRender, render);
+        Swal.close();
+        handleSuccess("Post deleted successfully");
+      } else {
+        Swal.close();
+      }
+    });
+  };
+
   return (
     <div>
       <div className="post">
@@ -62,10 +83,7 @@ export function Post({ post, setRender, render }) {
           {
             //if author posts is the user show delete button
             post.authorId === user._id && (
-              <button
-                className="delete-button"
-                onClick={() => deletePost(post, setRender, render)}
-              >
+              <button className="delete-button" onClick={confirmDelete}>
                 <MdDelete color="red" size={17} />
               </button>
             )

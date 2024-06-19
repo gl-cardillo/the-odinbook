@@ -13,7 +13,8 @@ import { BsX } from "react-icons/bs";
 import { FiUserPlus, FiUsers } from "react-icons/fi";
 import { FaSignOutAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { handleSearch, blur, getTime } from "../../utils/utils";
+import { handleSearch, blur, getTime, swalStyle } from "../../utils/utils";
+import Swal from "sweetalert2";
 
 export function Navbar() {
   let navigate = useNavigate();
@@ -85,14 +86,11 @@ export function Navbar() {
     delete axios.defaults.headers.Authorization;
   };
 
-  const deleteAccount = (id) => {
+  const deleteAccount = () => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/user/deleteAccount`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
         data: {
-          id,
+          id: user.id,
         },
       })
       .then(() => {
@@ -103,6 +101,24 @@ export function Navbar() {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const confirmDeleteComment = () => {
+    Swal.fire({
+      title: "Are you sure you want to delete this comment?",
+      position: "top",
+      showCancelButton: true,
+      confirmButtonText: "Close",
+      cancelButtonText: "Delete",
+      ...swalStyle,
+    }).then((result) => {
+      if (result.isDismissed) {
+        deleteAccount();
+        Swal.close();
+      } else {
+        Swal.close();
+      }
+    });
   };
 
   const handleNotification = () => {
@@ -245,10 +261,7 @@ export function Navbar() {
                 {user.email !== "test-account@example.com" && (
                   <div className="inner-settings-container">
                     <MdDelete size={20} color="red" />
-                    <p
-                      className="delete-text"
-                      onClick={() => deleteAccount(user.id)}
-                    >
+                    <p className="delete-text" onClick={confirmDeleteComment}>
                       Delete account
                     </p>
                   </div>

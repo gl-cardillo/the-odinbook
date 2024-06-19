@@ -12,6 +12,8 @@ import * as yup from "yup";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
+import Swal from "sweetalert2";
+import { swalStyle, handleSuccess } from "../../utils/utils";
 
 export function Comment({
   comment,
@@ -157,6 +159,42 @@ export function Comment({
     resolver: yupResolver(schema),
   });
 
+  const confirmDeleteComment = () => {
+    Swal.fire({
+      title: "Are you sure you want to delete this comment?",
+      position: "top",
+      showCancelButton: true,
+      confirmButtonText: "Close",
+      cancelButtonText: "Delete",
+      ...swalStyle,
+    }).then((result) => {
+      if (result.isDismissed) {
+        deleteComment(comment._id, comment.date);
+        Swal.close();
+        handleSuccess("Comment deleted");
+      } else {
+        Swal.close();
+      }
+    });
+  };
+  const confirmDeleteReply = (reply) => {
+    Swal.fire({
+      title: "Are you sure you want to delete this reply?",
+      position: "top",
+      showCancelButton: true,
+      confirmButtonText: "Close",
+      cancelButtonText: "Delete",
+      ...swalStyle,
+    }).then((result) => {
+      if (result.isDismissed) {
+        deleteReply(comment.id, comment.authorId, reply.authorId, reply.date);
+        Swal.close();
+        handleSuccess("Reply deleted successfully");
+      } else {
+        Swal.close();
+      }
+    });
+  };
   return (
     <div className="comment-reply-container">
       <div className="comment-container">
@@ -235,11 +273,8 @@ export function Comment({
         <div className="delete-button-container">
           {comment.authorId === user._id && (
             //is the comment author is the user show delete button
-            <button
-              className="delete-button"
-              onClick={() => deleteComment(comment._id, comment.date)}
-            >
-              <MdDelete color="red" size={16}/>
+            <button className="delete-button" onClick={confirmDeleteComment}>
+              <MdDelete color="red" size={16} />
             </button>
           )}
         </div>
@@ -272,19 +307,12 @@ export function Comment({
                       <p>{reply.text}</p>
                     </div>
                     <p className="time">{getTime(reply.date)}</p>
-                  </div>{" "}
+                  </div>
                   {reply.authorId === user._id && (
                     //is the comment author is the user show delete button
                     <button
                       className="delete-button"
-                      onClick={() =>
-                        deleteReply(
-                          comment.id,
-                          comment.authorId,
-                          reply.authorId,
-                          reply.date
-                        )
-                      }
+                      onClick={() => confirmDeleteReply(reply)}
                     >
                       <MdDelete color="red" size={16} />
                     </button>

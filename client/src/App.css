@@ -153,6 +153,70 @@ button {
   background-color: #fff;
 }
 
+/* swall Styles */
+.swal-popup {
+  padding-bottom: 0.5rem;
+  width: fit-content;
+}
+
+.swal-modal {
+  width: fit-content;
+  background-color: #f56565;
+}
+
+.swal-actions {
+  margin-top: 0 !important;
+}
+
+.swal-confirm-button {
+  background-color: #a0aec0 !important;
+  border: none;
+  box-shadow: var(--shadow);
+  padding: 6px;
+}
+
+.swal-confirm-button:focus {
+  box-shadow: var(--focus-shadow) !important;
+}
+
+.swal-cancel-button {
+  background-color: #f56565 !important;
+  border: none;
+  box-shadow: var(--shadow);
+  padding: 6px;
+}
+
+.swal-cancel-button:focus {
+  box-shadow: var(--focus-shadow) !important;
+}
+
+.swal-title {
+  font-size: 1.25rem;
+  font-weight: normal;
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.swal-html-container {
+  color: #6b7280 !important;
+  font-size: 1rem !important;
+  margin-top: 0.25rem !important;
+  margin-bottom: 0 !important;
+}
+
+.swal-html-container.dark-mode {
+  color: #a0aec0 !important;
+}
+
+.swal-show {
+  animation: slideInDown faster;
+}
+
+.swal-hide {
+  animation: fadeOutUp faster;
+}
+
 @media screen and (min-width: 425px) {
   .friend {
     padding: 10px;

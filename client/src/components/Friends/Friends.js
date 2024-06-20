@@ -7,7 +7,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 export function Friends({ profile }) {
-  const [friends, setfriends] = useState(null);
+  const [friends, setFriends] = useState(null);
   const [render, setRender] = useState(1);
   const { user } = useContext(UserContext);
 
@@ -23,7 +23,7 @@ export function Friends({ profile }) {
         const friendsList = await axios.get(
           `${process.env.REACT_APP_API_URL}/user/friends/${id}`
         );
-        setfriends(friendsList.data);
+        setFriends(friendsList.data);
       } catch (err) {
         console.log(err);
       }

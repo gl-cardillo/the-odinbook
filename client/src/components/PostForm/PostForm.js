@@ -77,7 +77,7 @@ export function PostForm({ user, setRender, render }) {
       reader.readAsDataURL(e.target.files[0]);
       setFile(e.target.files[0]);
     } else {
-      setError("Insert a vaild image format (bmp, gif, jpeg, png, tiff, webp)");
+      setError("Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)");
     }
   };
 

@@ -10,7 +10,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 export function SideMenu({ friendRequests, render, setRender }) {
   let navigate = useNavigate();
   const [requests, setRequests] = useState(null);
-  const [friends, setfriends] = useState(null);
+  const [friends, setFriends] = useState(null);
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function SideMenu({ friendRequests, render, setRender }) {
       await axios
         .get(`${process.env.REACT_APP_API_URL}/user/friends3/${user.id}`)
         .then((res) => {
-          setfriends(res.data);
+          setFriends(res.data);
         })
         .catch((err) => {
           console.log(err);

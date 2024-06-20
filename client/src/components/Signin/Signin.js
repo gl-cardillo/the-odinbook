@@ -10,7 +10,7 @@ import * as yup from "yup";
 export function Signin({ setIsAuth }) {
   let navigate = useNavigate();
 
-  const [error, setErrror] = useState("");
+  const [error, setError] = useState("");
   const { setUser } = useContext(UserContext);
 
   const schema = yup.object().shape({
@@ -69,7 +69,7 @@ export function Signin({ setIsAuth }) {
       })
       .catch((err) => {
         console.log(err);
-        setErrror(err.response.data.message);
+        setError(err.response.data.message);
       });
   };
 

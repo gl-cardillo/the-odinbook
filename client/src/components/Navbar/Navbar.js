@@ -153,7 +153,6 @@ export function Navbar() {
             onChange={(e) => handleSearch(e, setSearch, users)}
             onFocus={() => setShowSearch(true)}
           />
-
           {showSearch && inputRef.current.value.length > 0 && (
             <div className="search-result">
               {search.length > 0 ? (

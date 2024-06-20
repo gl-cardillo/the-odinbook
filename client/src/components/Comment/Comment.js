@@ -95,23 +95,13 @@ export function Comment({
 
   const addReply = (data) => {
     axios
-      .post(
-        `${process.env.REACT_APP_API_URL}/comments/createReply`,
-        {
-          text: data.text,
-          commentId: comment.id,
-          authorId: user._id,
-          authorCommentId: comment.authorId,
-          postId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("token")
-            )}`,
-          },
-        }
-      )
+      .post(`${process.env.REACT_APP_API_URL}/comments/createReply`, {
+        text: data.text,
+        commentId: comment.id,
+        authorId: user._id,
+        authorCommentId: comment.authorId,
+        postId,
+      })
       .then(() => {
         getReply();
         setRender((render) => render + 1);
@@ -126,9 +116,6 @@ export function Comment({
   const deleteReply = (commentId, authorCommentId, authorReplyId, date) => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/comments/deleteReply`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
         data: {
           commentId,
           authorReplyId,
@@ -221,7 +208,7 @@ export function Comment({
               {comment.text}
             </p>
             {showLikes && (
-              // if showlikes is true show a screen with all the user who liked the post
+              // if show likes is true show a screen with all the user who liked the post
               <div className="black-screen">
                 <div className="screen-container">
                   <div className="title-button">

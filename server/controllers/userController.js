@@ -146,7 +146,7 @@ exports.friendRequestsByUserId3 = async (req, res, next) => {
     }
 
     // se the number of loop to a maximum of 3 if
-    // firnds least is greater then 3
+    // finds least is greater then 3
     let numberLoop;
     if (user.friends.length < 3) {
       numberLoop = user.friendRequests.length;
@@ -156,6 +156,8 @@ exports.friendRequestsByUserId3 = async (req, res, next) => {
 
     for (let i = 0; i < numberLoop; i++) {
       const userProfile = await User.findById(user.friendRequests[i]);
+
+      if (!userProfile) return;
 
       const userData = {
         id: userProfile._id,

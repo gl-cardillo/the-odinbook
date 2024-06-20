@@ -60,7 +60,7 @@ export function About({ profile, setRender, render }) {
   });
 
   const updateInfo = (data) => {
-    // only way i found to store date of birth witout time in mongodb
+    // only way i found to store date of birth without time in mongodb
     const date = new Date(data.dateOfBirth);
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     const dateOfBirth = new Date(date.getTime() - userTimezoneOffset);
@@ -175,7 +175,7 @@ export function About({ profile, setRender, render }) {
                 <option value="Male"> Male</option>
                 <option value="Female"> Female</option>
                 <option value="Non-binary"> Non-binary</option>
-                <option value=""> Perefer not to say</option>
+                <option value="">Prefer not to say</option>
               </select>
               <p className="error-about"></p>
             </div>
@@ -194,7 +194,7 @@ export function About({ profile, setRender, render }) {
                 </option>
                 <option value="Married"> Married</option>
                 <option value="Divorced"> Divorced</option>
-                <option value=""> Perefer not to say</option>
+                <option value=""> Prefer not to say</option>
               </select>
               <p className="error-about"></p>
             </div>

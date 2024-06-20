@@ -8,7 +8,7 @@ import * as yup from "yup";
 
 export function Login({ setIsAuth }) {
   const navigate = useNavigate();
-  const [error, setErrror] = useState("");
+  const [error, setError] = useState("");
   const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function Login({ setIsAuth }) {
         navigate("/home", { replace: true });
       })
       .catch((err) => {
-        setErrror(err.response.data.message);
+        setError(err.response.data.message);
       });
   };
 
@@ -65,7 +65,7 @@ export function Login({ setIsAuth }) {
         navigate("/home", { replace: true });
       })
       .catch((err) => {
-        setErrror(err.response.data.message);
+        setError(err.response.data.message);
       });
   };
 

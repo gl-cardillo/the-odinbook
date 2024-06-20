@@ -78,7 +78,7 @@ export function Home() {
                           <p className="block1024px">{profile.fullname}</p>
                         </Link>
                         {
-                          //if the profile asked the user for frienship
+                          //if the profile asked the user for friendship
                           // show button Accept
                           friendRequests.filter(
                             (request) => request.id === profile.id
@@ -96,7 +96,7 @@ export function Home() {
                               Accept
                             </button>
                           ) : profile.friendRequests.includes(user._id) ? (
-                            // if the user arleady send the friend request
+                            // if the user already send the friend request
                             // show disabled button added
                             <button disabled>Added</button>
                           ) : (

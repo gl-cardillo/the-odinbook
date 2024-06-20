@@ -98,7 +98,7 @@ export function LikeAndComment({ post, authorPostId }) {
             ""
           )}
           {showLikes && (
-            // if showlikes is true show a screen with all the user who liked the post
+            // if show likes is true show a screen with all the user who liked the post
             <div className="black-screen">
               <div className="screen-container">
                 <div className="title-button">
@@ -157,7 +157,7 @@ export function LikeAndComment({ post, authorPostId }) {
       <div className="post-buttons">
         <button onClick={() => addLike("posts", post, user, setRender)}>
           {
-            //if user liked the post, show blue like instead of trasparent
+            //if user liked the post, show blue like instead of transparent
             likes.filter((profile) => profile.id === user.id).length > 0 ? (
               <AiFillLike className="blue" />
             ) : (
@@ -170,7 +170,7 @@ export function LikeAndComment({ post, authorPostId }) {
         <button onClick={() => setExpandComments(!expandComments)}>
           {
             //if user click on the button below show comments
-            //set the comment icon blue instead of trasparent
+            //set the comment icon blue instead of transparent
             expandComments ? <FaComment className="blue" /> : <FaRegComment />
           }
           Comment

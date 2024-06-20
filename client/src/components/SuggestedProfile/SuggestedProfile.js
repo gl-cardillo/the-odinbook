@@ -6,7 +6,7 @@ import { addFriendRequest, acceptRequest } from "../../utils/utils";
 import { SideMenu } from "../SideMenu/SideMenu";
 
 export function SuggestedProfile() {
-  const [suggestedProfile, setsuggestedProfile] = useState([]);
+  const [suggestedProfile, setSuggestedProfile] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
   const [render, setRender] = useState(1);
 
@@ -16,33 +16,17 @@ export function SuggestedProfile() {
     const getData = async () => {
       await axios
         .get(
-          `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
+          `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`
         )
         .then((res) => {
-          setsuggestedProfile(res.data);
+          setSuggestedProfile(res.data);
         })
         .catch((err) => {
           console.log(err);
         });
 
       await axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("token")
-              )}`,
-            },
-          }
-        )
+        .get(`${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`)
         .then((res) => {
           setFriendRequests(res.data);
         })
@@ -86,7 +70,7 @@ export function SuggestedProfile() {
                         Accept
                       </button>
                     ) : profile.friendRequests.includes(user._id) ? (
-                      // if the user arleady send the friend request
+                      // if the user already send the friend request
                       // show disabled button added
                       <button disabled>Added</button>
                     ) : (

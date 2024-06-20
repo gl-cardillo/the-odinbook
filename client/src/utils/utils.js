@@ -4,9 +4,6 @@ import Swal from "sweetalert2";
 export const deletePost = (post, set, render) => {
   axios
     .delete(`${process.env.REACT_APP_API_URL}/posts/deletePost`, {
-      headers: {
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-      },
       data: {
         id: post._id,
         picUrl: post.picUrl,
@@ -22,18 +19,10 @@ export const deletePost = (post, set, render) => {
 
 export const addFriendRequest = async (profileId, userId, set, render) => {
   try {
-    await axios.put(
-      `${process.env.REACT_APP_API_URL}/user/sendFriendRequest`,
-      {
-        profileId,
-        userId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-        },
-      }
-    );
+    await axios.put(`${process.env.REACT_APP_API_URL}/user/sendFriendRequest`, {
+      profileId,
+      userId,
+    });
     set((render) => render + 1);
   } catch (error) {
     console.log(error);
@@ -47,7 +36,7 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
       {
         profileId,
         userId,
-      },
+      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -57,13 +46,10 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
 
 export const removeFriend = async (profileId, userId, set, render) => {
   try {
-    await axios.put(
-      `${process.env.REACT_APP_API_URL}/user/removeFriend`,
-      {
-        userId,
-        profileId,
-      },
-    );
+    await axios.put(`${process.env.REACT_APP_API_URL}/user/removeFriend`, {
+      userId,
+      profileId,
+    });
     set((renderPost) => renderPost + 1);
   } catch (error) {
     console.log(error);
@@ -77,7 +63,7 @@ export const acceptRequest = async (profileId, userId, set, render) => {
       {
         userId,
         profileId,
-      },
+      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -92,7 +78,7 @@ export const declineRequest = async (profileId, userId, set, render) => {
       {
         userId,
         profileId,
-      },
+      }
     );
     set((render) => render + 1);
   } catch (error) {
@@ -123,15 +109,12 @@ export function handleSearch(e, set, users) {
 
 export const addLike = (type, element, user, set, postId) => {
   axios
-    .put(
-      `${process.env.REACT_APP_API_URL}/${type}/addLike`,
-      {
-        userId: user._id,
-        elementId: element.id,
-        elementAuthorId: element.authorId,
-        postId,
-      },
-    )
+    .put(`${process.env.REACT_APP_API_URL}/${type}/addLike`, {
+      userId: user._id,
+      elementId: element.id,
+      elementAuthorId: element.authorId,
+      postId,
+    })
     .then(() => {
       set((render) => render + 1);
     })
@@ -154,15 +137,14 @@ export const changePic = async (profileOrCover, file, user, set) => {
       const url = await axios.get(
         `${process.env.REACT_APP_API_URL}/user/generateUrlS3/`
       );
-  
-      // sotre image to the url
+
+      // store image to the url
       await axios.put(url.data, file, {
         headers: {
           "Content-Type": "multipart/form-data",
-          "Authorization": null
+          Authorization: null,
         },
       });
-
 
       const imageUrl = url.data.split("?")[0];
 

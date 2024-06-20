@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
 import { SideMenu } from "../SideMenu/SideMenu";
-import { acceptRequest, declineRequest } from "../../utils/utils";
+import { acceptRequest, declineRequest, handleError } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -23,6 +23,7 @@ export function FriendRequests() {
         setRequests(requestsList.data);
       } catch (err) {
         console.log(err);
+        handleError(err.message);
       }
     };
     getRequests();

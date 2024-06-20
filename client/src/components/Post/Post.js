@@ -11,7 +11,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2";
-import { swalStyle, handleSuccess } from "../../utils/utils";
+import { swalStyle, handleSuccess, handleError } from "../../utils/utils";
 
 export function Post({ post, setRender, render }) {
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -29,6 +29,7 @@ export function Post({ post, setRender, render }) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
 
       axios
@@ -37,6 +38,10 @@ export function Post({ post, setRender, render }) {
         )
         .then((res) => {
           setAuthor(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          handleError(err.message);
         });
     };
     getData();

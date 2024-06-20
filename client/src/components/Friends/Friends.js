@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { SideMenu } from "../SideMenu/SideMenu";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { handleError } from "../../utils/utils";
 
 export function Friends({ profile }) {
   const [friends, setFriends] = useState(null);
@@ -26,6 +27,7 @@ export function Friends({ profile }) {
         setFriends(friendsList.data);
       } catch (err) {
         console.log(err);
+        handleError(err.message);
       }
     };
     getFriends();

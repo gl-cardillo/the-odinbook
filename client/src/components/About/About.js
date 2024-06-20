@@ -8,6 +8,7 @@ import { FaUser, FaBirthdayCake, FaHeart, FaHome } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { handleError } from "../../utils/utils";
 
 export function About({ profile, setRender, render }) {
   const { user, setUser } = useContext(UserContext);
@@ -89,6 +90,7 @@ export function About({ profile, setRender, render }) {
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message)
       });
   };
 

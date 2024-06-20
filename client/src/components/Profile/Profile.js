@@ -16,6 +16,7 @@ import {
   removeFriendRequest,
   removeFriend,
   changePic,
+  handleError,
 } from "../../utils/utils";
 
 export function Profile() {
@@ -38,6 +39,7 @@ export function Profile() {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
       await axios
         .get(`${process.env.REACT_APP_API_URL}/posts/byUserId/${profileId}`)
@@ -46,6 +48,7 @@ export function Profile() {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
 

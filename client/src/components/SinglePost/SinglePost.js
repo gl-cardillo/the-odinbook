@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import { UserContext } from "../../dataContext/dataContext";
-import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
+
 import { SideMenu } from "../SideMenu/SideMenu";
 import { Post } from "../Post/Post";
 import { useLocation, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { handleError } from "../../utils/utils";
 
 export function SinglePost({}) {
   const { postId } = useParams();
@@ -22,6 +22,7 @@ export function SinglePost({}) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
     getData();

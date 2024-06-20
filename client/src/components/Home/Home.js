@@ -8,7 +8,11 @@ import { PostForm } from "../PostForm/PostForm";
 import { SideMenu } from "../SideMenu/SideMenu";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { addFriendRequest, acceptRequest } from "../../utils/utils";
+import {
+  addFriendRequest,
+  acceptRequest,
+  handleError,
+} from "../../utils/utils";
 
 export function Home() {
   const { user } = useContext(UserContext);
@@ -41,6 +45,7 @@ export function Home() {
         setFriendRequests(results[2].data);
       } catch (error) {
         console.log(error);
+        handleError(error.message);
       }
     };
 

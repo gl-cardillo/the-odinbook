@@ -2,7 +2,11 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
-import { addFriendRequest, acceptRequest } from "../../utils/utils";
+import {
+  addFriendRequest,
+  acceptRequest,
+  handleError,
+} from "../../utils/utils";
 import { SideMenu } from "../SideMenu/SideMenu";
 
 export function SuggestedProfile() {
@@ -23,6 +27,7 @@ export function SuggestedProfile() {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
 
       await axios
@@ -32,6 +37,7 @@ export function SuggestedProfile() {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
 

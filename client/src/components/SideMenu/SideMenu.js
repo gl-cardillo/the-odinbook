@@ -3,15 +3,14 @@ import "./sideMenu.css";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link, useNavigate } from "react-router-dom";
-import { acceptRequest } from "../../utils/utils";
+import { acceptRequest, handleError } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 export function SideMenu({ friendRequests, render, setRender }) {
-  let navigate = useNavigate();
   const [requests, setRequests] = useState(null);
   const [friends, setFriends] = useState(null);
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const getRequests = async () => {
@@ -22,6 +21,7 @@ export function SideMenu({ friendRequests, render, setRender }) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
 
@@ -33,6 +33,7 @@ export function SideMenu({ friendRequests, render, setRender }) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
 

@@ -7,7 +7,7 @@ import { BsX } from "react-icons/bs";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { Comment } from "../Comment/Comment";
-import { nFormatter, addLike } from "../../utils/utils";
+import { nFormatter, addLike, handleError } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -32,6 +32,7 @@ export function LikeAndComment({ post, authorPostId }) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
 
       axios
@@ -41,6 +42,7 @@ export function LikeAndComment({ post, authorPostId }) {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
     getData();
@@ -60,6 +62,7 @@ export function LikeAndComment({ post, authorPostId }) {
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
     reset();
   };

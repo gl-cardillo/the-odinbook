@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useRef } from "react";
 import { BsX } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
+import { handleError } from "../../utils/utils";
 
 export function PostForm({ user, setRender, render }) {
   const imageInput = useRef(null);
@@ -47,8 +48,9 @@ export function PostForm({ user, setRender, render }) {
       imageInput.current.value = null;
       setText("");
       setError("");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
+      handleError(err.message);
     }
   };
 

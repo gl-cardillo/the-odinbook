@@ -13,7 +13,13 @@ import { BsX } from "react-icons/bs";
 import { FiUserPlus, FiUsers } from "react-icons/fi";
 import { FaSignOutAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { handleSearch, blur, getTime, swalStyle } from "../../utils/utils";
+import {
+  handleSearch,
+  blur,
+  getTime,
+  swalStyle,
+  handleError,
+} from "../../utils/utils";
 import Swal from "sweetalert2";
 
 export function Navbar() {
@@ -53,8 +59,9 @@ export function Navbar() {
         setFriendRequestsLength(results[1].data.length);
         setNotifications(results[2].data.notifications);
         setNotificationUnchecked(results[2].data.unchecked);
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.log(err);
+        handleError(err.message);
       }
     };
     getData();
@@ -100,6 +107,7 @@ export function Navbar() {
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
   };
 
@@ -132,6 +140,7 @@ export function Navbar() {
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     }
     setShowNotification(!showNotification);

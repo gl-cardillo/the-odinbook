@@ -13,7 +13,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2";
-import { swalStyle, handleSuccess } from "../../utils/utils";
+import { swalStyle, handleSuccess, handleError } from "../../utils/utils";
 
 export function Comment({
   comment,
@@ -41,6 +41,7 @@ export function Comment({
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
 
       axios
@@ -58,6 +59,7 @@ export function Comment({
         })
         .catch((err) => {
           console.log(err);
+          handleError(err.message);
         });
     };
     getData();
@@ -78,6 +80,7 @@ export function Comment({
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
   };
 
@@ -90,6 +93,7 @@ export function Comment({
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
   };
 
@@ -109,6 +113,7 @@ export function Comment({
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
     reset();
   };
@@ -130,6 +135,7 @@ export function Comment({
       })
       .catch((err) => {
         console.log(err);
+        handleError(err.message);
       });
   };
 

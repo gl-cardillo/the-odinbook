@@ -164,7 +164,7 @@ export const changePic = async (profileOrCover, file, user, set) => {
       console.log(error);
     }
   } else {
-    alert("Insert a vaild image format (bmp, gif, jpeg, png, tiff, webp)");
+    alert("Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)");
   }
 };
 

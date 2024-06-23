@@ -130,19 +130,16 @@ export function Navbar() {
     });
   };
 
-  const handleNotification = () => {
+  const handleNotification = async () => {
     if (notificationUnchecked.length > 0) {
-      axios
-        .put(`${process.env.REACT_APP_API_URL}/user/checkNotification`, {
-          id: user.id,
-        })
-        .then(() => {
-          setNotificationUnchecked([]);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err?.response?.data?.message);
-        });
+      axios.put(`${process.env.REACT_APP_API_URL}/user/checkNotification`, {
+        id: user.id,
+      });
+      setNotificationUnchecked([]);
+      try {
+      } catch (err) {
+        handleError(err?.response?.data?.message);
+      }
     }
     setShowNotification(!showNotification);
   };

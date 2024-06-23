@@ -80,7 +80,6 @@ export function About({ profile, setRender, render }) {
       });
       getUser();
     } catch (err) {
-      console.log(err);
       handleError(err?.response?.data?.message);
     }
   };
@@ -94,7 +93,9 @@ export function About({ profile, setRender, render }) {
       setUser(response.data);
       setEdit(false);
       setRender(render + 1);
-    } catch (error) {}
+    } catch (err) {
+      handleError(err?.response?.data?.message);
+    }
   };
 
   return (

@@ -18,27 +18,23 @@ export function SuggestedProfile() {
 
   useEffect(() => {
     const getData = async () => {
-      await axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`
-        )
-        .then((res) => {
-          setSuggestedProfile(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+          ),
+        ];
 
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`)
-        .then((res) => {
-          setFriendRequests(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+        const results = await Promise.all(requests);
+        setSuggestedProfile(results[0].data);
+        setFriendRequests(results[1].data);
+      } catch (err) {
+        console.log(err);
+        handleError(err?.response?.data?.message);
+      }
     };
 
     getData();

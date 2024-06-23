@@ -31,42 +31,29 @@ export function Login({ setIsAuth }) {
     resolver: yupResolver(schema),
   });
 
-  const login = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        email: data.email,
-        password: data.password,
-      })
-      .then((res) => {
-        setIsAuth(true);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        localStorage.setItem("token", JSON.stringify(res.data.token));
-        axios.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-        setUser(res.data.user);
-        navigate("/home", { replace: true });
-      })
-      .catch((err) => {
-        setError(err.response.data.message);
-      });
+  const login = async (data) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/auth/login`,
+        {
+          email: data.email,
+          password: data.password,
+        }
+      );
+      const { user, token } = response.data;
+      setIsAuth(true);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", JSON.stringify(token));
+      axios.defaults.headers.Authorization = `Bearer ${token}`;
+      setUser(user);
+      navigate("/home", { replace: true });
+    } catch (err) {
+      setError(err.response.data.message);
+    }
   };
 
   const loginTestAccount = () => {
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        email: "test-account@example.com",
-        password: "",
-      })
-      .then((res) => {
-        setIsAuth(true);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        localStorage.setItem("token", JSON.stringify(res.data.token));
-        axios.defaults.headers.Authorization = `Bearer ${res.data.token}`;
-        setUser(res.data.user);
-        navigate("/home", { replace: true });
-      })
-      .catch((err) => {
-        setError(err.response.data.message);
-      });
+    login({ email: "test-account@example.com", password: "" });
   };
 
   return (

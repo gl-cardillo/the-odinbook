@@ -61,7 +61,7 @@ export function Navbar() {
         setNotificationUnchecked(results[2].data.unchecked);
       } catch (err) {
         console.log(err);
-        handleError(err.message);
+        handleError(err?.response?.data?.message);
       }
     };
     getData();
@@ -93,22 +93,23 @@ export function Navbar() {
     delete axios.defaults.headers.Authorization;
   };
 
-  const deleteAccount = () => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/user/deleteAccount`, {
-        data: {
-          id: user.id,
-        },
-      })
-      .then(() => {
-        localStorage.clear();
-        setUser(null);
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
+  const deleteAccount = async () => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/user/deleteAccount`,
+        {
+          data: {
+            id: user.id,
+          },
+        }
+      );
+      localStorage.clear();
+      setUser(null);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
   };
 
   const confirmDeleteComment = () => {
@@ -140,7 +141,7 @@ export function Navbar() {
         })
         .catch((err) => {
           console.log(err);
-          handleError(err.message);
+          handleError(err?.response?.data?.message);
         });
     }
     setShowNotification(!showNotification);

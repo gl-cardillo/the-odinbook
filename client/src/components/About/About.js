@@ -60,14 +60,14 @@ export function About({ profile, setRender, render }) {
     resolver: yupResolver(schema),
   });
 
-  const updateInfo = (data) => {
+  const updateInfo = async (data) => {
     // only way i found to store date of birth without time in mongodb
     const date = new Date(data.dateOfBirth);
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     const dateOfBirth = new Date(date.getTime() - userTimezoneOffset);
 
-    axios
-      .put(`${process.env.REACT_APP_API_URL}/user/updateProfile`, {
+    try {
+      await axios.put(`${process.env.REACT_APP_API_URL}/user/updateProfile`, {
         id: profile.id,
         firstname: data.firstname,
         lastname: data.lastname,
@@ -77,21 +77,24 @@ export function About({ profile, setRender, render }) {
         worksAt: data.worksAt,
         school: data.school,
         relationship: data.relationship,
-      })
-      .then(() => {
-        axios
-          .get(`${process.env.REACT_APP_API_URL}/user/profile/${profile.id}`)
-          .then((res) => {
-            localStorage.setItem("user", JSON.stringify(res.data));
-            setUser(res.data);
-            setEdit(false);
-            setRender(render + 1);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message)
       });
+      getUser();
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
+  };
+
+  const getUser = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/user/profile/${profile.id}`
+      );
+      localStorage.setItem("user", JSON.stringify(response.data));
+      setUser(response.data);
+      setEdit(false);
+      setRender(render + 1);
+    } catch (error) {}
   };
 
   return (

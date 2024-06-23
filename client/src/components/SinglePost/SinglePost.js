@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-
 import { SideMenu } from "../SideMenu/SideMenu";
 import { Post } from "../Post/Post";
 import { useLocation, useParams } from "react-router-dom";
@@ -15,15 +14,15 @@ export function SinglePost({}) {
 
   useEffect(() => {
     const getData = async () => {
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}/posts/byPostId/${postId}`)
-        .then((res) => {
-          setPost(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/posts/byPostId/${postId}`
+        );
+        setPost(response.data);
+      } catch (err) {
+        console.log(err);
+        handleError(err?.response?.data?.message);
+      }
     };
     getData();
   }, [postId, render]);

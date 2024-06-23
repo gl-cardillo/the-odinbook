@@ -13,32 +13,27 @@ export function SideMenu({ friendRequests, render, setRender }) {
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    const getRequests = async () => {
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}/user/friendRequests3/${user.id}`)
-        .then((res) => {
-          setRequests(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+    const getData = async () => {
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/friendRequests3/${user.id}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/friends3/${user.id}`
+          ),
+        ];
+
+        const results = await Promise.all(requests);
+        setRequests(results[0].data);
+        setFriends(results[1].data);
+      } catch (err) {
+        console.log(err);
+        handleError(err?.response?.data?.message);
+      }
     };
 
-    const getFriends = async () => {
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}/user/friends3/${user.id}`)
-        .then((res) => {
-          setFriends(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
-    };
-
-    getRequests();
-    getFriends();
+    getData();
   }, [render, user.id]);
 
   return (

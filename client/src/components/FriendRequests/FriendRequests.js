@@ -23,7 +23,7 @@ export function FriendRequests() {
         setRequests(requestsList.data);
       } catch (err) {
         console.log(err);
-        handleError(err.message);
+        handleError(err?.response?.data?.message);
       }
     };
     getRequests();

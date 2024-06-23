@@ -20,29 +20,22 @@ export function Post({ post, setRender, render }) {
 
   useEffect(() => {
     const getData = async () => {
-      axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`
-        )
-        .then((res) => {
-          setProfilePicUrl(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/posts/getAuthor/${post.authorId}`
+          ),
+        ];
 
-      axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/posts/getAuthor/${post.authorId}`
-        )
-        .then((res) => {
-          setAuthor(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+        const results = await Promise.all(requests);
+        setProfilePicUrl(results[0].data);
+        setAuthor(results[1].data);
+      } catch (err) {
+        handleError(err?.response?.data?.message);
+      }
     };
     getData();
   }, [post.authorId, render]);

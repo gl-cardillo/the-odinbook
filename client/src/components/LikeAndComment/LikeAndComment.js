@@ -25,45 +25,44 @@ export function LikeAndComment({ post, authorPostId }) {
 
   useEffect(() => {
     const getData = async () => {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/comments/${post._id}`)
-        .then((res) => {
-          setComments(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const requests = [
+          axios.get(`${process.env.REACT_APP_API_URL}/comments/${post._id}`),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/posts/getLikes/${post._id}`
+          ),
+        ];
 
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/posts/getLikes/${post._id}`)
-        .then((res) => {
-          setLikes(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+        const results = await Promise.all(requests);
+
+        setComments(results[0].data);
+        setLikes(results[1].data);
+      } catch (err) {
+        console.log(err);
+        handleError(err?.response?.data?.message);
+      }
     };
     getData();
   }, [render, post._id]);
 
-  const addComment = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/comments/createComment`, {
-        text: data.text,
-        postId: post.id,
-        authorId: user._id,
-        authorPostId,
-      })
-      .then(() => {
-        setRender((render) => render + 1);
-        setShowNewComment(!showNewComment);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
+  const addComment = async (data) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/comments/createComment`,
+        {
+          text: data.text,
+          postId: post.id,
+          authorId: user._id,
+          authorPostId,
+        }
+      );
+      setRender((render) => render + 1);
+      setShowNewComment(!showNewComment);
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
+
     reset();
   };
 

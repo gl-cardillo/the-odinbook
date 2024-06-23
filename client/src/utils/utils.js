@@ -1,20 +1,22 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 
-export const deletePost = (post, set, render) => {
-  axios
-    .delete(`${process.env.REACT_APP_API_URL}/posts/deletePost`, {
-      data: {
-        id: post._id,
-        picUrl: post.picUrl,
-      },
-    })
-    .then(() => {
-      set((render) => render + 1);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+export const deletePost = async (post, set, render) => {
+  try {
+    const response = await axios.delete(
+      `${process.env.REACT_APP_API_URL}/posts/deletePost`,
+      {
+        data: {
+          id: post._id,
+          picUrl: post.picUrl,
+        },
+      }
+    );
+    set((render) => render + 1);
+  } catch (err) {
+    console.log(err);
+    handleError(err?.response?.data?.message);
+  }
 };
 
 export const addFriendRequest = async (profileId, userId, set, render) => {
@@ -24,8 +26,8 @@ export const addFriendRequest = async (profileId, userId, set, render) => {
       userId,
     });
     set((render) => render + 1);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
   }
 };
 
@@ -39,8 +41,8 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
       }
     );
     set((render) => render + 1);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
   }
 };
 
@@ -51,8 +53,8 @@ export const removeFriend = async (profileId, userId, set, render) => {
       profileId,
     });
     set((renderPost) => renderPost + 1);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
   }
 };
 
@@ -66,8 +68,8 @@ export const acceptRequest = async (profileId, userId, set, render) => {
       }
     );
     set((render) => render + 1);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
   }
 };
 
@@ -81,8 +83,8 @@ export const declineRequest = async (profileId, userId, set, render) => {
       }
     );
     set((render) => render + 1);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
   }
 };
 
@@ -107,20 +109,18 @@ export function handleSearch(e, set, users) {
   }
 }
 
-export const addLike = (type, element, user, set, postId) => {
-  axios
-    .put(`${process.env.REACT_APP_API_URL}/${type}/addLike`, {
+export const addLike = async (type, element, user, set, postId) => {
+  try {
+    await axios.put(`${process.env.REACT_APP_API_URL}/${type}/addLike`, {
       userId: user._id,
       elementId: element.id,
       elementAuthorId: element.authorId,
       postId,
-    })
-    .then(() => {
-      set((render) => render + 1);
-    })
-    .catch((err) => {
-      console.log(err);
     });
+    set((render) => render + 1);
+  } catch (err) {
+    handleError(err?.response?.data?.message);
+  }
 };
 
 export const changePic = async (profileOrCover, file, user, set) => {

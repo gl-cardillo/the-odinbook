@@ -50,7 +50,7 @@ export function PostForm({ user, setRender, render }) {
       setError("");
     } catch (err) {
       console.log(err);
-      handleError(err.message);
+      handleError(err?.response?.data?.message);
     }
   };
 

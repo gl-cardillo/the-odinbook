@@ -27,7 +27,7 @@ export function Friends({ profile }) {
         setFriends(friendsList.data);
       } catch (err) {
         console.log(err);
-        handleError(err.message);
+        handleError(err?.response?.data?.message);
       }
     };
     getFriends();

@@ -32,24 +32,22 @@ export function Profile() {
 
   useEffect(() => {
     const getData = async () => {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/user/profile/${profileId}`)
-        .then((res) => {
-          setProfile(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}/posts/byUserId/${profileId}`)
-        .then((res) => {
-          setProfilePosts(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/profile/${profileId}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/posts/byUserId/${profileId}`
+          ),
+        ];
+
+        const results = await Promise.all(requests);
+        setProfile(results[0].data);
+        setProfilePosts(results[1].data);
+      } catch (err) {
+        handleError(err?.response?.data?.message);
+      }
     };
 
     getData();

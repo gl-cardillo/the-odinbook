@@ -1,19 +1,25 @@
+import {
+  nFormatter,
+  getTime,
+  addLike,
+  swalStyle,
+  handleSuccess,
+  handleError,
+} from "../../utils/utils";
+import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { Link } from "react-router-dom";
 import { BsX } from "react-icons/bs";
-import { AiFillLike, AiOutlineClose } from "react-icons/ai";
+import { AiFillLike } from "react-icons/ai";
 import { IoReturnDownForwardOutline } from "react-icons/io5";
-import { nFormatter, getTime, addLike } from "../../utils/utils";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2";
-import { swalStyle, handleSuccess, handleError } from "../../utils/utils";
 
 export function Comment({
   comment,
@@ -32,111 +38,112 @@ export function Comment({
 
   useEffect(() => {
     const getData = async () => {
-      axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`
-        )
-        .then((res) => {
-          setProfilePicUrl(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+      try {
+        const requests = [
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/posts/getAuthor/${comment.authorId}`
+          ),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/comments/getLikes/${comment.id}`
+          ),
+        ];
 
-      axios
-        .get(
-          `${process.env.REACT_APP_API_URL}/posts/getAuthor/${comment.authorId}`
-        )
-        .then((res) => {
-          setAuthor(res.data);
-        });
+        const results = await Promise.all(requests);
 
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/comments/getLikes/${comment.id}`)
-        .then((res) => {
-          setLikes(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-          handleError(err.message);
-        });
+        setProfilePicUrl(results[0].data);
+        setAuthor(results[1].data);
+        setLikes(results[2].data);
+      } catch (error) {
+        console.log(error);
+
+        handleError(error.message);
+      }
     };
     getData();
   }, [comment._id]);
 
-  const deleteComment = (id, commentDate) => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/comments/deleteComment`, {
-        data: {
-          id,
-          postId,
-          date: commentDate,
-        },
-      })
-      .then(() => {
-        setRender((render) => render + 1);
-        setShowNewComment(!showNewComment);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
+  const deleteComment = async (id, commentDate) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/comments/deleteComment`,
+        {
+          data: {
+            id,
+            postId,
+            date: commentDate,
+          },
+        }
+      );
+
+      setShowNewComment(!showNewComment);
+      setRender((render) => render + 1);
+    } catch (err) {
+      handleError(err?.response?.data?.message);
+    }
   };
 
-  const getReply = () => {
+  const getReply = async () => {
     setShowReply(!showReply);
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/comments/getReply/${comment.id}`)
-      .then((res) => {
-        setReplies(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/comments/getReply/${comment.id}`
+      );
+      setReplies(response.data);
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
   };
 
-  const addReply = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/comments/createReply`, {
-        text: data.text,
-        commentId: comment.id,
-        authorId: user._id,
-        authorCommentId: comment.authorId,
-        postId,
-      })
-      .then(() => {
-        getReply();
-        setRender((render) => render + 1);
-        setShowReply(true);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
-    reset();
+  const addReply = async (data) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/comments/createReply`,
+        {
+          text: data.text,
+          commentId: comment.id,
+          authorId: user._id,
+          authorCommentId: comment.authorId,
+          postId,
+        }
+      );
+      getReply();
+      setShowReply(true);
+      reset();
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
   };
 
-  const deleteReply = (commentId, authorCommentId, authorReplyId, date) => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/comments/deleteReply`, {
-        data: {
-          commentId,
-          authorReplyId,
-          authorCommentId,
-          date,
-        },
-      })
-      .then(() => {
-        getReply();
-        setRender((render) => render + 1);
-        setShowReply(true);
-      })
-      .catch((err) => {
-        console.log(err);
-        handleError(err.message);
-      });
+  const deleteReply = async (
+    commentId,
+    authorCommentId,
+    authorReplyId,
+    date
+  ) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/comments/deleteReply`,
+        {
+          data: {
+            commentId,
+            authorReplyId,
+            authorCommentId,
+            date,
+          },
+        }
+      );
+      getReply();
+      setRender((render) => render + 1);
+      setShowReply(true);
+    } catch (err) {
+      console.log(err);
+      handleError(err?.response?.data?.message);
+    }
   };
 
   const schema = yup.object().shape({
@@ -170,6 +177,7 @@ export function Comment({
       }
     });
   };
+
   const confirmDeleteReply = (reply) => {
     Swal.fire({
       title: "Are you sure you want to delete this reply?",
@@ -188,6 +196,7 @@ export function Comment({
       }
     });
   };
+
   return (
     <div className="comment-reply-container">
       <div className="comment-container">

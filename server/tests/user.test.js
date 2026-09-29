@@ -1,4 +1,6 @@
 require("dotenv").config();
+jest.mock("../config/s3");
+
 const app = require("../app");
 const request = require("supertest");
 const mongoose = require("mongoose");
@@ -9,7 +11,10 @@ let token;
 let userId;
 let users;
 
-const { initializeMongoServer } = require("./mongoConfigTesting");
+const {
+  initializeMongoServer,
+  closeMongoServer,
+} = require("./mongoConfigTesting");
 const { seed } = require("./seed");
 
 initializeMongoServer();
@@ -46,7 +51,7 @@ describe("POST auth/signin", () => {
     //get 6 users created in seed
     users = await User.find({ _id: { $ne: res.body.user.id } });
     //set token
-    token = res.body.token;
+    token = `Bearer ${res.body.token}`;
   });
 });
 
@@ -347,7 +352,7 @@ describe("GET /user/profilePicUrl", () => {
       .set("Authorization", token);
     expect(res.statusCode).toEqual(200);
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
-    expect(res.body).toMatch("https://myawsbucket-gl-cardi.s3.eu-west-2.amazonaws.com/6cfd21bd1531475c0d00f7cc8de66fcb")
+    expect(res.body).toMatch("https://my-odin-bucket.s3.eu-west-2.amazonaws.com/6cfd21bd1531475c0d00f7cc8de66fcb")
   })
 });
 
@@ -413,7 +418,6 @@ describe("DELETE /user/deleteAccount", () => {
   });
 });
 
-afterAll((done) => {
-  mongoose.connection.close();
-  done();
+afterAll(async () => {
+  await closeMongoServer();
 });

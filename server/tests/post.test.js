@@ -1,4 +1,7 @@
 require("dotenv").config();
+// never call the real bucket from tests
+jest.mock("../config/s3");
+
 const app = require("../app");
 const request = require("supertest");
 const mongoose = require("mongoose");
@@ -10,9 +13,13 @@ let userId;
 let users;
 let postId;
 let commentId;
+let commentDate;
 let authorPostId;
 
-const { initializeMongoServer } = require("./mongoConfigTesting");
+const {
+  initializeMongoServer,
+  closeMongoServer,
+} = require("./mongoConfigTesting");
 const { seed } = require("./seed");
 
 initializeMongoServer();
@@ -28,7 +35,7 @@ beforeAll(async () => {
       password: "password123",
     })
     .set("Accept", "application/json");
-  token = res.body.token;
+  token = `Bearer ${res.body.token}`;
   userId = res.body.user.id;
   //get current user
   const user = await User.findById(res.body.user.id);
@@ -91,6 +98,7 @@ describe("Post /posts/", () => {
       .send({
         text: "Post example",
         authorId: user.id,
+        picUrl: "",
       })
       .set("Authorization", token)
       .set("Accept", "application/json");
@@ -128,6 +136,7 @@ describe("POST /comments/createComment", () => {
     expect(res.body.postId).toEqual(postId);
 
     commentId = res.body.id;
+    commentDate = res.body.date;
   });
 
   it("should send a notification to post author", async () => {
@@ -138,9 +147,11 @@ describe("POST /comments/createComment", () => {
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.statusCode).toEqual(200);
 
-    expect(res.body[0].message).toEqual(`${user.fullname} commented your post`);
-    expect(res.body[0].seen).toEqual(false);
-    expect(res.body[0].elementId).toEqual(postId);
+    expect(res.body.notifications[0].fullname).toEqual(user.fullname);
+    expect(res.body.notifications[0].message).toEqual("commented your post");
+    expect(res.body.notifications[0].seen).toEqual(false);
+    expect(res.body.notifications[0].elementId).toEqual(postId);
+    expect(res.body.unchecked.length).toEqual(1);
   });
 });
 
@@ -165,6 +176,8 @@ describe("DELETE /comments/deleteComment", () => {
       .set("Authorization", token)
       .send({
         id: commentId,
+        postId,
+        date: commentDate,
       });
     expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
     expect(res.statusCode).toEqual(200);
@@ -220,9 +233,10 @@ describe("PUT posts/addLike", () => {
         .set("Authorization", token);
       expect(res.header["content-type"]).toEqual(expect.stringMatching(/json/));
       expect(res.statusCode).toEqual(200);
-      expect(res.body[0].message).toEqual(`${user.fullname} liked your post`);
-      expect(res.body[0].seen).toEqual(false);
-      expect(res.body[0].elementId).toEqual(postId);
+      expect(res.body.notifications[0].fullname).toEqual("Luca Cardi");
+      expect(res.body.notifications[0].message).toEqual("liked your post");
+      expect(res.body.notifications[0].seen).toEqual(false);
+      expect(res.body.notifications[0].elementId).toEqual(postId);
     });
 
   it("should remove the like", async () => {
@@ -244,7 +258,45 @@ describe("PUT posts/addLike", () => {
   });
 });
 
+describe("Protected routes", () => {
+  it("should return 403 without a token", async () => {
+    const res = await request(app).delete("/posts/deletePost").send({ id: postId });
+    expect(res.statusCode).toEqual(403);
+  });
+
+  it("should return 403 with an invalid token", async () => {
+    for (const header of ["Bearer not-a-token", "Bearer undefined", "token"]) {
+      const res = await request(app)
+        .delete("/posts/deletePost")
+        .send({ id: postId })
+        .set("Authorization", header);
+      expect(res.statusCode).toEqual(403);
+    }
+  });
+});
+
 describe("DELETE /posts/deletePost", () => {
+  it("should delete a post created without picUrl", async () => {
+    const created = await request(app)
+      .post("/posts/createPost")
+      .send({ text: "No picture", authorId: userId })
+      .set("Authorization", token);
+    const res = await request(app)
+      .delete("/posts/deletePost")
+      .send({ id: created.body.post.id })
+      .set("Authorization", token);
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it("should return 404 when the post does not exist", async () => {
+    const res = await request(app)
+      .delete("/posts/deletePost")
+      .send({ id: "000000000000000000000000" })
+      .set("Authorization", token);
+    expect(res.statusCode).toEqual(404);
+    expect(res.body.message).toEqual("Post not found");
+  });
+
   it("should delete the post", async () => {
     const res = await request(app)
       .delete("/posts/deletePost")
@@ -270,7 +322,6 @@ describe("DELETE /posts/deletePost", () => {
   });
 });
 
-afterAll((done) => {
-  mongoose.connection.close();
-  done();
+afterAll(async () => {
+  await closeMongoServer();
 });

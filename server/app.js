@@ -5,7 +5,6 @@ const compression = require("compression");
 const helmet = require("helmet");
 const cors = require("cors");
 require("dotenv").config();
-require("./config/mongoDB");
 require("./config/passport");
 
 const usersRouter = require("./routes/user");
@@ -31,8 +30,5 @@ app.use("/comments", commentRouter);
 app.get("/", (req, res) => {
   res.send("Welcome to the API");
 });
-
-app.listen(3000, () => console.log("Server ready on port 3000."));
-
 
 module.exports = app;

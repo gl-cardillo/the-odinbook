@@ -134,8 +134,12 @@ exports.deletePost = async (req, res) => {
   try {
     const deletedPost = await Post.findByIdAndDelete(req.body.id);
 
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
     //check if there is an image in the post
-    if (deletedPost.picUrl !== "") {
+    if (deletedPost.picUrl) {
       //if there is dele it
       //comment for testing
       deleteFile(deletedPost.picUrl);

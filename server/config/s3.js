@@ -28,14 +28,20 @@ exports.generateUploadURL = async () => {
   return uploadURL;
 };
 
+// default profile and cover pictures shared by all the users
+const defaultKeys = [
+  "6cfd21bd1531475c0d00f7cc8de66fcb",
+  "9cb0e642e580fca30a47e3eda534d29c",
+];
+
 exports.deleteFile = (url) => {
+  if (!url) return;
   //get key from url
   const key = url.split("amazonaws.com/")[1];
+  if (!key) return;
 
-  if (
-    key === "6cfd21bd1531475c0d00f7cc8de66fcb" ||
-    key === "9cb0e642e580fca30a47e3eda534d29c"
-  ) {
+  //never delete the default pictures (the key can have an extension)
+  if (defaultKeys.includes(key.split(".")[0])) {
     return;
   }
 

@@ -406,19 +406,19 @@ exports.deleteAccount = async (req, res, next) => {
     //delete user
     const deleteUser = await User.findByIdAndDelete(id);
 
-    deleteFile(deleteUser.profilePicUrl);
-    deleteFile(deleteUser.coverPicUrl);
-
     if (!deleteUser) {
       return res.status(404).json({ message: "No users found" });
     }
+
+    deleteFile(deleteUser.profilePicUrl);
+    deleteFile(deleteUser.coverPicUrl);
 
     // find the post to delte
     const postPicToDelete = await Post.find({ authorId: id });
 
     for (let i = 0; i < postPicToDelete.length; i++) {
       //check if in any on of them ther is a picture
-      if (postPicToDelete[i].picUrl !== "") {
+      if (postPicToDelete[i].picUrl) {
         //if there is dele it
         deleteFile(postPicToDelete[i].picUrl);
       }

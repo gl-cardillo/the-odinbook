@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 export const deletePost = async (post, set, render) => {
   try {
     const response = await axios.delete(
-      `${process.env.REACT_APP_API_URL}/posts/deletePost`,
+      `/posts/deletePost`,
       {
         data: {
           id: post._id,
@@ -21,7 +21,7 @@ export const deletePost = async (post, set, render) => {
 
 export const addFriendRequest = async (profileId, userId, set, render) => {
   try {
-    await axios.put(`${process.env.REACT_APP_API_URL}/user/sendFriendRequest`, {
+    await axios.put(`/user/sendFriendRequest`, {
       profileId,
       userId,
     });
@@ -34,7 +34,7 @@ export const addFriendRequest = async (profileId, userId, set, render) => {
 export const removeFriendRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      `${process.env.REACT_APP_API_URL}/user/removeFriendRequest`,
+      `/user/removeFriendRequest`,
       {
         profileId,
         userId,
@@ -48,7 +48,7 @@ export const removeFriendRequest = async (profileId, userId, set, render) => {
 
 export const removeFriend = async (profileId, userId, set, render) => {
   try {
-    await axios.put(`${process.env.REACT_APP_API_URL}/user/removeFriend`, {
+    await axios.put(`/user/removeFriend`, {
       userId,
       profileId,
     });
@@ -61,7 +61,7 @@ export const removeFriend = async (profileId, userId, set, render) => {
 export const acceptRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      `${process.env.REACT_APP_API_URL}/user/acceptFriendRequest`,
+      `/user/acceptFriendRequest`,
       {
         userId,
         profileId,
@@ -76,7 +76,7 @@ export const acceptRequest = async (profileId, userId, set, render) => {
 export const declineRequest = async (profileId, userId, set, render) => {
   try {
     await axios.put(
-      `${process.env.REACT_APP_API_URL}/user/declineFriendRequest`,
+      `/user/declineFriendRequest`,
       {
         userId,
         profileId,
@@ -111,7 +111,7 @@ export function handleSearch(e, set, users) {
 
 export const addLike = async (type, element, user, set, postId) => {
   try {
-    await axios.put(`${process.env.REACT_APP_API_URL}/${type}/addLike`, {
+    await axios.put(`/${type}/addLike`, {
       userId: user._id,
       elementId: element.id,
       elementAuthorId: element.authorId,
@@ -135,7 +135,7 @@ export const changePic = async (profileOrCover, file, user, set) => {
     try {
       // create url to store image
       const url = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/generateUrlS3/`
+        `/user/generateUrlS3/`
       );
 
       // store image to the url
@@ -149,14 +149,14 @@ export const changePic = async (profileOrCover, file, user, set) => {
       const imageUrl = url.data.split("?")[0];
 
       // update the user in the database with the right url
-      await axios.put(`${process.env.REACT_APP_API_URL}/user/changePic`, {
+      await axios.put(`/user/changePic`, {
         imageUrl,
         id: user.id,
         profileOrCover,
       });
 
       const userUpdate = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/profile/${user._id}`
+        `/user/profile/${user._id}`
       );
       localStorage.setItem("user", JSON.stringify(userUpdate.data));
       set((render) => render + 1);

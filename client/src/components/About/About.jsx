@@ -67,7 +67,7 @@ export function About({ profile, setRender, render }) {
     const dateOfBirth = new Date(date.getTime() - userTimezoneOffset);
 
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/user/updateProfile`, {
+      await axios.put(`/user/updateProfile`, {
         id: profile.id,
         firstname: data.firstname,
         lastname: data.lastname,
@@ -87,7 +87,7 @@ export function About({ profile, setRender, render }) {
   const getUser = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/profile/${profile.id}`
+        `/user/profile/${profile.id}`
       );
       localStorage.setItem("user", JSON.stringify(response.data));
       setUser(response.data);

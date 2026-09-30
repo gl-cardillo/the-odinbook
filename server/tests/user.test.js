@@ -1,4 +1,3 @@
-require("dotenv").config();
 jest.mock("../config/s3");
 
 const app = require("../app");

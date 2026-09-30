@@ -1,16 +1,21 @@
-require("dotenv").config();
-const aws = require("aws-sdk");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const crypto = require("crypto");
 const { promisify } = require("util");
 const randomBytes = promisify(crypto.randomBytes);
-const multer = require("multer");
-const path = require("path");
 
-const s3 = new aws.S3({
+const s3 = new S3Client({
   region: process.env.AWS_BUCKET_REGION,
-  accessKeyId: process.env.AWS_ACCESS_S3_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_S3_ACCESS_KEY,
-  signatureVersion: "v4",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_S3_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_S3_ACCESS_KEY,
+  },
+  // keep checksum params out of the signed url, the browser upload cannot send them
+  requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
 exports.generateUploadURL = async () => {
@@ -20,11 +25,11 @@ exports.generateUploadURL = async () => {
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: imageName,
-    Expires: 60,
   };
 
-  const uploadURL = await s3.getSignedUrlPromise("putObject", params);
-  console.log(uploadURL);
+  const uploadURL = await getSignedUrl(s3, new PutObjectCommand(params), {
+    expiresIn: 60,
+  });
   return uploadURL;
 };
 
@@ -50,8 +55,7 @@ exports.deleteFile = (url) => {
     Key: key,
   };
 
-  s3.deleteObject(params, function (err, data) {
-    if (err) console.log(err, err.stack);
-    else console.log(data);
-  });
+  s3.send(new DeleteObjectCommand(params)).catch((err) =>
+    console.log(err, err.stack)
+  );
 };

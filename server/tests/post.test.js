@@ -1,4 +1,3 @@
-require("dotenv").config();
 // never call the real bucket from tests
 jest.mock("../config/s3");
 

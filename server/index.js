@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 require("./config/mongoDB");
 
 const app = require("./app");

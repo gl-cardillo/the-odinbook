@@ -10,10 +10,10 @@ const comments = [];
 const generateUser = () => {
   const user = new User({
     email: faker.internet.email(),
-    password: faker.image.imageUrl(),
-    firstname: faker.name.firstName(),
-    lastname: faker.name.lastName(),
-    profilePicUrl: faker.image.imageUrl(),
+    password: faker.image.url(),
+    firstname: faker.person.firstName().slice(0, 15),
+    lastname: faker.person.lastName().slice(0, 15),
+    profilePicUrl: faker.image.url(),
     posts: [],
   });
   users.push(user);
@@ -23,7 +23,7 @@ const generatePost = (user) => {
   const post = new Post({
     authorId: user._id,
     text: faker.lorem.paragraphs(),
-    date: faker.date.between(),
+    date: faker.date.past(),
   });
   posts.push(post);
 };
@@ -42,7 +42,7 @@ const generateComment = (user) => {
       authorId: user.id,
       postId: post.id,
       text: faker.lorem.paragraphs(),
-      date: faker.date.between(),
+      date: faker.date.past(),
     });
     comments.push(comment);
   });

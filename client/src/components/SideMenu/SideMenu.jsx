@@ -17,10 +17,10 @@ export function SideMenu({ friendRequests, render, setRender }) {
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/friendRequests3/${user.id}`
+            `/user/friendRequests3/${user.id}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/friends3/${user.id}`
+            `/user/friends3/${user.id}`
           ),
         ];
 

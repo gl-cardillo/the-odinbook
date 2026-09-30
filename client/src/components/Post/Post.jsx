@@ -23,10 +23,10 @@ export function Post({ post, setRender, render }) {
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/profilePic/${post.authorId}`
+            `/user/profilePic/${post.authorId}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/posts/getAuthor/${post.authorId}`
+            `/posts/getAuthor/${post.authorId}`
           ),
         ];
 

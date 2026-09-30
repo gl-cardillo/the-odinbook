@@ -27,9 +27,9 @@ export function LikeAndComment({ post, authorPostId }) {
     const getData = async () => {
       try {
         const requests = [
-          axios.get(`${process.env.REACT_APP_API_URL}/comments/${post._id}`),
+          axios.get(`/comments/${post._id}`),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/posts/getLikes/${post._id}`
+            `/posts/getLikes/${post._id}`
           ),
         ];
 
@@ -48,7 +48,7 @@ export function LikeAndComment({ post, authorPostId }) {
   const addComment = async (data) => {
     try {
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/comments/createComment`,
+        `/comments/createComment`,
         {
           text: data.text,
           postId: post.id,

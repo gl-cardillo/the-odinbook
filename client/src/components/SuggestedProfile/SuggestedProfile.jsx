@@ -21,10 +21,10 @@ export function SuggestedProfile() {
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/getSuggestedProfile/${user._id}`
+            `/user/getSuggestedProfile/${user._id}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+            `/user/friendRequests/${user._id}`
           ),
         ];
 

@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { useNavigate, Link } from "react-router-dom";
+import homePic from "../../images/home-pic.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -34,7 +35,7 @@ export function Login({ setIsAuth }) {
   const login = async (data) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/login`,
+        `/auth/login`,
         {
           email: data.email,
           password: data.password,
@@ -60,7 +61,7 @@ export function Login({ setIsAuth }) {
     <div>
       <div className="signlog-section">
         <div>
-          <img src={require("../../images/home-pic.png")} alt="logo" />
+          <img src={homePic} alt="logo" />
           <h1>Odinbook</h1>
           <h2 className="text1024px">
             Connect with friends and the world around you on Odinbook.

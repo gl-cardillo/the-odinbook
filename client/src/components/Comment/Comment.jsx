@@ -41,13 +41,13 @@ export function Comment({
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/profilePic/${comment.authorId}`
+            `/user/profilePic/${comment.authorId}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/posts/getAuthor/${comment.authorId}`
+            `/posts/getAuthor/${comment.authorId}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/comments/getLikes/${comment.id}`
+            `/comments/getLikes/${comment.id}`
           ),
         ];
 
@@ -68,7 +68,7 @@ export function Comment({
   const deleteComment = async (id, commentDate) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}/comments/deleteComment`,
+        `/comments/deleteComment`,
         {
           data: {
             id,
@@ -89,7 +89,7 @@ export function Comment({
     setShowReply(!showReply);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/comments/getReply/${comment.id}`
+        `/comments/getReply/${comment.id}`
       );
       setReplies(response.data);
     } catch (err) {
@@ -101,7 +101,7 @@ export function Comment({
   const addReply = async (data) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/comments/createReply`,
+        `/comments/createReply`,
         {
           text: data.text,
           commentId: comment.id,
@@ -127,7 +127,7 @@ export function Comment({
   ) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}/comments/deleteReply`,
+        `/comments/deleteReply`,
         {
           data: {
             commentId,

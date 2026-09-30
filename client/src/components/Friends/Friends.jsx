@@ -22,7 +22,7 @@ export function Friends({ profile }) {
           id = profile.id;
         }
         const friendsList = await axios.get(
-          `${process.env.REACT_APP_API_URL}/user/friends/${id}`
+          `/user/friends/${id}`
         );
         setFriends(friendsList.data);
       } catch (err) {

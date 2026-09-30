@@ -35,10 +35,10 @@ export function Profile() {
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/profile/${profileId}`
+            `/user/profile/${profileId}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/posts/byUserId/${profileId}`
+            `/posts/byUserId/${profileId}`
           ),
         ];
 

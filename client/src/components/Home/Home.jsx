@@ -29,13 +29,13 @@ export function Home() {
       try {
         const requests = [
           axios.get(
-            `${process.env.REACT_APP_API_URL}/posts/getFriendsPost/${user._id}`
+            `/posts/getFriendsPost/${user._id}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/get3SuggestedProfile/${user._id}`
+            `/user/get3SuggestedProfile/${user._id}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+            `/user/friendRequests/${user._id}`
           ),
         ];
 

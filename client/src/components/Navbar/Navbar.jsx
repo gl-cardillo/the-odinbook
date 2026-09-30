@@ -44,12 +44,12 @@ export function Navbar() {
     const getData = async () => {
       try {
         const requests = [
-          axios.get(`${process.env.REACT_APP_API_URL}/user/`),
+          axios.get(`/user/`),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/friendRequests/${user._id}`
+            `/user/friendRequests/${user._id}`
           ),
           axios.get(
-            `${process.env.REACT_APP_API_URL}/user/getNotification/${user.id}`
+            `/user/getNotification/${user.id}`
           ),
         ];
 
@@ -96,7 +96,7 @@ export function Navbar() {
   const deleteAccount = async () => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}/user/deleteAccount`,
+        `/user/deleteAccount`,
         {
           data: {
             id: user.id,
@@ -132,7 +132,7 @@ export function Navbar() {
 
   const handleNotification = async () => {
     if (notificationUnchecked.length > 0) {
-      axios.put(`${process.env.REACT_APP_API_URL}/user/checkNotification`, {
+      axios.put(`/user/checkNotification`, {
         id: user.id,
       });
       setNotificationUnchecked([]);

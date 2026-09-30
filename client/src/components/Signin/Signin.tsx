@@ -1,0 +1,155 @@
+import "./signin.css";
+import axios from "axios";
+import { useState, useContext } from "react";
+import { UserContext } from "../../dataContext/dataContext";
+import { useNavigate, Link } from "react-router";
+import homePic from "../../images/home-pic.png";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { errorMessage, setAuthToken } from "../../utils/utils";
+import type { AuthResponse } from "../../types";
+
+const schema = yup.object().shape({
+  firstname: yup
+    .string()
+    .min(2)
+    .max(15)
+    .matches(/^[a-zA-Z0-9]{0,}$/, {
+      message: "Special character not allowed.",
+    })
+    .required("Name is a required field"),
+  lastname: yup
+    .string()
+    .min(2)
+    .max(15)
+    .matches(/^[a-zA-Z0-9]{0,}$/, {
+      message: "Special character not allowed.",
+    })
+    .required("Last name is a requited field"),
+  email: yup.string().email().required(),
+  password: yup
+    .string()
+    .min(8)
+    .max(15)
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?])[A-Za-z\d@$!%*#?]{8,}$/, {
+      message:
+        "Password must be  eight characters, at least one letter, one number and one special character(@$!%*#?)",
+    })
+    .required(),
+  confirmPassword: yup.string().oneOf([yup.ref("password")]),
+});
+
+type SigninForm = yup.InferType<typeof schema>;
+
+export function Signin() {
+  const navigate = useNavigate();
+
+  const [error, setError] = useState("");
+  const { setUser } = useContext(UserContext);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SigninForm>({
+    resolver: yupResolver(schema),
+  });
+
+  const signin = async (data: SigninForm) => {
+    try {
+      const response = await axios.post<AuthResponse>(`/auth/signin`, {
+        firstname: data.firstname,
+        lastname: data.lastname,
+        email: data.email,
+        password: data.password,
+      });
+      const { user, token } = response.data;
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", JSON.stringify(token));
+      setAuthToken(token);
+      setUser(user);
+      navigate("/home", { replace: true });
+    } catch (err) {
+      console.log(err);
+      setError(errorMessage(err) ?? "");
+    }
+  };
+
+  return (
+    <div>
+      <div className="signlog-section">
+        <div>
+          <img src={homePic} alt="logo" />
+          <h1>Odinbook</h1>
+          <h2 className="text1024px">
+            Connect with friends and the world around you on Odinbook.
+          </h2>
+        </div>
+        <div>
+          <form onSubmit={handleSubmit(signin)} className="signlog-form ">
+            <h2 className="text-signlog-form">Sign up, It's quick and easy.</h2>
+            <div className="label-input">
+              <label htmlFor="firstname">First name</label>
+              <input
+                className={errors?.firstname?.message ? "error-input" : ""}
+                type="text"
+                {...register("firstname")}
+              />
+            </div>
+            <p className="error-form">{errors?.firstname?.message}</p>
+            <div className="label-input">
+              <label htmlFor="email">Last name</label>
+              <input
+                className={errors?.lastname?.message ? "error-input" : ""}
+                type="text"
+                {...register("lastname")}
+              />
+            </div>
+            <p className="error-form">{errors.lastname?.message}</p>
+            <div className="label-input">
+              <label htmlFor="email">Email</label>
+              <input
+                className={errors?.email?.message ? "error-input" : ""}
+                type="email"
+                {...register("email")}
+              />
+            </div>
+            <p className="error-form">{errors?.email?.message}</p>
+            <div className="label-input">
+              <label htmlFor="password">Password</label>
+              <input
+                className={errors?.password?.message ? "error-input" : ""}
+                type="password"
+                {...register("password")}
+              />
+            </div>
+            <p className="error-form">{errors?.password?.message}</p>
+            <div className="label-input">
+              <label htmlFor="password">Confirm password</label>
+              <input
+                type="password"
+                {...register("confirmPassword")}
+                className={
+                  errors?.confirmPassword?.message ? "error-input" : ""
+                }
+              />
+            </div>
+            <p className="error-form">
+              {errors?.confirmPassword && "Passwords should match"}
+            </p>
+            <button className="signlog-button" type="submit">
+              Sign in
+            </button>{" "}
+            <p className="error-form">{error !== "" ? error : ""}</p>
+          </form>
+          <Link to={"/"}>
+            <p>
+              Already have an account? click <span className="blue">here</span>
+            </p>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

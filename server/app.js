@@ -4,8 +4,7 @@ const logger = require("morgan");
 const compression = require("compression");
 const helmet = require("helmet");
 const cors = require("cors");
-require("dotenv").config();
-require("./config/passport");
+require("dotenv").config({ quiet: true });
 
 const usersRouter = require("./routes/user");
 const authRouter = require("./routes/auth");

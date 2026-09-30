@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const findOrCreate = require("mongoose-findorcreate");
 const { DateTime } = require("luxon");
 
 const Schema = mongoose.Schema;
@@ -42,7 +41,5 @@ UserSchema.virtual("dateOfBirth_toISODate").get(function () {
   );
 });
 
-
-UserSchema.plugin(findOrCreate);
 
 module.exports = mongoose.model("User", UserSchema);

@@ -1,5 +1,5 @@
 import { SideMenu } from "../SideMenu/SideMenu";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 import { getTime } from "../../utils/utils";
 
 export function Notifications() {

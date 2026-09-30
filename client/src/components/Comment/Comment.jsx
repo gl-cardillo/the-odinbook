@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { BsX } from "react-icons/bs";
 import { AiFillLike } from "react-icons/ai";
 import { IoReturnDownForwardOutline } from "react-icons/io5";

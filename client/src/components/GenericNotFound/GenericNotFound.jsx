@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import homePic from "../../images/home-pic.png";
 
 export function GenericNotFound() {

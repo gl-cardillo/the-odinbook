@@ -2,7 +2,7 @@ import "./profile.css";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { Post } from "../Post/Post";
 import { PostForm } from "../PostForm/PostForm";
 import { Friends } from "../Friends/Friends";

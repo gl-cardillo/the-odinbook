@@ -2,7 +2,7 @@ import "./home.css";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Post } from "../Post/Post";
 import { PostForm } from "../PostForm/PostForm";
 import { SideMenu } from "../SideMenu/SideMenu";

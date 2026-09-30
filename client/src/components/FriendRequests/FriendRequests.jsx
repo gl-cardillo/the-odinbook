@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { acceptRequest, declineRequest, handleError } from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";

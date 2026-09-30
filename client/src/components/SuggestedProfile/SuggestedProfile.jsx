@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import {
   addFriendRequest,
   acceptRequest,

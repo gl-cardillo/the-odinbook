@@ -2,7 +2,7 @@ import "./App.css";
 import "animate.css";
 
 import axios from "axios";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { Signin } from "./components/Signin/Signin";
 import { Login } from "./components/Login/Login";

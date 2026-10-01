@@ -59,7 +59,9 @@ export const login = [
       return res.json({ errors: errors.array() });
     }
     try {
-      const user = await User.findOne({ email: req.body.email });
+      const user = await User.findOne({ email: req.body.email }).select(
+        "+password"
+      );
       // if user is the test account, set the right password
       if (req.body.email === "test-account@example.com") {
         req.body.password = process.env.TEST_PASSWORD;

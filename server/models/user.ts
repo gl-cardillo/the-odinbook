@@ -8,7 +8,8 @@ const UserSchema = new Schema(
     firstname: { type: String, minLength: 2, maxlength: 15, required: true },
     lastname: { type: String, minLength: 2, maxlength: 15, required: true },
     email: { type: String, required: true },
-    password: { type: String },
+    // never loaded unless asked for with .select("+password")
+    password: { type: String, select: false },
     profilePicUrl: { type: String },
     coverPicUrl: { type: String },
     friends: { type: [String] },
@@ -23,7 +24,14 @@ const UserSchema = new Schema(
   },
   {
     toObject: { virtuals: true },
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      // the hash must never reach a response or a token
+      transform(_doc, ret) {
+        delete ret.password;
+        return ret;
+      },
+    },
     virtuals: {
       fullname: {
         get() {

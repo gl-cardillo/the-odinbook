@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import app from "../app.js";
 import User from "../models/user.js";
 import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
@@ -36,7 +37,7 @@ describe("POST auth/signin", () => {
     expect(res.body.user).toHaveProperty("firstname", "Luca");
     expect(res.body.user).toHaveProperty("lastname", "Cardi");
     expect(res.body.user).toHaveProperty("email", "lucacardi@gmail.com");
-    expect(res.body.user).toHaveProperty("password");
+    expect(res.body.user).not.toHaveProperty("password");
     expect(res.body.user).toHaveProperty("profilePicUrl");
     expect(res.body.user).toHaveProperty("friends");
     expect(res.body.user).toHaveProperty("friendRequests");
@@ -66,13 +67,44 @@ describe("POST auth/login", () => {
     expect(res.body.user).toHaveProperty("firstname", "Luca");
     expect(res.body.user).toHaveProperty("lastname", "Cardi");
     expect(res.body.user).toHaveProperty("email", "lucacardi@gmail.com");
-    expect(res.body.user).toHaveProperty("password");
+    expect(res.body.user).not.toHaveProperty("password");
     expect(res.body.user).toHaveProperty("profilePicUrl");
     expect(res.body.user).toHaveProperty("friends");
     expect(res.body.user).toHaveProperty("friendRequests");
     expect(res.body.user).toHaveProperty("fullname");
 
     userId = res.body.user.id;
+  });
+});
+
+describe("Password hash", () => {
+  it("Should not be inside the token", () => {
+    const payload = jwt.decode(token.split(" ")[1]) as { user: object };
+    expect(payload.user).toHaveProperty("email", "lucacardi@gmail.com");
+    expect(payload.user).not.toHaveProperty("password");
+  });
+
+  it("Should not be in the users list", async () => {
+    const res = await request(app).get("/user/").set("Accept", "application/json");
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.length).toBeGreaterThan(0);
+    for (const profile of res.body) {
+      expect(profile).not.toHaveProperty("password");
+    }
+  });
+
+  it("Should still be saved hashed in the database", async () => {
+    const saved = await User.findById(userId).select("+password");
+    expect(saved?.password).toMatch(/^\$2[aby]\$/);
+  });
+
+  it("Should still reject a wrong password at login", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ email: "lucacardi@gmail.com", password: "wrong-password1" })
+      .set("Accept", "application/json");
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toEqual("Password is incorrect");
   });
 });
 
@@ -87,7 +119,7 @@ describe("GET /user/profile/:profileId", () => {
     expect(res.body).toHaveProperty("firstname", "Luca");
     expect(res.body).toHaveProperty("lastname", "Cardi");
     expect(res.body).toHaveProperty("email", "lucacardi@gmail.com");
-    expect(res.body).toHaveProperty("password");
+    expect(res.body).not.toHaveProperty("password");
     expect(res.body).toHaveProperty("profilePicUrl");
     expect(res.body).toHaveProperty("friends");
     expect(res.body).toHaveProperty("friendRequests");
@@ -107,7 +139,7 @@ describe("GET /user/getsuggestedProfile/:userId", () => {
     expect(res.body[0]).toHaveProperty("firstname");
     expect(res.body[0]).toHaveProperty("lastname");
     expect(res.body[0]).toHaveProperty("email");
-    expect(res.body[0]).toHaveProperty("password");
+    expect(res.body[0]).not.toHaveProperty("password");
     expect(res.body[0]).toHaveProperty("profilePicUrl");
     expect(res.body[0]).toHaveProperty("friends");
     expect(res.body[0]).toHaveProperty("friendRequests");
@@ -127,7 +159,7 @@ describe("GET /user/get3suggestedProfile/:userId", () => {
     expect(res.body[0]).toHaveProperty("firstname");
     expect(res.body[0]).toHaveProperty("lastname");
     expect(res.body[0]).toHaveProperty("email");
-    expect(res.body[0]).toHaveProperty("password");
+    expect(res.body[0]).not.toHaveProperty("password");
     expect(res.body[0]).toHaveProperty("profilePicUrl");
     expect(res.body[0]).toHaveProperty("friends");
     expect(res.body[0]).toHaveProperty("friendRequests");

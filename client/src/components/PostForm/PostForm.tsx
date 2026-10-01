@@ -32,11 +32,14 @@ export function PostForm({ user, setRender, render }: PostFormProps) {
 
     try {
       if (file) {
-        const url = await axios.get<string>(`/user/generateUrlS3`);
+        // the upload url only accepts this exact image type
+        const url = await axios.get<string>(`/user/generateUrlS3`, {
+          params: { type: file.type },
+        });
 
         await axios.put(url.data, file, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": file.type,
             Authorization: null,
           },
         });

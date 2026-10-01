@@ -2,8 +2,9 @@ import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import User from "../models/user.js";
 import { body, validationResult } from "express-validator";
-import { deleteFile } from "../config/s3.js";
+import { deleteFile, isBucketUrl } from "../config/s3.js";
 import type { Request, Response } from "express";
+import { currentUserId } from "../middleware/verifyToken.js";
 
 export const getPostsByUserId = async (req: Request, res: Response) => {
   try {
@@ -113,10 +114,14 @@ export const createPost = [
   body("text").trim().isLength({ min: 1 }),
 
   async (req: Request, res: Response) => {
-    const { text, authorId, picUrl } = req.body;
+    const { text, picUrl } = req.body;
+    const authorId = currentUserId(req);
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      return res.json({ errs: errs.array() });
+      return res.status(400).json({ message: "Text is required" });
+    }
+    if (picUrl && !isBucketUrl(picUrl)) {
+      return res.status(400).json({ message: "Invalid picture url" });
     }
     try {
       const post = await new Post({
@@ -135,6 +140,16 @@ export const createPost = [
 
 export const deletePost = async (req: Request, res: Response) => {
   try {
+    const post = await Post.findById(req.body.id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    if (post.authorId !== currentUserId(req)) {
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own posts" });
+    }
+
     const deletedPost = await Post.findByIdAndDelete(req.body.id);
 
     if (!deletedPost) {
@@ -180,7 +195,13 @@ export const deletePost = async (req: Request, res: Response) => {
 
 export const addLike = async (req: Request, res: Response) => {
   try {
-    const { elementId, userId, elementAuthorId } = req.body;
+    const { elementId } = req.body;
+    const userId = currentUserId(req);
+    const post = await Post.findById(elementId);
+    if (!post) {
+      return res.status(404).json({ message: "No post found" });
+    }
+    const elementAuthorId = post.authorId;
     const postLiked = await Post.find({
       _id: elementId,
       likes: { $elemMatch: { $eq: userId } },

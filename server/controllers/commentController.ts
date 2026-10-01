@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import Post from "../models/post.js";
 import { body, validationResult } from "express-validator";
 import type { Request, Response } from "express";
+import { currentUserId } from "../middleware/verifyToken.js";
 
 export const getCommentsByPostId = async (req: Request, res: Response) => {
   try {
@@ -51,13 +52,20 @@ export const getReplyByCommentsId = async (req: Request, res: Response) => {
 export const createComment = [
   body("text").trim().isLength({ min: 1 }),
   async (req: Request, res: Response) => {
-    const { text, postId, authorId, authorPostId } = req.body;
+    const { text, postId } = req.body;
+    const authorId = currentUserId(req);
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ errors: errors.array() });
+      return res.status(400).json({ message: "Text is required" });
     }
     try {
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: "No post found" });
+      }
+      const authorPostId = post.authorId;
+
       const comment = await new Comment({
         text,
         postId,
@@ -91,13 +99,20 @@ export const createComment = [
 export const createReply = [
   body("text").trim().isLength({ min: 1 }),
   async (req: Request, res: Response) => {
-    const { text, commentId, authorId, authorCommentId, postId } = req.body;
+    const { text, commentId } = req.body;
+    const authorId = currentUserId(req);
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ errors: errors.array() });
+      return res.status(400).json({ message: "Text is required" });
     }
     try {
+      const comment = await Comment.findById(commentId);
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+      const authorCommentId = comment.authorId;
+      const postId = comment.postId;
       const date = Date.now();
       const reply = await Comment.findByIdAndUpdate(commentId, {
         $push: {
@@ -135,10 +150,20 @@ export const createReply = [
 
 export const deleteComment = async (req: Request, res: Response) => {
   try {
-    let { id, postId, date } = req.body;
+    let { id, date } = req.body;
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    if (comment.authorId !== currentUserId(req)) {
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own comments" });
+    }
+    const postId = comment.postId;
     const deleteComment = await Comment.findByIdAndDelete(id);
     if (!deleteComment) {
-      return res.status(400).json({ message: "Comment not found" });
+      return res.status(404).json({ message: "Comment not found" });
     }
     //Find the authorId
     const post = await Post.findById(postId);
@@ -164,7 +189,13 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 export const deleteReply = async (req: Request, res: Response) => {
   try {
-    let { commentId, authorCommentId, authorReplyId, date } = req.body;
+    const { commentId, date } = req.body;
+    const authorReplyId = currentUserId(req);
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    const authorCommentId = comment.authorId;
     const replyUpdate = await Comment.findByIdAndUpdate(commentId, {
       $pull: { reply: { authorId: authorReplyId, date } },
     });
@@ -187,7 +218,14 @@ export const deleteReply = async (req: Request, res: Response) => {
 
 export const addLike = async (req: Request, res: Response) => {
   try {
-    const { elementId, userId, elementAuthorId, postId } = req.body;
+    const { elementId } = req.body;
+    const userId = currentUserId(req);
+    const comment = await Comment.findById(elementId);
+    if (!comment) {
+      return res.status(404).json({ message: "No comments found" });
+    }
+    const elementAuthorId = comment.authorId;
+    const postId = comment.postId;
 
     const commentLiked = await Comment.find({
       _id: elementId,

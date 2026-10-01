@@ -1,6 +1,7 @@
 import "./App.css";
 import "animate.css";
 
+import axios from "axios";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useState, useEffect } from "react";
 import { Signin } from "./components/Signin/Signin";
@@ -28,6 +29,19 @@ function App() {
     const token = readStorage<string>("token");
     setAuthToken(user && token ? token : null);
   }, [user]);
+
+  // an expired or invalid session logs the user out instead of failing every request
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(undefined, (err) => {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        localStorage.clear();
+        setAuthToken(null);
+        setUser(null);
+      }
+      return Promise.reject(err);
+    });
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

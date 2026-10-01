@@ -196,12 +196,14 @@ export const changePic = async (
   if (imageTypes.includes(file.type)) {
     try {
       // create url to store image
-      const url = await axios.get<string>(`/user/generateUrlS3/`);
+      const url = await axios.get<string>(`/user/generateUrlS3`, {
+        params: { type: file.type },
+      });
 
       // store image to the url
       await axios.put(url.data, file, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": file.type,
           Authorization: null,
         },
       });

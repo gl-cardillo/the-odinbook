@@ -4,25 +4,35 @@ import { accessTokenSecret } from "../config/env.js";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: string | jwt.JwtPayload;
+    // id of the logged in user, set by verifyToken
+    userId?: string;
   }
 }
 
+export const signToken = (userId: string) =>
+  jwt.sign({}, accessTokenSecret(), { subject: userId, expiresIn: "7d" });
+
 function verifyToken(req: Request, res: Response, next: NextFunction) {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader === "undefined") {
-    res.sendStatus(403);
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    res.status(401).json({ message: "Login required" });
     return;
   }
-  const token = bearerHeader.split(" ")[1];
   try {
-    // throws if the token is missing, malformed or signed with another secret
-    req.user = jwt.verify(token, accessTokenSecret());
+    // throws if the token is malformed, expired or signed with another secret
+    const payload = jwt.verify(token, accessTokenSecret());
+    if (typeof payload === "string" || !payload.sub) {
+      throw new Error("Token without user");
+    }
+    req.userId = payload.sub;
   } catch {
-    res.sendStatus(403);
+    res.status(401).json({ message: "Session expired, please log in again" });
     return;
   }
   next();
 }
+
+// the logged in user, only valid on routes behind verifyToken
+export const currentUserId = (req: Request) => req.userId as string;
 
 export default verifyToken;

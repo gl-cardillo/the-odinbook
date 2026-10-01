@@ -19,13 +19,24 @@ const s3 = new S3Client({
   requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
-export const generateUploadURL = async () => {
+export const IMAGE_TYPES = [
+  "image/bmp",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/tiff",
+  "image/webp",
+];
+
+// the upload must be sent with this exact content type or S3 rejects it
+export const generateUploadURL = async (contentType: string) => {
   const rawBytes = await randomBytes(16);
   const imageName = rawBytes.toString("hex");
 
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: imageName,
+    ContentType: contentType,
   };
 
   const uploadURL = await getSignedUrl(s3, new PutObjectCommand(params), {
@@ -33,6 +44,13 @@ export const generateUploadURL = async () => {
   });
   return uploadURL;
 };
+
+// pictures can only point to files in our own bucket
+export const isBucketUrl = (url: unknown): url is string =>
+  typeof url === "string" &&
+  url.startsWith(
+    `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/`
+  );
 
 // default profile and cover pictures shared by all the users
 const defaultKeys = [

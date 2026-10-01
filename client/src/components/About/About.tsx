@@ -15,7 +15,7 @@ const schema = yup.object().shape({
   firstname: yup
     .string()
     .min(2)
-    .max(20)
+    .max(15)
     .matches(/^[a-zA-Z0-9]{0,}$/, {
       message: "Special character not allowed.",
     })
@@ -23,7 +23,7 @@ const schema = yup.object().shape({
   lastname: yup
     .string()
     .min(2)
-    .max(20)
+    .max(15)
     .matches(/^[a-zA-Z0-9]{0,}$/, {
       message: "Special character not allowed.",
     })

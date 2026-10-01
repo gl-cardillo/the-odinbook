@@ -10,3 +10,6 @@ export const accessTokenSecret = () => {
   }
   return secret;
 };
+
+// the guest account used by "Login without an account"
+export const TEST_ACCOUNT_EMAIL = "test-account@example.com";

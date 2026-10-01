@@ -1,17 +1,37 @@
 import User from "../models/user.js";
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
-import { generateUploadURL, deleteFile } from "../config/s3.js";
+import {
+  generateUploadURL,
+  deleteFile,
+  isBucketUrl,
+  IMAGE_TYPES,
+} from "../config/s3.js";
 import { body, validationResult } from "express-validator";
 import type { Request, Response } from "express";
+import { currentUserId } from "../middleware/verifyToken.js";
+import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
 
-export const getUser = async (_req: Request, res: Response) => {
+type UserDoc = InstanceType<typeof User>;
+
+// what other users can see, the email stays private
+const publicUser = (user: UserDoc, viewerId: string) => {
+  const data = user.toJSON() as Record<string, unknown>;
+  if (user.id !== viewerId) {
+    delete data.email;
+  }
+  return data;
+};
+
+const notYourAccount = (res: Response) =>
+  res.status(403).json({ message: "You can only see your own data" });
+
+export const getUser = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
-    if (!users) {
-      return res.status(404).json({ message: "No users found" });
-    }
-    return res.status(200).json(users);
+    return res
+      .status(200)
+      .json(users.map((user) => publicUser(user, currentUserId(req))));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -23,7 +43,7 @@ export const getUserById = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: "No user found" });
     }
-    return res.status(200).json(user);
+    return res.status(200).json(publicUser(user, currentUserId(req)));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -31,7 +51,8 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const sendFriendRequest = async (req: Request, res: Response) => {
   try {
-    const { userId, profileId } = req.body;
+    const userId = currentUserId(req);
+    const { profileId } = req.body;
     const user = await User.findById(profileId);
     // the sender and receiver are the same user
     if (profileId === userId) {
@@ -78,7 +99,8 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
 
 export const removeFriendRequest = async (req: Request, res: Response) => {
   try {
-    const { userId, profileId } = req.body;
+    const userId = currentUserId(req);
+    const { profileId } = req.body;
     const user = await User.findById(profileId);
     if (!user) {
       return res.status(404).json({ message: "No user found" });
@@ -114,6 +136,9 @@ export const removeFriendRequest = async (req: Request, res: Response) => {
 
 export const friendRequestsByUserId = async (req: Request, res: Response) => {
   try {
+    if (req.params.userId !== currentUserId(req)) {
+      return notYourAccount(res);
+    }
     const user = await User.findById(req.params.userId);
     if (!user) {
       return res.status(404).json({ message: "No user found" });
@@ -149,6 +174,9 @@ export const friendRequestsByUserId = async (req: Request, res: Response) => {
 //show only 3 requests
 export const friendRequestsByUserId3 = async (req: Request, res: Response) => {
   try {
+    if (req.params.userId !== currentUserId(req)) {
+      return notYourAccount(res);
+    }
     const user = await User.findById(req.params.userId);
     if (!user) {
       return res.status(404).json({ message: "No user found" });
@@ -190,6 +218,9 @@ export const friendRequestsByUserId3 = async (req: Request, res: Response) => {
 
 export const suggestedProfile = async (req: Request, res: Response) => {
   try {
+    if (req.params.userId !== currentUserId(req)) {
+      return notYourAccount(res);
+    }
     //get user friend list
     const user = await User.findById(req.params.userId);
     if (!user) {
@@ -199,10 +230,9 @@ export const suggestedProfile = async (req: Request, res: Response) => {
     // add user id to the list so it doenst appear in the usggested profile
     user.friends.push(req.params.userId as string);
     const profiles = await User.find({ _id: { $nin: user.friends } });
-    if (profiles.length < 1) {
-      return res.status(200).json([]);
-    }
-    return res.status(200).json(profiles);
+    return res
+      .status(200)
+      .json(profiles.map((profile) => publicUser(profile, currentUserId(req))));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -211,6 +241,9 @@ export const suggestedProfile = async (req: Request, res: Response) => {
 //return only 3 suggested profile
 export const suggestedProfile3 = async (req: Request, res: Response) => {
   try {
+    if (req.params.userId !== currentUserId(req)) {
+      return notYourAccount(res);
+    }
     //get user friend list
     const user = await User.findById(req.params.userId);
     if (!user) {
@@ -220,11 +253,9 @@ export const suggestedProfile3 = async (req: Request, res: Response) => {
     // add user id to the list so it doenst appear in the usggested profile
     user.friends.push(req.params.userId as string);
     const profiles = await User.find({ _id: { $nin: user.friends } }).limit(3);
-
-    if (profiles.length < 1) {
-      return res.status(200).json([]);
-    }
-    return res.status(200).json(profiles);
+    return res
+      .status(200)
+      .json(profiles.map((profile) => publicUser(profile, currentUserId(req))));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -310,7 +341,8 @@ export const getFriendsByUserId3 = async (req: Request, res: Response) => {
 
 export const acceptFriendRequest = async (req: Request, res: Response) => {
   try {
-    const { userId, profileId } = req.body;
+    const userId = currentUserId(req);
+    const { profileId } = req.body;
     //
     const user = await User.findById(userId);
     if (!user) {
@@ -368,7 +400,8 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
 
 export const declineFriendRequest = async (req: Request, res: Response) => {
   try {
-    const { userId, profileId } = req.body;
+    const userId = currentUserId(req);
+    const { profileId } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -395,7 +428,8 @@ export const declineFriendRequest = async (req: Request, res: Response) => {
 
 export const removeFriend = async (req: Request, res: Response) => {
   try {
-    const { userId, profileId } = req.body;
+    const userId = currentUserId(req);
+    const { profileId } = req.body;
 
     const user = await User.findById(userId);
     // no user if found
@@ -435,7 +469,16 @@ export const removeFriend = async (req: Request, res: Response) => {
 
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const id = currentUserId(req);
+    const account = await User.findById(id);
+    if (!account) {
+      return res.status(404).json({ message: "No users found" });
+    }
+    if (account.email === TEST_ACCOUNT_EMAIL) {
+      return res
+        .status(403)
+        .json({ message: "The guest account cannot be deleted" });
+    }
     //delete user
     const deleteUser = await User.findByIdAndDelete(id);
 
@@ -518,9 +561,15 @@ export const deleteAccount = async (req: Request, res: Response) => {
   }
 };
 
-export const generateUrlS3 = async (_req: Request, res: Response) => {
+export const generateUrlS3 = async (req: Request, res: Response) => {
   try {
-    const url = await generateUploadURL();
+    const type = req.query.type;
+    if (typeof type !== "string" || !IMAGE_TYPES.includes(type)) {
+      return res.status(400).json({
+        message: "Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)",
+      });
+    }
+    const url = await generateUploadURL(type);
     res.status(200).send(url);
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
@@ -529,8 +578,11 @@ export const generateUrlS3 = async (_req: Request, res: Response) => {
 
 export const changePic = async (req: Request, res: Response) => {
   try {
-    const { id, imageUrl, profileOrCover } = req.body;
-    const user = await User.findById(id);
+    const { imageUrl, profileOrCover } = req.body;
+    if (!isBucketUrl(imageUrl)) {
+      return res.status(400).json({ message: "Invalid picture url" });
+    }
+    const user = await User.findById(currentUserId(req));
     if (!user) {
       return res.status(404).json({ message: "No user found" });
     }
@@ -567,14 +619,20 @@ export const getProfilePic = async (req: Request, res: Response) => {
 };
 
 export const updateProfile = [
-  body("firstname", "First name required").trim(),
-  body("lastname", "Last name required").trim(),
+  body("firstname", "First name must be 2 to 15 letters or numbers")
+    .trim()
+    .isLength({ min: 2, max: 15 })
+    .isAlphanumeric(),
+  body("lastname", "Last name must be 2 to 15 letters or numbers")
+    .trim()
+    .isLength({ min: 2, max: 15 })
+    .isAlphanumeric(),
   body("hometown").trim(),
   body("worksAt").trim(),
   body("relationship").trim(),
   async (req: Request, res: Response) => {
+    const id = currentUserId(req);
     const {
-      id,
       firstname,
       lastname,
       gender,
@@ -586,7 +644,9 @@ export const updateProfile = [
     } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ errors: errors.array() });
+      return res
+        .status(400)
+        .json({ message: errors.array()[0].msg, errors: errors.array() });
     }
     try {
       //const date = dateOfBirth.split("T")[0] + "T00:00:00.000Z"
@@ -614,6 +674,9 @@ export const updateProfile = [
 
 export const getNofication = async (req: Request, res: Response) => {
   try {
+    if (req.params.userId !== currentUserId(req)) {
+      return notYourAccount(res);
+    }
     const user = await User.findById(req.params.userId);
 
     if (!user) {
@@ -645,14 +708,9 @@ export const getNofication = async (req: Request, res: Response) => {
 
 export const checkNotification = async (req: Request, res: Response) => {
   try {
-    // Ensure the request body contains an id
-    if (!req.body.id) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-
     // Update all notifications to mark them as seen
     const checkNotification = await User.findByIdAndUpdate(
-      req.body.id,
+      currentUserId(req),
       { $set: { "notifications.$[].seen": true } },
       { new: true } // This option returns the updated document
     );

@@ -1,11 +1,3 @@
-# The Odinbook project
+# Odinbook client
 
-<br/>
-
-## Description:
-
----
-
-This is the front-end part of the project
-
-<br/>
+React front end of Odinbook. See the [main README](../README.md) for setup and scripts.

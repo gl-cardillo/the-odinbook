@@ -38,6 +38,10 @@ export interface Post {
   date: string;
   likes: string[];
   picUrl?: string;
+  // null when the author deleted the account
+  author: UserSummary | null;
+  likedBy: UserSummary[];
+  commentsCount: number;
 }
 
 export interface Comment {
@@ -49,6 +53,8 @@ export interface Comment {
   date: string;
   likes: string[];
   reply: { authorId: string; text: string; date: string }[];
+  author: UserSummary | null;
+  likedBy: UserSummary[];
 }
 
 export interface Reply {
@@ -66,8 +72,9 @@ export interface Notification {
   seen: boolean;
   link: string;
   elementId?: string;
-  profilePicUrl: string;
-  fullname: string;
+  // missing when the sender deleted the account
+  profilePicUrl?: string;
+  fullname?: string;
 }
 
 export interface NotificationsResponse {

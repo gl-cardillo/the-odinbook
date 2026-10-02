@@ -473,3 +473,29 @@ describe("DELETE /user/deleteAccount", () => {
 afterAll(async () => {
   await closeMongoServer();
 });
+
+describe("GET /user/search", () => {
+  it("Should find users by first or last name, ignoring case", async () => {
+    const target = users[2];
+    const res = await request(app)
+      .get("/user/search")
+      .query({ q: target.lastname.toUpperCase() })
+      .set("Authorization", tokenFor(users[0].id));
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.map((u: { id: string }) => u.id)).toContain(target.id);
+    expect(res.body.find((u: { id: string }) => u.id === target.id)).toEqual({
+      id: expect.any(String),
+      fullname: expect.any(String),
+      profilePicUrl: expect.any(String),
+    });
+  });
+
+  it("Should treat the text literally and return nothing for no match", async () => {
+    const res = await request(app)
+      .get("/user/search")
+      .query({ q: ".*" })
+      .set("Authorization", tokenFor(users[0].id));
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual([]);
+  });
+});

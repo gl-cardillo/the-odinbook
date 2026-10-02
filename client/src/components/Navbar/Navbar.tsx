@@ -14,8 +14,6 @@ import { FiUserPlus, FiUsers } from "react-icons/fi";
 import { FaSignOutAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import {
-  handleSearch,
-  blur,
   getTime,
   swalStyle,
   handleError,
@@ -26,14 +24,14 @@ import Swal from "sweetalert2";
 import type {
   Notification,
   NotificationsResponse,
-  User,
   UserSummary,
 } from "../../types";
 
 export function Navbar() {
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState<User[]>([]);
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState<UserSummary[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -42,8 +40,6 @@ export function Navbar() {
     Notification[]
   >([]);
   const [showSettings, setShowSettings] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const [friendRequestsLength, setFriendRequestsLength] = useState(0);
@@ -53,16 +49,13 @@ export function Navbar() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const [allUsers, friendRequests, userNotifications] =
-          await Promise.all([
-            axios.get<User[]>(`/user/`),
+        const [friendRequests, userNotifications] = await Promise.all([
             axios.get<UserSummary[]>(`/user/friendRequests/${user._id}`),
             axios.get<NotificationsResponse>(
               `/user/getNotification/${user.id}`
             ),
           ]);
 
-        setUsers(allUsers.data.filter((profile) => profile.id !== user._id));
         setFriendRequestsLength(friendRequests.data.length);
         setNotifications(userNotifications.data.notifications);
         setNotificationUnchecked(userNotifications.data.unchecked);
@@ -73,6 +66,32 @@ export function Navbar() {
     };
     getData();
   }, [user._id, user.id]);
+
+  // ask the server once the user stops typing for a moment
+  useEffect(() => {
+    if (query.trim() === "") {
+      setSearch([]);
+      return;
+    }
+    let ignore = false;
+    const timer = setTimeout(() => {
+      axios
+        .get<UserSummary[]>(`/user/search`, { params: { q: query } })
+        .then((res) => {
+          if (!ignore) setSearch(res.data);
+        })
+        .catch((err) => console.log(err));
+    }, 250);
+    return () => {
+      ignore = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  const clearSearch = () => {
+    setQuery("");
+    setSearch([]);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -149,16 +168,20 @@ export function Navbar() {
           <h1 className="title-navbar">Odinbook</h1>
           <IoHomeSharp className="home-navbar" />
         </Link>
-        <div className="search" onBlur={() => blur(inputRef, setSearch)}>
+        <div
+          className="search"
+          // wait a moment so a click on a result still works
+          onBlur={() => setTimeout(() => setShowSearch(false), 200)}
+        >
           <input
             type="text"
             id="search"
             placeholder="Search..."
-            ref={inputRef}
-            onChange={(e) => handleSearch(e, setSearch, users)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setShowSearch(true)}
           />
-          {showSearch && inputRef.current && inputRef.current.value.length > 0 && (
+          {showSearch && query.length > 0 && (
             <div className="search-result">
               {search.length > 0 ? (
                 search.map((userSearch, index) => (
@@ -166,10 +189,7 @@ export function Navbar() {
                     key={index}
                     to={`/profile/${userSearch.id}`}
                     style={{ textDecoration: "none" }}
-                    onClick={() => {
-                      if (inputRef.current) inputRef.current.value = "";
-                      setSearch([]);
-                    }}
+                    onClick={clearSearch}
                   >
                     <div className="result-user">
                       <img

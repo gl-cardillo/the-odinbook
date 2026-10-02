@@ -39,15 +39,44 @@ beforeAll(async () => {
 });
 
 describe("GET /posts", () => {
-  it("should return all the posts", async () => {
+  it("should return the first page, newest first", async () => {
     const res = await request(app).get("/posts").set("Authorization", token);
     expect(res.statusCode).toEqual(200);
+    expect(res.body.length).toEqual(10);
     expect(res.body[0]).toHaveProperty("_id");
     expect(res.body[0]).toHaveProperty("authorId");
     expect(res.body[0]).toHaveProperty("text");
-    expect(res.body[0]).toHaveProperty("date");
     expect(res.body[0]).toHaveProperty("likes");
-    expect(res.body.length).toEqual(30);
+    const dates = res.body.map((post: { date: string }) => post.date);
+    expect([...dates].sort().reverse()).toEqual(dates);
+  });
+
+  it("should walk through every post page by page, without repeats", async () => {
+    const seen: string[] = [];
+    let before = "";
+    for (let page = 0; page < 10; page++) {
+      const res = await request(app)
+        .get("/posts")
+        .query(before ? { before, limit: 7 } : { limit: 7 })
+        .set("Authorization", token);
+      expect(res.statusCode).toEqual(200);
+      seen.push(...res.body.map((post: { id: string }) => post.id));
+      if (res.body.length < 7) break;
+      before = res.body[res.body.length - 1].id;
+    }
+    expect(seen.length).toEqual(30);
+    expect(new Set(seen).size).toEqual(30);
+  });
+
+  it("should include the author, the likes and the comments count", async () => {
+    const res = await request(app).get("/posts").set("Authorization", token);
+    const post = res.body[0];
+    expect(post.author).toHaveProperty("id", post.authorId);
+    expect(post.author).toHaveProperty("fullname");
+    expect(post.author).toHaveProperty("profilePicUrl");
+    expect(Array.isArray(post.likedBy)).toBe(true);
+    // the seed adds 5 comments from each of the 6 users to every post
+    expect(post.commentsCount).toEqual(30);
   });
 });
 
@@ -82,6 +111,8 @@ describe("POST /posts/createPost", () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body.post.text).toEqual("Post example");
     expect(res.body.post.authorId).toEqual(userId);
+    expect(res.body.post.author).toHaveProperty("fullname", "Luca Cardi");
+    expect(res.body.post.commentsCount).toEqual(0);
 
     postId = res.body.post.id;
     await Post.findByIdAndUpdate(postId, { likes: [users[0].id, users[1].id] });
@@ -112,6 +143,7 @@ describe("POST /comments/createComment", () => {
       .send({ text: "Comment example", postId, authorId: userId });
     expect(res.statusCode).toEqual(200);
     expect(res.body.text).toEqual("Comment example");
+    expect(res.body.author).toHaveProperty("id", users[0].id);
     expect(res.body.postId).toEqual(postId);
     expect(res.body.authorId).toEqual(users[0].id);
 
@@ -147,6 +179,8 @@ describe("GET /comments/:postId", () => {
       .set("Authorization", token);
     expect(res.statusCode).toEqual(200);
     expect(res.body[0].authorId).toEqual(users[0].id);
+    expect(res.body[0].author).toHaveProperty("fullname", users[0].fullname);
+    expect(res.body[0].likedBy).toEqual([]);
     expect(res.body[0].text).toEqual("Comment example");
     expect(res.body[0].postId).toEqual(postId);
   });

@@ -11,6 +11,8 @@ const CommentSchema = new Schema({
   likes: { type: Array },
 });
 
+CommentSchema.index({ postId: 1 });
+
 CommentSchema.set("toObject", { virtuals: true });
 CommentSchema.set("toJSON", { virtuals: true });
 

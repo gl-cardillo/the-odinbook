@@ -9,8 +9,7 @@ import {
 } from "../../utils/utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { BsX } from "react-icons/bs";
@@ -22,12 +21,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
 import Swal from "sweetalert2";
-import type {
-  Comment as CommentType,
-  Reply,
-  SetRender,
-  UserSummary,
-} from "../../types";
+import type { Comment as CommentType, Reply, SetRender } from "../../types";
 
 const schema = yup.object().shape({
   text: yup.string().required("Text in the post are required "),
@@ -38,46 +32,16 @@ type ReplyForm = yup.InferType<typeof schema>;
 interface CommentProps {
   comment: CommentType;
   setRender: SetRender;
-  setShowNewComment: Dispatch<SetStateAction<boolean>>;
-  showNewComment: boolean;
   postId: string;
 }
 
-export function Comment({
-  comment,
-  setRender,
-  setShowNewComment,
-  showNewComment,
-  postId,
-}: CommentProps) {
-  const [author, setAuthor] = useState("");
-  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+export function Comment({ comment, setRender, postId }: CommentProps) {
+  // author and likes come with the comment
+  const likes = comment.likedBy;
   const [showLikes, setShowLikes] = useState(false);
-  const [likes, setLikes] = useState<UserSummary[]>([]);
   const { user } = useCurrentUser();
   const [showReply, setShowReply] = useState(false);
   const [replies, setReplies] = useState<Reply[] | null>(null);
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const [pic, authorName, commentLikes] = await Promise.all([
-          axios.get<string>(`/user/profilePic/${comment.authorId}`),
-          axios.get<string>(`/posts/getAuthor/${comment.authorId}`),
-          axios.get<UserSummary[]>(`/comments/getLikes/${comment.id}`),
-        ]);
-
-        setProfilePicUrl(pic.data);
-        setAuthor(authorName.data);
-        setLikes(commentLikes.data);
-      } catch (error) {
-        console.log(error);
-
-        handleError(errorMessage(error));
-      }
-    };
-    getData();
-  }, [comment.authorId, comment.id]);
 
   const deleteComment = async (id: string, commentDate: string) => {
     try {
@@ -89,7 +53,6 @@ export function Comment({
         },
       });
 
-      setShowNewComment(!showNewComment);
       setRender((render) => render + 1);
     } catch (err) {
       handleError(errorMessage(err));
@@ -123,9 +86,6 @@ export function Comment({
       await axios.post(`/comments/createReply`, {
         text: data.text,
         commentId: comment.id,
-        authorId: user._id,
-        authorCommentId: comment.authorId,
-        postId,
       });
       getReply();
       setShowReply(true);
@@ -201,18 +161,18 @@ export function Comment({
   return (
     <div className="comment-reply-container">
       <div className="comment-container">
-        {profilePicUrl ? (
-          <Link to={`/profile/${comment.authorId}`}>
-            <img className="avatar-pic" src={profilePicUrl} alt="avatar" />
-          </Link>
-        ) : (
-          <Skeleton height={50} width={50} circle={true} />
-        )}
+        <Link to={`/profile/${comment.authorId}`}>
+          <img
+            className="avatar-pic"
+            src={comment.author?.profilePicUrl}
+            alt="avatar"
+          />
+        </Link>
         <div className="comment-info">
           <div className="comment-author-message">
             <Link to={`/profile/${comment.authorId}`}>
               <p className="author">
-                {author ? author : <Skeleton height={20} width={100} />}
+                {comment.author ? comment.author.fullname : "Deleted user"}
               </p>
             </Link>
             <p

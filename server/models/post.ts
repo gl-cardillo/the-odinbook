@@ -10,6 +10,10 @@ const PostSchema = new Schema({
   picUrl: { type: String },
 });
 
+// feeds and profiles list posts by author, newest first
+PostSchema.index({ authorId: 1, date: -1 });
+PostSchema.index({ date: -1 });
+
 PostSchema.set("toObject", { virtuals: true });
 PostSchema.set("toJSON", { virtuals: true });
 

@@ -4,14 +4,18 @@ import Post from "../models/post.js";
 import { body, validationResult } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
+import {
+  findUserSummaries,
+  userSummaries,
+  withCommentDetails,
+} from "./details.js";
 
 export const getCommentsByPostId = async (req: Request, res: Response) => {
   try {
-    const comments = await Comment.find({ postId: req.params.postId });
-    if (comments.length < 1) {
-      return res.status(200).json([]);
-    }
-    return res.status(200).json(comments);
+    const comments = await Comment.find({ postId: req.params.postId }).sort({
+      date: 1,
+    });
+    return res.status(200).json(await withCommentDetails(comments));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -23,26 +27,23 @@ export const getReplyByCommentsId = async (req: Request, res: Response) => {
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    if (comment.reply.length < 1) {
-      return res.status(200).json([]);
-    }
-
-    let replyList = [];
-
-    for (let i = 0; i < comment.reply.length; i++) {
-      const user = await User.findById(comment.reply[i].authorId);
+    const users = await findUserSummaries(
+      comment.reply.map((reply) => reply.authorId)
+    );
+    const replyList = comment.reply.flatMap((reply) => {
+      const user = users.get(String(reply.authorId));
       // skip replies whose author deleted the account
-      if (!user) continue;
-
-      const reply = {
-        authorId: comment.reply[i].authorId,
-        text: comment.reply[i].text,
-        profilePicUrl: user.profilePicUrl,
-        authorFullname: user.fullname,
-        date: comment.reply[i].date,
-      };
-      replyList.push(reply);
-    }
+      if (!user) return [];
+      return [
+        {
+          authorId: reply.authorId,
+          text: reply.text,
+          profilePicUrl: user.profilePicUrl,
+          authorFullname: user.fullname,
+          date: reply.date,
+        },
+      ];
+    });
     return res.status(200).json(replyList);
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
@@ -88,8 +89,9 @@ export const createComment = [
         });
       }
 
-      const savedComment = await comment.save();
-      if (savedComment) return res.status(200).json(comment);
+      await comment.save();
+      const [detailed] = await withCommentDetails([comment]);
+      return res.status(200).json(detailed);
     } catch (err) {
       return res.status(500).json({ message: (err as Error).message });
     }
@@ -227,15 +229,10 @@ export const addLike = async (req: Request, res: Response) => {
     const elementAuthorId = comment.authorId;
     const postId = comment.postId;
 
-    const commentLiked = await Comment.find({
-      _id: elementId,
-      likes: { $elemMatch: { $eq: userId } },
-    });
-
     //if comment is not liked by the user add like
-    if (commentLiked.length == 0) {
+    if (!comment.likes.includes(userId)) {
       const commentAddLike = await Comment.findByIdAndUpdate(elementId, {
-        $push: { likes: userId },
+        $addToSet: { likes: userId },
       });
 
       //if the user who liked the post is not the comment author send a notification
@@ -283,22 +280,7 @@ export const getWhoLiked = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No comments found" });
     }
 
-    const userList = [];
-    //create an array with photo, id and name of the user who
-    //liked the comment
-    for (let i = 0; i < comment.likes.length; i++) {
-      const user = await User.findById(comment.likes[i]);
-      // skip likes from deleted accounts
-      if (!user) continue;
-
-      const userData = {
-        id: user._id,
-        profilePicUrl: user.profilePicUrl,
-        fullname: user.fullname,
-      };
-      userList.push(userData);
-    }
-    return res.status(200).json(userList);
+    return res.status(200).json(await userSummaries(comment.likes));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }

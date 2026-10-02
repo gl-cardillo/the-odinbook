@@ -1,7 +1,6 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import type { SweetAlertOptions } from "sweetalert2";
-import type { ChangeEvent, Dispatch, RefObject, SetStateAction } from "react";
 import type { Post, Comment, User, SetRender } from "../types";
 
 // message sent by the API, or the error itself if the request never got an answer
@@ -126,36 +125,6 @@ export const declineRequest = async (
     handleError(errorMessage(err));
   }
 };
-
-export function blur<T>(
-  input: RefObject<HTMLInputElement | null>,
-  set: Dispatch<SetStateAction<T[]>>
-) {
-  if (input.current) {
-    input.current.value = "";
-  }
-  setTimeout(() => {
-    set([]);
-  }, 200);
-}
-
-export function handleSearch<T extends { fullname: string }>(
-  e: ChangeEvent<HTMLInputElement>,
-  set: Dispatch<SetStateAction<T[]>>,
-  users: T[]
-) {
-  if (e.target.value === "") {
-    set([]);
-  } else {
-    const newSearch = users.filter((userSearch) => {
-      return userSearch.fullname
-        .toLowerCase()
-        .trim()
-        .includes(e.target.value.toLowerCase().trim());
-    });
-    set(newSearch);
-  }
-}
 
 export const addLike = async (
   type: "posts" | "comments",

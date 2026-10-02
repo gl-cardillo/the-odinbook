@@ -1,5 +1,3 @@
-import type { Dispatch, SetStateAction } from "react";
-
 // shapes returned by the API
 
 export interface User {
@@ -87,4 +85,3 @@ export interface AuthResponse {
   token: string;
 }
 
-export type SetRender = Dispatch<SetStateAction<number>>;

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { useNavigate, Link } from "react-router";
@@ -6,8 +5,8 @@ import homePic from "../../images/home-pic.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { errorMessage, setAuthToken } from "../../utils/utils";
-import type { AuthResponse } from "../../types";
+import { errorMessage } from "../../utils/utils";
+import { api } from "../../api";
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -19,7 +18,7 @@ type LoginForm = yup.InferType<typeof schema>;
 export function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const { user, setUser } = useContext(UserContext);
+  const { user, login: startSession } = useContext(UserContext);
 
   useEffect(() => {
     if (user !== null) {
@@ -37,15 +36,8 @@ export function Login() {
 
   const login = async (data: { email: string; password: string }) => {
     try {
-      const response = await axios.post<AuthResponse>(`/auth/login`, {
-        email: data.email,
-        password: data.password,
-      });
-      const { user, token } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", JSON.stringify(token));
-      setAuthToken(token);
-      setUser(user);
+      const { user, token } = await api.login(data.email, data.password);
+      startSession(user, token);
       navigate("/home", { replace: true });
     } catch (err) {
       setError(errorMessage(err) ?? "");

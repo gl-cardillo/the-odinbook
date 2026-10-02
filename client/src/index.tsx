@@ -1,6 +1,8 @@
 import ReactDOM from "react-dom/client";
 import axios from "axios";
+import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
+import { queryClient } from "./queries";
 import { readStorage, setAuthToken } from "./utils/utils";
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -8,4 +10,8 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 setAuthToken(readStorage<string>("token"));
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
-root.render(<App />);
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);

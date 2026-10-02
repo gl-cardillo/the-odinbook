@@ -1,39 +1,12 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
-import {
-  acceptRequest,
-  declineRequest,
-  handleError,
-  errorMessage,
-} from "../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import type { UserSummary } from "../../types";
+import { useFriendActions, useFriendRequests } from "../../queries";
 
 export function FriendRequests() {
-  const [requests, setRequests] = useState<UserSummary[] | null>(null);
-  const [render, setRender] = useState(1);
-
-  const { user } = useCurrentUser();
-
-  useEffect(() => {
-    const getRequests = async () => {
-      try {
-        const requestsList = await axios.get<UserSummary[]>(
-          `/user/friendRequests/${user.id}`
-        );
-
-        setRequests(requestsList.data);
-      } catch (err) {
-        console.log(err);
-        handleError(errorMessage(err));
-      }
-    };
-    getRequests();
-  }, [render, user.id]);
+  const { data: requests } = useFriendRequests();
+  const { accept, decline } = useFriendActions();
 
   return (
     <div className="main-page">
@@ -41,42 +14,37 @@ export function FriendRequests() {
         <h2>Friend Requests</h2>
         <div className="requests-container">
           {requests ? (
-            // if there are requests show them
             requests.length > 0 ? (
-              requests.map((request, index) => {
-                return (
-                  <div className="requests" key={index}>
-                    <Link to={`/profile/${request.id}`}>
-                      <img
-                        src={request.profilePicUrl}
-                        className="avatar-pic"
-                        alt="avatar"
-                      />
-                    </Link>
-                    <Link to={`/profile/${request.id}`}>
-                      <p>{request.fullname}</p>
-                    </Link>
-                    <div className="friend-requests-button">
-                      <button
-                        className="add-button"
-                        onClick={() =>
-                          acceptRequest(request.id, user.id, setRender)
-                        }
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="remove-button"
-                        onClick={() =>
-                          declineRequest(request.id, user.id, setRender)
-                        }
-                      >
-                        Decline
-                      </button>
-                    </div>
+              requests.map((request) => (
+                <div className="requests" key={request.id}>
+                  <Link to={`/profile/${request.id}`}>
+                    <img
+                      src={request.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
+                  </Link>
+                  <Link to={`/profile/${request.id}`}>
+                    <p>{request.fullname}</p>
+                  </Link>
+                  <div className="friend-requests-button">
+                    <button
+                      className="add-button"
+                      onClick={() => accept.mutate(request.id)}
+                      disabled={accept.isPending}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="remove-button"
+                      onClick={() => decline.mutate(request.id)}
+                      disabled={decline.isPending}
+                    >
+                      Decline
+                    </button>
                   </div>
-                );
-              })
+                </div>
+              ))
             ) : (
               <h3>No friend requests at the moment</h3>
             )
@@ -85,7 +53,7 @@ export function FriendRequests() {
           )}
         </div>
       </div>
-      <SideMenu render={render} setRender={setRender} />
+      <SideMenu />
     </div>
   );
 }

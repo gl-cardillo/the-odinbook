@@ -1,71 +1,84 @@
 import "./profile.css";
-import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import type { ChangeEvent } from "react";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useParams } from "react-router";
-import { Post } from "../Post/Post";
 import { PostForm } from "../PostForm/PostForm";
+import { PostList } from "../PostList/PostList";
 import { Friends } from "../Friends/Friends";
 import { About } from "../About/About";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { TiPlusOutline } from "react-icons/ti";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { imageTypes } from "../../utils/utils";
 import {
-  addFriendRequest,
-  removeFriendRequest,
-  removeFriend,
-  changePic,
-  handleError,
-  errorMessage,
-} from "../../utils/utils";
-import { usePagedPosts } from "../../hooks/usePagedPosts";
+  useChangePicture,
+  useFriendActions,
+  useUser,
+  useUserPosts,
+} from "../../queries";
 import type { User } from "../../types";
+
+type Section = "posts" | "friends" | "about";
+
+// add, cancel or remove the friendship with the profile you are looking at
+function FriendshipButton({ profile, me }: { profile: User; me: User }) {
+  const { send, cancel, remove } = useFriendActions();
+
+  if (profile.friends.includes(me.id)) {
+    return (
+      <button
+        className="remove-button"
+        onClick={() => remove.mutate(profile.id)}
+        disabled={remove.isPending}
+      >
+        Remove friend
+      </button>
+    );
+  }
+  if (profile.friendRequests.includes(me.id)) {
+    return (
+      <button
+        className="remove-button"
+        onClick={() => cancel.mutate(profile.id)}
+        disabled={cancel.isPending}
+      >
+        Remove friend request
+      </button>
+    );
+  }
+  return (
+    <button
+      className="add-button"
+      onClick={() => send.mutate(profile.id)}
+      disabled={send.isPending}
+    >
+      Add friend
+    </button>
+  );
+}
 
 export function Profile() {
   const { profileId = "" } = useParams();
-  const { user } = useCurrentUser();
+  const { user, updateUser } = useCurrentUser();
+  const [section, setSection] = useState<Section>("posts");
 
-  const [profile, setProfile] = useState<User | null>(null);
-  const [render, setRender] = useState(1);
-  const [showPosts, setShowPosts] = useState(true);
-  const [showAbout, setShowAbout] = useState(false);
-  const [showFriends, setShowFriends] = useState(false);
-  const {
-    posts: profilePosts,
-    hasMore,
-    loadingMore,
-    loadMore,
-  } = usePagedPosts(`/posts/byUserId/${profileId}`, render);
+  const { data: profile } = useUser(profileId);
+  const posts = useUserPosts(profileId);
+  const changePicture = useChangePicture(updateUser);
+  const isMe = profileId === user.id;
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const profileData = await axios.get<User>(`/user/profile/${profileId}`);
-        setProfile(profileData.data);
-      } catch (err) {
-        handleError(errorMessage(err));
+  const onPicture =
+    (kind: "profile" | "cover") => (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (!imageTypes.includes(file.type)) {
+        alert("Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)");
+        return;
       }
+      changePicture.mutate({ kind, file });
     };
-
-    getData();
-  }, [render, profileId]);
-
-  const changePage = (page: "posts" | "about" | "friends") => {
-    if (page === "posts") {
-      setShowPosts(true);
-      setShowAbout(false);
-      setShowFriends(false);
-    } else if (page === "about") {
-      setShowAbout(true);
-      setShowPosts(false);
-      setShowFriends(false);
-    } else {
-      setShowFriends(true);
-      setShowAbout(false);
-      setShowPosts(false);
-    }
-  };
 
   return (
     <div className="main-page">
@@ -79,157 +92,68 @@ export function Profile() {
                   src={profile.coverPicUrl}
                   alt="cover picture"
                 />
-                {user.id === profile.id ? (
+                {isMe && (
                   <div className="overlay">
                     <TiPlusOutline className="pic-icon cover" />
                     <input
                       type="file"
                       id="cover-pic"
                       accept="image/*"
-                      onChange={(e) =>
-                        changePic(
-                          "coverPicUrl",
-                          e.target.files?.[0],
-                          user,
-                          setRender
-                        )
-                      }
+                      onChange={onPicture("cover")}
                     />
                   </div>
-                ) : (
-                  ""
                 )}
               </label>
             </div>
             <div className="profile-pic-container">
               <label htmlFor="profile-pic">
                 <img src={profile.profilePicUrl} alt="avatar" />
-                {user.id === profile.id ? (
+                {isMe && (
                   <div className="overlay">
                     <TiPlusOutline className="pic-icon" />
                     <input
                       type="file"
                       id="profile-pic"
                       accept="image/*"
-                      onChange={(e) =>
-                        changePic(
-                          "profilePicUrl",
-                          e.target.files?.[0],
-                          user,
-                          setRender
-                        )
-                      }
+                      onChange={onPicture("profile")}
                     />
                   </div>
-                ) : (
-                  ""
                 )}
               </label>
             </div>
             <div className="profile-name-button">
               <p className="profile-username">{profile.fullname}</p>
-              {
-                // if user is in the profile of other users
-                // show fiend buttons
-                profileId !== user._id ? (
-                  profile.friends.includes(user.id) ? (
-                    <button
-                      onClick={() =>
-                        removeFriend(profileId, user._id, setRender)
-                      }
-                      className="remove-button"
-                    >
-                      Remove friend
-                    </button>
-                  ) : profile.friendRequests.includes(user._id) ? (
-                    <button
-                      className="remove-button"
-                      onClick={() =>
-                        removeFriendRequest(profileId, user._id, setRender)
-                      }
-                    >
-                      Remove friend request
-                    </button>
-                  ) : (
-                    <button
-                      className="add-button"
-                      onClick={() =>
-                        addFriendRequest(profileId, user._id, setRender)
-                      }
-                    >
-                      Add friend
-                    </button>
-                  )
-                ) : (
-                  ""
-                )
-              }
+              {!isMe && <FriendshipButton profile={profile} me={user} />}
             </div>
             <div className="profile-section">
-              <button
-                className={showPosts ? "active-section" : ""}
-                onClick={() => changePage("posts")}
-              >
-                Posts
-              </button>
-              <button
-                className={showFriends ? "active-section" : ""}
-                onClick={() => changePage("friends")}
-              >
-                Friends
-              </button>
-              <button
-                className={showAbout ? "active-section" : ""}
-                onClick={() => changePage("about")}
-              >
-                About
-              </button>
+              {(["posts", "friends", "about"] as const).map((name) => (
+                <button
+                  key={name}
+                  className={section === name ? "active-section" : ""}
+                  onClick={() => setSection(name)}
+                >
+                  {name[0].toUpperCase() + name.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
         ) : (
           <Skeleton height={500} />
         )}
-        {showAbout && profile && (
+        {section === "about" && profile && (
           <div className="profile-about-section">
-            <About profile={profile} setRender={setRender} render={render} />
+            <About profile={profile} />
           </div>
         )}
-        {showFriends && profile && (
+        {section === "friends" && profile && (
           <div className="profile-friends-section">
             <Friends profile={profile} />
           </div>
         )}
-        {showPosts && (
+        {section === "posts" && (
           <div className="profile-post-section">
-            <div>
-              {profile && profileId === user._id && (
-                <PostForm user={user} setRender={setRender} render={render} />
-              )}
-            </div>
-            {profilePosts ? (
-              profilePosts.length > 0 ? (
-                <>
-                  {profilePosts.map((post) => (
-                    <Post key={post.id} post={post} setRender={setRender} />
-                  ))}
-                  {hasMore && (
-                    <button
-                      className="load-more"
-                      onClick={loadMore}
-                      disabled={loadingMore}
-                    >
-                      {loadingMore ? "Loading..." : "Load more posts"}
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className="post no-data-available-container">
-                  <p>No post available</p>
-                </div>
-              )
-            ) : (
-              <Skeleton height={250} style={{ margin: "10px 0" }} count={3} />
-            )}
+            {isMe && <PostForm user={user} />}
+            <PostList query={posts} emptyText="No post available" />
           </div>
         )}
       </div>

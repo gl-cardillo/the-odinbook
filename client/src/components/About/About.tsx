@@ -1,5 +1,4 @@
 import "./about.css";
-import axios from "axios";
 import { useState } from "react";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { MdModeEditOutline, MdOutlineWork, MdSchool } from "react-icons/md";
@@ -8,8 +7,8 @@ import { FaUser, FaBirthdayCake, FaHeart, FaHome } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { handleError, errorMessage } from "../../utils/utils";
-import type { User, SetRender } from "../../types";
+import { useUpdateProfile } from "../../queries";
+import type { User } from "../../types";
 
 const schema = yup.object().shape({
   firstname: yup
@@ -43,15 +42,13 @@ const schema = yup.object().shape({
 
 type AboutForm = yup.InferType<typeof schema>;
 
-interface AboutProps {
-  profile: User;
-  setRender: SetRender;
-  render: number;
-}
-
-export function About({ profile, setRender, render }: AboutProps) {
-  const { user, setUser } = useCurrentUser();
+export function About({ profile }: { profile: User }) {
+  const { user, updateUser } = useCurrentUser();
   const [edit, setEdit] = useState(false);
+  const updateProfile = useUpdateProfile((saved) => {
+    updateUser(saved);
+    setEdit(false);
+  });
 
   const {
     register,
@@ -72,41 +69,23 @@ export function About({ profile, setRender, render }: AboutProps) {
     resolver: yupResolver(schema),
   });
 
-  const updateInfo = async (data: AboutForm) => {
-    // only way i found to store date of birth without time in mongodb
+  const updateInfo = (data: AboutForm) => {
+    // keep the day picked whatever the timezone, mongo stores it as utc midnight
     const date = data.dateOfBirth;
     const dateOfBirth = date
       ? new Date(date.getTime() - date.getTimezoneOffset() * 60000)
       : undefined;
 
-    try {
-      await axios.put(`/user/updateProfile`, {
-        id: profile.id,
-        firstname: data.firstname,
-        lastname: data.lastname,
-        gender: data.gender,
-        dateOfBirth,
-        hometown: data.hometown,
-        worksAt: data.worksAt,
-        school: data.school,
-        relationship: data.relationship,
-      });
-      getUser();
-    } catch (err) {
-      handleError(errorMessage(err));
-    }
-  };
-
-  const getUser = async () => {
-    try {
-      const response = await axios.get<User>(`/user/profile/${profile.id}`);
-      localStorage.setItem("user", JSON.stringify(response.data));
-      setUser(response.data);
-      setEdit(false);
-      setRender(render + 1);
-    } catch (err) {
-      handleError(errorMessage(err));
-    }
+    updateProfile.mutate({
+      firstname: data.firstname,
+      lastname: data.lastname,
+      gender: data.gender,
+      dateOfBirth,
+      hometown: data.hometown,
+      worksAt: data.worksAt,
+      school: data.school,
+      relationship: data.relationship,
+    });
   };
 
   return (
@@ -211,7 +190,9 @@ export function About({ profile, setRender, render }: AboutProps) {
               <button onClick={() => setEdit(false)} type="button">
                 Cancel
               </button>
-              <button type="submit">Save</button>
+              <button type="submit" disabled={updateProfile.isPending}>
+                Save
+              </button>
             </div>
           </form>
         </div>

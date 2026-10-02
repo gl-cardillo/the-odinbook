@@ -265,3 +265,22 @@ button {
   padding: 8px 16px;
   cursor: pointer;
 }
+
+.swal-danger-button {
+  background-color: #f56565 !important;
+  border: none;
+  box-shadow: var(--shadow);
+  padding: 6px;
+}
+
+.swal-neutral-button {
+  background-color: #a0aec0 !important;
+  border: none;
+  box-shadow: var(--shadow);
+  padding: 6px;
+}
+
+.swal-danger-button:focus,
+.swal-neutral-button:focus {
+  box-shadow: var(--focus-shadow) !important;
+}

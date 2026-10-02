@@ -3,7 +3,7 @@ import "animate.css";
 
 import axios from "axios";
 import { BrowserRouter, Routes, Route } from "react-router";
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Signin } from "./components/Signin/Signin";
 import { Login } from "./components/Login/Login";
 import { Navbar } from "./components/Navbar/Navbar";
@@ -12,6 +12,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { UserContext } from "./dataContext/dataContext";
 import { SkeletonTheme } from "react-loading-skeleton";
 import { readStorage, setAuthToken } from "./utils/utils";
+import { queryClient } from "./queries";
 import type { User } from "./types";
 
 // pages behind the login are downloaded only when first opened
@@ -43,26 +44,38 @@ const SinglePost = lazy(() =>
 function App() {
   const [user, setUser] = useState<User | null>(readStorage<User>("user"));
 
-  useEffect(() => {
-    const token = readStorage<string>("token");
-    setAuthToken(user && token ? token : null);
-  }, [user]);
+  const login = useCallback((user: User, token: string) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", JSON.stringify(token));
+    setAuthToken(token);
+    setUser(user);
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.clear();
+    setAuthToken(null);
+    queryClient.clear();
+    setUser(null);
+  }, []);
+
+  const updateUser = useCallback((user: User) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
+  }, []);
 
   // an expired or invalid session logs the user out instead of failing every request
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(undefined, (err) => {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
-        localStorage.clear();
-        setAuthToken(null);
-        setUser(null);
+        logout();
       }
       return Promise.reject(err);
     });
     return () => axios.interceptors.response.eject(interceptor);
-  }, []);
+  }, [logout]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, login, logout, updateUser }}>
       <SkeletonTheme baseColor="#9b9b9b;" highlightColor="#979797">
         <BrowserRouter>
           <Suspense fallback={null}>

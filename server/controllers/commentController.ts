@@ -1,287 +1,184 @@
 import Comment from "../models/comment.js";
 import User from "../models/user.js";
-import Post from "../models/post.js";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
+import { forbidden, notFound, validate } from "../middleware/errors.js";
+import { notify, removeNotifications } from "./notify.js";
+import { findPost } from "./postController.js";
 import {
   findUserSummaries,
   userSummaries,
   withCommentDetails,
 } from "./details.js";
 
-export const getCommentsByPostId = async (req: Request, res: Response) => {
-  try {
-    const comments = await Comment.find({ postId: req.params.postId }).sort({
-      date: 1,
-    });
-    return res.status(200).json(await withCommentDetails(comments));
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
-  }
+const textRule = () =>
+  body("text", "Text is required").trim().isLength({ min: 1 });
+
+const findComment = async (id: string, fields?: string) => {
+  const comment = await Comment.findById(id, fields);
+  if (!comment) throw notFound("Comment");
+  return comment;
 };
 
-export const getReplyByCommentsId = async (req: Request, res: Response) => {
-  try {
-    const comment = await Comment.findById(req.params.commentId);
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-    const users = await findUserSummaries(
-      comment.reply.map((reply) => reply.authorId)
-    );
-    const replyList = comment.reply.flatMap((reply) => {
-      const user = users.get(String(reply.authorId));
-      // skip replies whose author deleted the account
-      if (!user) return [];
-      return [
-        {
-          authorId: reply.authorId,
-          text: reply.text,
-          profilePicUrl: user.profilePicUrl,
-          authorFullname: user.fullname,
-          date: reply.date,
-        },
-      ];
-    });
-    return res.status(200).json(replyList);
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
-  }
+// GET /posts/:postId/comments, oldest first
+export const getComments = async (req: Request, res: Response) => {
+  const comments = await Comment.find({
+    postId: String(req.params.postId),
+  }).sort({ date: 1 });
+  res.json(await withCommentDetails(comments));
 };
 
+// POST /posts/:postId/comments
 export const createComment = [
-  body("text").trim().isLength({ min: 1 }),
+  ...validate(textRule()),
   async (req: Request, res: Response) => {
-    const { text, postId } = req.body;
-    const authorId = currentUserId(req);
+    const me = currentUserId(req);
+    const post = await findPost(String(req.params.postId), "authorId");
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ message: "Text is required" });
-    }
-    try {
-      const post = await Post.findById(postId);
-      if (!post) {
-        return res.status(404).json({ message: "No post found" });
-      }
-      const authorPostId = post.authorId;
+    const comment = await Comment.create({
+      text: req.body.text,
+      postId: post.id,
+      authorId: me,
+    });
+    await notify(post.authorId, me, {
+      message: "commented your post",
+      elementId: post.id,
+      commentId: comment.id,
+      link: `/singlePost/${post.id}`,
+    });
 
-      const comment = await new Comment({
-        text,
-        postId,
-        authorId,
-      });
-      //if the user who post the comment is not the same as the user who create post
-      //send a notification
-      if (authorId !== authorPostId) {
-        await User.findByIdAndUpdate(authorPostId, {
-          $push: {
-            notifications: {
-              userId: authorId,
-              message: `commented your post`,
-              date: Date.now(),
-              seen: false,
-              elementId: postId,
-              link: `/singlePost/${postId}`,
-            },
-          },
-        });
-      }
-
-      await comment.save();
-      const [detailed] = await withCommentDetails([comment]);
-      return res.status(200).json(detailed);
-    } catch (err) {
-      return res.status(500).json({ message: (err as Error).message });
-    }
-  },
-];
-
-export const createReply = [
-  body("text").trim().isLength({ min: 1 }),
-  async (req: Request, res: Response) => {
-    const { text, commentId } = req.body;
-    const authorId = currentUserId(req);
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ message: "Text is required" });
-    }
-    try {
-      const comment = await Comment.findById(commentId);
-      if (!comment) {
-        return res.status(404).json({ message: "Comment not found" });
-      }
-      const authorCommentId = comment.authorId;
-      const postId = comment.postId;
-      const date = Date.now();
-      const reply = await Comment.findByIdAndUpdate(commentId, {
-        $push: {
-          reply: {
-            text,
-            commentId,
-            authorId,
-            date,
-          },
-        },
-      });
-      //if the user who post the reply is not the same as the user who create the comment
-      //send a notification
-      if (authorId !== authorCommentId) {
-        await User.findByIdAndUpdate(authorCommentId, {
-          $push: {
-            notifications: {
-              userId: authorId,
-              message: `reply to  your comment`,
-              date,
-              seen: false,
-              elementId: commentId,
-              link: `/singlePost/${postId}`,
-            },
-          },
-        });
-      }
-
-      return res.status(200).json(reply);
-    } catch (err) {
-      return res.status(500).json({ message: (err as Error).message });
-    }
+    const [detailed] = await withCommentDetails([comment]);
+    res.status(201).json(detailed);
   },
 ];
 
 export const deleteComment = async (req: Request, res: Response) => {
-  try {
-    let { id, date } = req.body;
-    const comment = await Comment.findById(id);
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-    if (comment.authorId !== currentUserId(req)) {
-      return res
-        .status(403)
-        .json({ message: "You can only delete your own comments" });
-    }
-    const postId = comment.postId;
-    const deleteComment = await Comment.findByIdAndDelete(id);
-    if (!deleteComment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-    //Find the authorId
-    const post = await Post.findById(postId);
-
-    date = Date.parse(date);
-    //remove notifications from made from this user
-    if (post) {
-      const removeNotification = await User.findByIdAndUpdate(post.authorId, {
-        $pull: { notifications: { elementId: postId, date: date } },
-      });
-      if (!removeNotification) {
-        return res.status(500).json({ message: "Cannot remove notification" });
-      }
-    }
-
-    return res
-      .status(200)
-      .json({ message: `Comment with id ${req.body.id} deleted` });
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
+  const comment = await findComment(String(req.params.commentId));
+  if (comment.authorId !== currentUserId(req)) {
+    throw forbidden("You can only delete your own comments");
   }
+  await comment.deleteOne();
+
+  // notifications about the comment, its likes and its replies
+  await User.updateMany(
+    {
+      $or: [
+        { "notifications.commentId": comment.id },
+        { "notifications.elementId": comment.id },
+      ],
+    },
+    {
+      $pull: {
+        notifications: {
+          $or: [{ commentId: comment.id }, { elementId: comment.id }],
+        },
+      },
+    }
+  );
+
+  res.sendStatus(204);
 };
 
+// GET /comments/:commentId/replies
+export const getReplies = async (req: Request, res: Response) => {
+  const comment = await findComment(String(req.params.commentId), "reply");
+  const users = await findUserSummaries(
+    comment.reply.map((reply) => reply.authorId)
+  );
+  const replies = comment.reply.flatMap((reply) => {
+    const user = users.get(String(reply.authorId));
+    // skip replies whose author deleted the account
+    if (!user) return [];
+    return [
+      {
+        authorId: reply.authorId,
+        text: reply.text,
+        profilePicUrl: user.profilePicUrl,
+        authorFullname: user.fullname,
+        date: reply.date,
+      },
+    ];
+  });
+  res.json(replies);
+};
+
+// POST /comments/:commentId/replies
+export const createReply = [
+  ...validate(textRule()),
+  async (req: Request, res: Response) => {
+    const me = currentUserId(req);
+    const comment = await findComment(
+      String(req.params.commentId),
+      "authorId postId"
+    );
+    const date = Date.now();
+
+    await Comment.updateOne(
+      { _id: comment.id },
+      { $push: { reply: { text: req.body.text, authorId: me, date } } }
+    );
+    await notify(comment.authorId, me, {
+      message: "replied to your comment",
+      elementId: comment.id,
+      date,
+      link: `/singlePost/${comment.postId}`,
+    });
+
+    res.sendStatus(201);
+  },
+];
+
+// DELETE /comments/:commentId/replies/:date, replies are identified by
+// their author and date, and only your own can be deleted
 export const deleteReply = async (req: Request, res: Response) => {
-  try {
-    const { commentId, date } = req.body;
-    const authorReplyId = currentUserId(req);
-    const comment = await Comment.findById(commentId);
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-    const authorCommentId = comment.authorId;
-    const replyUpdate = await Comment.findByIdAndUpdate(commentId, {
-      $pull: { reply: { authorId: authorReplyId, date } },
-    });
+  const me = currentUserId(req);
+  const date = Number(req.params.date);
+  const comment = await findComment(String(req.params.commentId), "authorId");
 
-    const removeNotification = await User.findByIdAndUpdate(authorCommentId, {
-      $pull: { notifications: { elementId: commentId, date: date } },
-    });
-    if (!removeNotification) {
-      return res.status(500).json({ message: "Cannot remove notification" });
-    }
+  const result = await Comment.updateOne(
+    { _id: comment.id, reply: { $elemMatch: { authorId: me, date } } },
+    { $pull: { reply: { authorId: me, date } } }
+  );
+  if (result.matchedCount === 0) throw notFound("Reply");
 
-    if (!replyUpdate) {
-      return res.status(500).json({ message: "Cannot remove reply" });
-    }
-    return res.status(200).json({ message: "Reply deleted" });
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
-  }
+  await removeNotifications(comment.authorId, {
+    elementId: comment.id,
+    userId: me,
+    date,
+  });
+  res.sendStatus(204);
 };
 
-export const addLike = async (req: Request, res: Response) => {
-  try {
-    const { elementId } = req.body;
-    const userId = currentUserId(req);
-    const comment = await Comment.findById(elementId);
-    if (!comment) {
-      return res.status(404).json({ message: "No comments found" });
-    }
-    const elementAuthorId = comment.authorId;
-    const postId = comment.postId;
+// PUT /comments/:commentId/like, answers with the new list of likes
+export const likeComment = async (req: Request, res: Response) => {
+  const me = currentUserId(req);
+  const comment = await findComment(
+    String(req.params.commentId),
+    "authorId postId likes"
+  );
 
-    //if comment is not liked by the user add like
-    if (!comment.likes.includes(userId)) {
-      const commentAddLike = await Comment.findByIdAndUpdate(elementId, {
-        $addToSet: { likes: userId },
-      });
-
-      //if the user who liked the post is not the comment author send a notification
-      if (userId !== elementAuthorId) {
-        await User.findByIdAndUpdate(elementAuthorId, {
-          $push: {
-            notifications: {
-              userId,
-              message: `liked your comment`,
-              date: Date.now(),
-              seen: false,
-              elementId: postId,
-              link: `/singlePost/${postId}`,
-            },
-          },
-        });
-      }
-
-      if (commentAddLike) {
-        return res.status(200).json({
-          message: `User with id ${userId} added a like from comment with id ${elementId}`,
-        });
-      }
-      // else remove the like from the array
-    } else {
-      const commentRemoveLike = await Comment.findByIdAndUpdate(elementId, {
-        $pull: { likes: userId },
-      });
-
-      if (commentRemoveLike) {
-        return res.status(200).json({
-          message: `User with id ${userId} removed the like from comment with id ${elementId}`,
-        });
-      }
-    }
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
+  if (!comment.likes.includes(me)) {
+    await Comment.updateOne({ _id: comment.id }, { $addToSet: { likes: me } });
+    await notify(comment.authorId, me, {
+      message: "liked your comment",
+      elementId: comment.postId,
+      commentId: comment.id,
+      link: `/singlePost/${comment.postId}`,
+    });
   }
+
+  const updated = await findComment(comment.id, "likes");
+  res.json(await userSummaries(updated.likes));
 };
 
-export const getWhoLiked = async (req: Request, res: Response) => {
-  try {
-    const comment = await Comment.findById(req.params.commentId);
-    if (!comment) {
-      return res.status(404).json({ message: "No comments found" });
-    }
-
-    return res.status(200).json(await userSummaries(comment.likes));
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
-  }
+// DELETE /comments/:commentId/like
+export const unlikeComment = async (req: Request, res: Response) => {
+  const comment = await Comment.findByIdAndUpdate(
+    String(req.params.commentId),
+    { $pull: { likes: currentUserId(req) } },
+    { new: true, projection: "likes" }
+  );
+  if (!comment) throw notFound("Comment");
+  res.json(await userSummaries(comment.likes));
 };

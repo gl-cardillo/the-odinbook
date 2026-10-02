@@ -2,35 +2,21 @@ import "./post.css";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
-import { getTime, deletePost, swalStyle, handleSuccess } from "../../utils/utils";
+import { getTime, confirmDelete, handleSuccess } from "../../utils/utils";
+import { useDeletePost } from "../../queries";
 import { MdDelete } from "react-icons/md";
-import Swal from "sweetalert2";
-import type { Post as PostType, SetRender } from "../../types";
+import type { Post as PostType } from "../../types";
 
-interface PostProps {
-  post: PostType;
-  setRender: SetRender;
-}
-
-export function Post({ post, setRender }: PostProps) {
+export function Post({ post }: { post: PostType }) {
   const { user } = useCurrentUser();
+  const deletePost = useDeletePost();
 
-  const confirmDelete = () => {
-    Swal.fire({
-      title: "Are you sure you want to delete this post?",
-      position: "top",
-      showCancelButton: true,
-      confirmButtonText: "Close",
-      cancelButtonText: "Delete",
-      ...swalStyle,
-    }).then((result) => {
-      if (result.isDismissed) {
-        deletePost(post, setRender);
-        Swal.close();
-        handleSuccess("Post deleted successfully");
-      } else {
-        Swal.close();
-      }
+  const onDelete = async () => {
+    if (!(await confirmDelete("Are you sure you want to delete this post?"))) {
+      return;
+    }
+    deletePost.mutate(post.id, {
+      onSuccess: () => handleSuccess("Post deleted successfully"),
     });
   };
 
@@ -56,7 +42,11 @@ export function Post({ post, setRender }: PostProps) {
           {
             //if author posts is the user show delete button
             post.authorId === user._id && (
-              <button className="delete-button" onClick={confirmDelete}>
+              <button
+                className="delete-button"
+                onClick={onDelete}
+                disabled={deletePost.isPending}
+              >
                 <MdDelete color="red" size={17} />
               </button>
             )

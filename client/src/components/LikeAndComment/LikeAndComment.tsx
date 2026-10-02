@@ -1,5 +1,4 @@
 import "./likeAndComment.css";
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { FaRegComment, FaComment } from "react-icons/fa";
@@ -7,70 +6,39 @@ import { BsX } from "react-icons/bs";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { Comment } from "../Comment/Comment";
-import { nFormatter, handleError, errorMessage } from "../../utils/utils";
+import { nFormatter } from "../../utils/utils";
+import { useCommentActions, useComments, useLikePost } from "../../queries";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type {
-  Comment as CommentType,
-  Post,
-  UserSummary,
-} from "../../types";
+import type { Post, UserSummary } from "../../types";
 
 const schema = yup.object().shape({
-  text: yup.string().required("Text in the post are required "),
+  text: yup.string().trim().required("Text in the post are required "),
 });
 
 type CommentForm = yup.InferType<typeof schema>;
 
-interface LikeAndCommentProps {
-  post: Post;
-}
-
-export function LikeAndComment({ post }: LikeAndCommentProps) {
+export function LikeAndComment({ post }: { post: Post }) {
   const [expandComments, setExpandComments] = useState(false);
-  // likes and count come with the post, comments are loaded only when opened
-  const [likes, setLikes] = useState<UserSummary[]>(post.likedBy);
-  const [commentsCount, setCommentsCount] = useState(post.commentsCount);
-  const [comments, setComments] = useState<CommentType[] | null>(null);
-  const [render, setRender] = useState(1);
   const [showLikes, setShowLikes] = useState(false);
-
+  // likes come with the post, a like answers with the new list
+  const [likes, setLikes] = useState<UserSummary[]>(post.likedBy);
   const { user } = useCurrentUser();
+
+  const { data: comments } = useComments(post.id, expandComments);
+  const { create } = useCommentActions(post.id);
+  const likePost = useLikePost(post.id);
+  const commentsCount = comments?.length ?? post.commentsCount;
+  const liked = likes.some((profile) => profile.id === user.id);
 
   useEffect(() => {
     setLikes(post.likedBy);
-    setCommentsCount(post.commentsCount);
-  }, [post]);
+  }, [post.likedBy]);
 
-  useEffect(() => {
-    if (!expandComments) return;
-    let ignore = false;
-    axios
-      .get<CommentType[]>(`/comments/${post.id}`)
-      .then((res) => {
-        if (ignore) return;
-        setComments(res.data);
-        setCommentsCount(res.data.length);
-      })
-      .catch((err) => {
-        if (!ignore) handleError(errorMessage(err));
-      });
-    return () => {
-      ignore = true;
-    };
-  }, [expandComments, render, post.id]);
-
-  const toggleLike = async () => {
-    try {
-      await axios.put(`/posts/addLike`, { elementId: post.id });
-      const res = await axios.get<UserSummary[]>(`/posts/getLikes/${post.id}`);
-      setLikes(res.data);
-    } catch (err) {
-      handleError(errorMessage(err));
-    }
-  };
+  const toggleLike = () =>
+    likePost.mutate(!liked, { onSuccess: (newLikes) => setLikes(newLikes) });
 
   const {
     register,
@@ -81,122 +49,77 @@ export function LikeAndComment({ post }: LikeAndCommentProps) {
     resolver: yupResolver(schema),
   });
 
-  const addComment = async (data: CommentForm) => {
-    try {
-      await axios.post(`/comments/createComment`, {
-        text: data.text,
-        postId: post.id,
-      });
-      setRender((render) => render + 1);
-    } catch (err) {
-      console.log(err);
-      handleError(errorMessage(err));
-    }
-
-    reset();
-  };
+  const addComment = (data: CommentForm) =>
+    create.mutate(data.text, { onSuccess: () => reset() });
 
   return (
     <div>
       <div className="like-comments-container">
         <div className="likes-count-container">
-          {likes.length > 0 ? (
-            likes.length > 1 ? (
-              // if there are more then 1 like show the first name like plus the number of like
-              <p onClick={() => setShowLikes(true)} className="like-count">
-                <AiFillLike className="like-comment" /> {likes[0].fullname} and
-                an other {nFormatter(likes.length - 1)}
-              </p>
-            ) : (
-              // otherwise if the like is only one show the number who likes
-              <p onClick={() => setShowLikes(true)} className="like-count">
-                <AiFillLike className="like-comment" /> {likes[0].fullname}
-              </p>
-            )
-          ) : (
-            ""
+          {likes.length > 0 && (
+            <p onClick={() => setShowLikes(true)} className="like-count">
+              <AiFillLike className="like-comment" /> {likes[0].fullname}
+              {
+                // with more than one like show the first name and how many others
+                likes.length > 1 && ` and an other ${nFormatter(likes.length - 1)}`
+              }
+            </p>
           )}
           {showLikes && (
-            // if show likes is true show a screen with all the user who liked the post
+            // a screen with all the users who liked the post
             <div className="black-screen">
               <div className="screen-container">
                 <div className="title-button">
                   <h4>Post liked by</h4>
                   <BsX
                     className="delete-button"
-                    onClick={() => {
-                      setShowLikes(false);
-                    }}
+                    onClick={() => setShowLikes(false)}
                   />
                 </div>
-                {likes.map((user, index) => {
-                  return (
-                    <div key={index} className="likes">
-                      <img
-                        src={user.profilePicUrl}
-                        className="avatar-pic"
-                        alt="avatar"
-                      />
-                      <p>{user.fullname}</p>
-                    </div>
-                  );
-                })}
+                {likes.map((liker) => (
+                  <div key={liker.id} className="likes">
+                    <img
+                      src={liker.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
+                    <p>{liker.fullname}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
         <div className="comments-count-contaienr">
-          {
-            //show number of comment per post
-            commentsCount > 0 && (
-              <p
-                className="comment-count"
-                onClick={() => setExpandComments(!expandComments)}
-              >
-                {commentsCount > 1
-                  ? `${nFormatter(commentsCount)} comments`
-                  : "1 comment"}
-              </p>
-            )
-          }
+          {commentsCount > 0 && (
+            <p
+              className="comment-count"
+              onClick={() => setExpandComments(!expandComments)}
+            >
+              {commentsCount > 1
+                ? `${nFormatter(commentsCount)} comments`
+                : "1 comment"}
+            </p>
+          )}
         </div>
       </div>
       <div className="post-buttons">
-        <button onClick={toggleLike}>
-          {
-            //if user liked the post, show blue like instead of transparent
-            likes.some((profile) => profile.id === user.id) ? (
-              <AiFillLike className="blue" />
-            ) : (
-              <AiOutlineLike />
-            )
-          }
+        <button onClick={toggleLike} disabled={likePost.isPending}>
+          {liked ? <AiFillLike className="blue" /> : <AiOutlineLike />}
           Like
         </button>
 
         <button onClick={() => setExpandComments(!expandComments)}>
-          {
-            //if user click on the button below show comments
-            //set the comment icon blue instead of transparent
-            expandComments ? <FaComment className="blue" /> : <FaRegComment />
-          }
+          {expandComments ? <FaComment className="blue" /> : <FaRegComment />}
           Comment
         </button>
       </div>
       {expandComments && (
         <div>
           {comments ? (
-            //show the comments
-            comments.map((comment) => {
-              return (
-                <Comment
-                  key={comment.id}
-                  comment={comment}
-                  setRender={setRender}
-                  postId={post.id}
-                />
-              );
-            })
+            comments.map((comment) => (
+              <Comment key={comment.id} comment={comment} postId={post.id} />
+            ))
           ) : (
             <Skeleton
               height={80}
@@ -211,7 +134,9 @@ export function LikeAndComment({ post }: LikeAndCommentProps) {
               placeholder="Write a comment..."
             />
             <p className="error-form-comment">{errors?.text?.message}</p>
-            <button type="submit">Add Comment</button>
+            <button type="submit" disabled={create.isPending}>
+              Add Comment
+            </button>
           </form>
         </div>
       )}

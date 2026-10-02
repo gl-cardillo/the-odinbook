@@ -1,67 +1,42 @@
 import "./postform.css";
-import axios from "axios";
 import { useState, useRef } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { BsX } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
-import { handleError, errorMessage, imageTypes } from "../../utils/utils";
-import type { User, SetRender } from "../../types";
+import { imageTypes } from "../../utils/utils";
+import { useCreatePost } from "../../queries";
+import type { User } from "../../types";
 
-interface PostFormProps {
-  user: User;
-  setRender: SetRender;
-  render: number;
-}
-
-export function PostForm({ user, setRender, render }: PostFormProps) {
+export function PostForm({ user }: { user: User }) {
   const imageInput = useRef<HTMLInputElement>(null);
   const [previewPicture, setPreviewPicture] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [loadingPost, setLoadingPost] = useState(false);
+  const createPost = useCreatePost();
 
-  const addPost = async (e: FormEvent<HTMLFormElement>) => {
+  const removePic = () => {
+    setFile(null);
+    setPreviewPicture(null);
+    if (imageInput.current) imageInput.current.value = "";
+  };
+
+  const addPost = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (text === "") {
+    if (text.trim() === "") {
       setError("Text is required");
       return;
     }
-    setLoadingPost(true);
-    let imageUrl = "";
-
-    try {
-      if (file) {
-        // the upload url only accepts this exact image type
-        const url = await axios.get<string>(`/user/generateUrlS3`, {
-          params: { type: file.type },
-        });
-
-        await axios.put(url.data, file, {
-          headers: {
-            "Content-Type": file.type,
-            Authorization: null,
-          },
-        });
-        imageUrl = url.data.split("?")[0];
+    createPost.mutate(
+      { text, file },
+      {
+        onSuccess: () => {
+          removePic();
+          setText("");
+          setError("");
+        },
       }
-      await axios.post(`/posts/createPost`, {
-        text: text,
-        authorId: user._id,
-        picUrl: imageUrl,
-      });
-      setFile(null);
-      setPreviewPicture(null);
-      setRender(render + 1);
-      setLoadingPost(false);
-      if (imageInput.current) imageInput.current.value = "";
-      setText("");
-      setError("");
-    } catch (err) {
-      console.log(err);
-      setLoadingPost(false);
-      handleError(errorMessage(err));
-    }
+    );
   };
 
   const handlePreview = (e: ChangeEvent<HTMLInputElement>) => {
@@ -86,29 +61,24 @@ export function PostForm({ user, setRender, render }: PostFormProps) {
     }
   };
 
-  const removePic = () => {
-    setFile(null);
-    setPreviewPicture(null);
-    if (imageInput.current) imageInput.current.value = "";
-  };
-
   return (
     <div>
-      <form className="add-post" onSubmit={(e) => addPost(e)}>
+      <form className="add-post" onSubmit={addPost}>
         <textarea
           rows={4}
           name="text"
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            setError("");
+          }}
           value={text}
           placeholder={`What's on your mind, ${user.firstname}?`}
         />
-        {error !== "" && text === "" && (
-          <p className="error-form-home">{error}</p>
-        )}
+        {error !== "" && <p className="error-form-home">{error}</p>}
         {previewPicture && (
           <div className="form-image-container">
-            <BsX className="icon-remove-pic" onClick={() => removePic()} />
-            {loadingPost && <div className="loader"></div>}
+            <BsX className="icon-remove-pic" onClick={removePic} />
+            {createPost.isPending && <div className="loader"></div>}
             <img src={previewPicture} alt="insert picture" />
           </div>
         )}
@@ -119,11 +89,11 @@ export function PostForm({ user, setRender, render }: PostFormProps) {
               id="file-input"
               accept="image/*"
               ref={imageInput}
-              onChange={(e) => handlePreview(e)}
+              onChange={handlePreview}
             />
             <RiImageAddLine className="icon-image" />
           </label>
-          <button type="submit" disabled={loadingPost}>
+          <button type="submit" disabled={createPost.isPending}>
             Add Post
           </button>
         </div>

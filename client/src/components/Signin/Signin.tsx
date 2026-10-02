@@ -1,5 +1,4 @@
 import "./signin.css";
-import axios from "axios";
 import { useState, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { useNavigate, Link } from "react-router";
@@ -7,8 +6,8 @@ import homePic from "../../images/home-pic.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { errorMessage, setAuthToken } from "../../utils/utils";
-import type { AuthResponse } from "../../types";
+import { errorMessage } from "../../utils/utils";
+import { api } from "../../api";
 
 const schema = yup.object().shape({
   firstname: yup
@@ -46,7 +45,7 @@ export function Signin() {
   const navigate = useNavigate();
 
   const [error, setError] = useState("");
-  const { setUser } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   const {
     register,
@@ -58,17 +57,13 @@ export function Signin() {
 
   const signin = async (data: SigninForm) => {
     try {
-      const response = await axios.post<AuthResponse>(`/auth/signin`, {
+      const { user, token } = await api.signup({
         firstname: data.firstname,
         lastname: data.lastname,
         email: data.email,
         password: data.password,
       });
-      const { user, token } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", JSON.stringify(token));
-      setAuthToken(token);
-      setUser(user);
+      login(user, token);
       navigate("/home", { replace: true });
     } catch (err) {
       console.log(err);

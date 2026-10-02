@@ -1,11 +1,11 @@
 import { useLocation, Link } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
-import type { User } from "../../types";
+import type { UserSummary } from "../../types";
 
 export function SearchPage() {
   const location = useLocation();
   // the results come from the navbar, they are missing when the page is opened directly
-  const state = location.state as { search?: User[] } | null;
+  const state = location.state as { search?: UserSummary[] } | null;
   const searchResult = state?.search ?? [];
 
   return (

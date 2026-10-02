@@ -9,6 +9,8 @@ router.use(verifyToken);
 
 router.get("/", userController.getUser);
 
+router.get("/search", userController.searchUsers);
+
 router.get("/profile/:profileId", userController.getUserById);
 
 router.get("/get3SuggestedProfile/:userId", userController.suggestedProfile3);

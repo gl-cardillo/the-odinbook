@@ -14,29 +14,32 @@ import {
   handleError,
   errorMessage,
 } from "../../utils/utils";
-import type { Post as PostType, User, UserSummary } from "../../types";
+import { usePagedPosts } from "../../hooks/usePagedPosts";
+import type { User, UserSummary } from "../../types";
 
 export function Home() {
   const { user } = useCurrentUser();
 
-  const [posts, setPosts] = useState<PostType[] | null>(null);
   const [suggestedProfile, setSuggestedProfile] = useState<User[] | null>(
     null
   );
   const [friendRequests, setFriendRequests] = useState<UserSummary[]>([]);
   const [render, setRender] = useState(0);
 
+  const { posts, hasMore, loadingMore, loadMore } = usePagedPosts(
+    `/posts/getFriendsPost/${user._id}`,
+    render
+  );
+
   const isMoreThen768 = window.matchMedia("(min-width: 768px)");
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const [friendsPosts, suggested, requests] = await Promise.all([
-          axios.get<PostType[]>(`/posts/getFriendsPost/${user._id}`),
+        const [suggested, requests] = await Promise.all([
           axios.get<User[]>(`/user/get3SuggestedProfile/${user._id}`),
           axios.get<UserSummary[]>(`/user/friendRequests/${user._id}`),
         ]);
-        setPosts(friendsPosts.data);
         setSuggestedProfile(suggested.data);
         setFriendRequests(requests.data);
       } catch (error) {
@@ -125,16 +128,20 @@ export function Home() {
         </div>
         {posts ? (
           posts.length > 0 ? (
-            posts.map((post, index) => {
-              return (
-                <Post
-                  key={index}
-                  post={post}
-                  setRender={setRender}
-                  render={render}
-                />
-              );
-            })
+            <>
+              {posts.map((post) => (
+                <Post key={post.id} post={post} setRender={setRender} />
+              ))}
+              {hasMore && (
+                <button
+                  className="load-more"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? "Loading..." : "Load more posts"}
+                </button>
+              )}
+            </>
           ) : (
             <div className="post no-data-available-container">
               <p>No post at the moment</p>

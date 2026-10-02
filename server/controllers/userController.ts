@@ -11,6 +11,7 @@ import { body, validationResult } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
 import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
+import { findUserSummaries, userSummaries } from "./details.js";
 
 type UserDoc = InstanceType<typeof User>;
 
@@ -32,6 +33,43 @@ export const getUser = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json(users.map((user) => publicUser(user, currentUserId(req))));
+  } catch (err) {
+    return res.status(500).json({ message: (err as Error).message });
+  }
+};
+
+// typed text is matched literally, not as a regular expression
+const escapeRegex = (text: string) =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export const searchUsers = async (req: Request, res: Response) => {
+  try {
+    const words = String(req.query.q ?? "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 3);
+    if (words.length === 0) {
+      return res.status(200).json([]);
+    }
+    // every word has to match the first or the last name
+    const users = await User.find(
+      {
+        _id: { $ne: currentUserId(req) },
+        $and: words.map((word) => {
+          const pattern = new RegExp(escapeRegex(word), "i");
+          return { $or: [{ firstname: pattern }, { lastname: pattern }] };
+        }),
+      },
+      "firstname lastname profilePicUrl"
+    ).limit(10);
+    return res.status(200).json(
+      users.map((user) => ({
+        id: user.id,
+        fullname: user.fullname,
+        profilePicUrl: user.profilePicUrl,
+      }))
+    );
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -144,28 +182,7 @@ export const friendRequestsByUserId = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No user found" });
     }
 
-    const friendRequestsData = [];
-
-    if (user.friendRequests.length < 1) {
-      return res.status(200).json([]);
-    }
-
-    //create an array with photo, id and name of the user
-    //that sent the friend request
-    for (let i = 0; i < user.friendRequests.length; i++) {
-      const userProfile = await User.findById(user.friendRequests[i]);
-      // skip requests from deleted accounts
-      if (!userProfile) continue;
-
-      const userData = {
-        id: userProfile._id,
-        profilePicUrl: userProfile.profilePicUrl,
-        fullname: userProfile.fullname,
-      };
-      friendRequestsData.push(userData);
-    }
-
-    return res.status(200).json(friendRequestsData);
+    return res.status(200).json(await userSummaries(user.friendRequests));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -182,35 +199,8 @@ export const friendRequestsByUserId3 = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No user found" });
     }
 
-    const friendRequestsData = [];
-
-    if (user.friendRequests.length < 1) {
-      return res.status(200).json([]);
-    }
-
-    // se the number of loop to a maximum of 3 if
-    // finds least is greater then 3
-    let numberLoop;
-    if (user.friends.length < 3) {
-      numberLoop = user.friendRequests.length;
-    } else {
-      numberLoop = 3;
-    }
-
-    for (let i = 0; i < numberLoop; i++) {
-      const userProfile = await User.findById(user.friendRequests[i]);
-      // skip requests from deleted accounts
-      if (!userProfile) continue;
-
-      const userData = {
-        id: userProfile._id,
-        profilePicUrl: userProfile.profilePicUrl,
-        fullname: userProfile.fullname,
-      };
-      friendRequestsData.push(userData);
-    }
-
-    return res.status(200).json(friendRequestsData);
+    const requests = await userSummaries(user.friendRequests);
+    return res.status(200).json(requests.slice(0, 3));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -229,7 +219,7 @@ export const suggestedProfile = async (req: Request, res: Response) => {
 
     // add user id to the list so it doenst appear in the usggested profile
     user.friends.push(req.params.userId as string);
-    const profiles = await User.find({ _id: { $nin: user.friends } });
+    const profiles = await User.find({ _id: { $nin: user.friends } }).limit(30);
     return res
       .status(200)
       .json(profiles.map((profile) => publicUser(profile, currentUserId(req))));
@@ -268,29 +258,7 @@ export const getFriendsByUserId = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No users found" });
     }
 
-    if (user.friends.length < 1) {
-      return res.status(200).json([]);
-    }
-
-    const friendsData = [];
-    // for every friend id create an object with id, photo and name
-    // to show in the friend list
-
-    for (let i = 0; i < user.friends.length; i++) {
-      const userProfile = await User.findById(user.friends[i]);
-      // skip friends that deleted the account
-      if (!userProfile) continue;
-
-      const userData = {
-        id: userProfile._id,
-        profilePicUrl: userProfile.profilePicUrl,
-        fullname: userProfile.fullname,
-      };
-
-      friendsData.push(userData);
-    }
-
-    return res.status(200).json(friendsData);
+    return res.status(200).json(await userSummaries(user.friends));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -304,36 +272,8 @@ export const getFriendsByUserId3 = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No users found" });
     }
 
-    if (user.friends.length < 1) {
-      return res.status(200).json([]);
-    }
-
-    const friendsData = [];
-    // se the number of loop to a maximum of 3 if
-    // firnds least is greater then 3
-    let numberLoop;
-    if (user.friends.length < 3) {
-      numberLoop = user.friends.length;
-    } else {
-      numberLoop = 3;
-    }
-
-    // for every friend id create an object with id, photo and name
-    // to show in the friend list
-    for (let i = 0; i < numberLoop; i++) {
-      const userProfile = await User.findById(user.friends[i]);
-      // skip friends that deleted the account
-      if (!userProfile) continue;
-
-      const userData = {
-        id: userProfile._id,
-        profilePicUrl: userProfile.profilePicUrl,
-        fullname: userProfile.fullname,
-      };
-      friendsData.push(userData);
-    }
-
-    return res.status(200).json(friendsData);
+    const friends = await userSummaries(user.friends);
+    return res.status(200).json(friends.slice(0, 3));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -683,23 +623,24 @@ export const getNofication = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No user found" });
     }
 
-    if (user.notifications.length < 1) {
-      return res.status(200).json({ notifications: [], unchecked: [] });
-    }
-    // get profile picture and name of the user and add it to the notification message
-    for (let i = 0; i < user.notifications.length; i++) {
-      const userInfo = await User.findById(user.notifications[i].userId);
-      // keep notifications from deleted accounts, just without picture and name
-      if (!userInfo) continue;
-      user.notifications[i].profilePicUrl = userInfo.profilePicUrl;
-      user.notifications[i].fullname = userInfo.fullname;
-    }
+    const senders = await findUserSummaries(
+      user.notifications.map((notification) => notification.userId)
+    );
+    // add picture and name of the sender, kept empty if the account was deleted
+    const notifications = user.notifications
+      .map((notification) => {
+        const sender = senders.get(String(notification.userId));
+        return {
+          ...notification,
+          profilePicUrl: sender?.profilePicUrl,
+          fullname: sender?.fullname,
+        };
+      })
+      .sort((a, b) => b.date - a.date);
 
-    const unchecked = user.notifications.filter(
+    const unchecked = notifications.filter(
       (notification) => notification.seen === false
     );
-    // order notification from the most recent
-    const notifications = user.notifications.sort((a, _b) => -a.date);
     return res.status(200).json({ notifications, unchecked });
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });

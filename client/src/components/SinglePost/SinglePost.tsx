@@ -30,7 +30,7 @@ export function SinglePost() {
     <div className="main-page">
       <div className="containers">
         {post ? (
-          <Post post={post} setRender={setRender} render={render} />
+          <Post post={post} setRender={setRender} />
         ) : (
           <Skeleton height={400} />
         )}

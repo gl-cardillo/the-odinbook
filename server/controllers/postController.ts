@@ -5,16 +5,16 @@ import { body, validationResult } from "express-validator";
 import { deleteFile, isBucketUrl } from "../config/s3.js";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
+import { pageQuery, userSummaries, withPostDetails } from "./details.js";
 
 export const getPostsByUserId = async (req: Request, res: Response) => {
   try {
-    const posts = await Post.find({ authorId: req.params.userId }).sort({
-      date: -1,
-    });
-    if (!posts) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-    return res.status(200).json(posts);
+    const posts = await pageQuery(
+      Post,
+      { authorId: req.params.userId },
+      req.query
+    );
+    return res.status(200).json(await withPostDetails(posts));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -26,19 +26,17 @@ export const getPostById = async (req: Request, res: Response) => {
     if (!post) {
       return res.status(404).json({ message: "No post found" });
     }
-    return res.status(200).json(post);
+    const [detailed] = await withPostDetails([post]);
+    return res.status(200).json(detailed);
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
 };
 
-export const getPosts = async (_req: Request, res: Response) => {
+export const getPosts = async (req: Request, res: Response) => {
   try {
-    const posts = await Post.find({}).sort({ date: -1 });
-    if (!posts) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-    return res.status(200).json(posts);
+    const posts = await pageQuery(Post, {}, req.query);
+    return res.status(200).json(await withPostDetails(posts));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -46,37 +44,19 @@ export const getPosts = async (_req: Request, res: Response) => {
 
 export const getFriendsPost = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.userId);
+    const user = await User.findById(req.params.userId, "friends");
     if (!user) {
       return res.status(404).json({ message: "No users found" });
     }
-    //add user id to the friends array for show the posts of the user as well
-    user.friends.push(req.params.userId as string);
+    //show the posts of the user as well as the friends
+    const authors = [...user.friends, req.params.userId as string];
 
-    const posts = await Post.find({ authorId: { $in: user.friends } }).sort({
-      date: -1,
-    });
-
-    if (!posts) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-    // if there are not posts return an empty array
-    if (posts.length < 1) {
-      return res.status(200).json([]);
-    }
-    return res.status(200).json(posts);
-  } catch (err) {
-    return res.status(500).json({ message: (err as Error).message });
-  }
-};
-
-export const getLikeByPostId = async (req: Request, res: Response) => {
-  try {
-    const post = await Post.findById(req.params.postId);
-    if (!post) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-    return res.status(200).json(post.likes);
+    const posts = await pageQuery(
+      Post,
+      { authorId: { $in: authors } },
+      req.query
+    );
+    return res.status(200).json(await withPostDetails(posts));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -84,27 +64,11 @@ export const getLikeByPostId = async (req: Request, res: Response) => {
 
 export const getWhoLiked = async (req: Request, res: Response) => {
   try {
-    const post = await Post.findById(req.params.postId);
+    const post = await Post.findById(req.params.postId, "likes");
     if (!post) {
       return res.status(404).json({ message: "No posts found" });
     }
-
-    const userList = [];
-    //create an array with photo, id and name of the user who
-    //liked the post
-    for (let i = 0; i < post.likes.length; i++) {
-      const user = await User.findById(post.likes[i]);
-      // skip likes from deleted accounts
-      if (!user) continue;
-
-      const userData = {
-        id: user._id,
-        profilePicUrl: user.profilePicUrl,
-        fullname: user.fullname,
-      };
-      userList.push(userData);
-    }
-    return res.status(200).json(userList);
+    return res.status(200).json(await userSummaries(post.likes));
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -124,14 +88,9 @@ export const createPost = [
       return res.status(400).json({ message: "Invalid picture url" });
     }
     try {
-      const post = await new Post({
-        text,
-        authorId,
-        picUrl,
-      });
-
-      const savedPost = await post.save();
-      if (savedPost) return res.status(200).json({ post });
+      const post = await Post.create({ text, authorId, picUrl });
+      const [detailed] = await withPostDetails([post]);
+      return res.status(200).json({ post: detailed });
     } catch (err) {
       return res.status(500).json({ message: (err as Error).message });
     }
@@ -150,44 +109,23 @@ export const deletePost = async (req: Request, res: Response) => {
         .json({ message: "You can only delete your own posts" });
     }
 
-    const deletedPost = await Post.findByIdAndDelete(req.body.id);
-
-    if (!deletedPost) {
-      return res.status(404).json({ message: "Post not found" });
-    }
+    await post.deleteOne();
 
     //check if there is an image in the post
-    if (deletedPost.picUrl) {
-      //if there is dele it
-      //comment for testing
-      deleteFile(deletedPost.picUrl);
+    if (post.picUrl) {
+      deleteFile(post.picUrl);
     }
 
-    // delete the comment of the post
-    if (deletedPost) {
-      const deletedComments = await Comment.deleteMany({
-        postId: deletedPost.id,
-      });
+    // delete the comments of the post and the notifications about it
+    await Comment.deleteMany({ postId: post.id });
+    await User.updateMany(
+      { "notifications.elementId": post.id },
+      { $pull: { notifications: { elementId: post.id } } }
+    );
 
-      //remove notifications from made from this user
-      const removeNotification = await User.updateMany(
-        {},
-        {
-          $pull: { notifications: { elementId: req.body.id } },
-        }
-      );
-      if (!removeNotification) {
-        return res.status(500).json({ message: "Cannot remove friends" });
-      }
-
-      if (deletedComments) {
-        return res.status(200).json({
-          message: `Post with id ${req.body.id} deleted with comments`,
-        });
-      } else {
-        return res.status(400).json({ message: "Post not found" });
-      }
-    }
+    return res.status(200).json({
+      message: `Post with id ${post.id} deleted with comments`,
+    });
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -197,25 +135,26 @@ export const addLike = async (req: Request, res: Response) => {
   try {
     const { elementId } = req.body;
     const userId = currentUserId(req);
-    const post = await Post.findById(elementId);
+    const post = await Post.findById(elementId, "authorId likes");
     if (!post) {
       return res.status(404).json({ message: "No post found" });
     }
-    const elementAuthorId = post.authorId;
-    const postLiked = await Post.find({
-      _id: elementId,
-      likes: { $elemMatch: { $eq: userId } },
-    });
 
-    //if post is not liked by the user add like
-    if (postLiked.length == 0) {
-      const postAddLike = await Post.findByIdAndUpdate(elementId, {
-        $push: { likes: userId },
+    // the same request likes and unlikes
+    if (post.likes.includes(userId)) {
+      await Post.updateOne({ _id: elementId }, { $pull: { likes: userId } });
+      return res.status(200).json({
+        message: `User with id ${userId} removed the like from post with id ${elementId}`,
       });
+    }
 
-      //if the user who liked the post is not the comment author send a notification
-      if (userId !== elementAuthorId) {
-        await User.findByIdAndUpdate(elementAuthorId, {
+    await Post.updateOne({ _id: elementId }, { $addToSet: { likes: userId } });
+
+    //if the user who liked the post is not the author send a notification
+    if (userId !== post.authorId) {
+      await User.updateOne(
+        { _id: post.authorId },
+        {
           $push: {
             notifications: {
               userId,
@@ -226,26 +165,13 @@ export const addLike = async (req: Request, res: Response) => {
               link: `/singlePost/${elementId}`,
             },
           },
-        });
-      }
-
-      if (postAddLike) {
-        return res.status(200).json({
-          message: `User with id ${userId} added a like from post with id ${elementId}`,
-        });
-      }
-      // else remove the like from the array
-    } else {
-      const postRemoveLike = await Post.findByIdAndUpdate(elementId, {
-        $pull: { likes: userId },
-      });
-
-      if (postRemoveLike) {
-        return res.status(200).json({
-          message: `User with id ${userId} removed the like from post with id ${elementId}`,
-        });
-      }
+        }
+      );
     }
+
+    return res.status(200).json({
+      message: `User with id ${userId} added a like from post with id ${elementId}`,
+    });
   } catch (err) {
     return res.status(500).json({ message: (err as Error).message });
   }
@@ -253,7 +179,7 @@ export const addLike = async (req: Request, res: Response) => {
 
 export const getAuthor = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.userId);
+    const user = await User.findById(req.params.userId, "firstname lastname");
     if (!user) {
       return res.status(404).json({ message: "No user found" });
     }

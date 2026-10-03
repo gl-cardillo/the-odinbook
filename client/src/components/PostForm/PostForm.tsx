@@ -5,6 +5,7 @@ import { BsX } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
 import { imageTypes } from "../../utils/utils";
 import { useCreatePost } from "../../queries";
+import { MAX_IMAGE_BYTES, MAX_POST_LENGTH } from "../../api";
 import type { User } from "../../types";
 
 export function PostForm({ user }: { user: User }) {
@@ -46,6 +47,12 @@ export function PostForm({ user }: { user: User }) {
       return;
     }
 
+    if (selected.size > MAX_IMAGE_BYTES) {
+      setError("Images can be at most 5 MB");
+      removePic();
+      return;
+    }
+
     if (imageTypes.includes(selected.type)) {
       const reader = new FileReader();
 
@@ -65,6 +72,7 @@ export function PostForm({ user }: { user: User }) {
     <div>
       <form className="add-post" onSubmit={addPost}>
         <textarea
+          maxLength={MAX_POST_LENGTH}
           rows={4}
           name="text"
           onChange={(e) => {

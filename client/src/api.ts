@@ -16,6 +16,11 @@ const get = <T>(url: string, params?: Record<string, unknown>) =>
 
 export const PAGE_SIZE = 10;
 
+// the same limits the server enforces
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+export const MAX_POST_LENGTH = 5000;
+export const MAX_COMMENT_LENGTH = 2000;
+
 export interface ProfileUpdate {
   firstname: string;
   lastname: string;
@@ -102,14 +107,23 @@ export const api = {
 
   // uploads the image straight to the bucket and returns where it can be read
   uploadImage: async (file: File) => {
-    const { data } = await axios.post<{ uploadUrl: string; fileUrl: string }>(
-      "/uploads",
-      { type: file.type }
+    if (file.size > MAX_IMAGE_BYTES) {
+      throw new Error("Images can be at most 5 MB");
+    }
+    const { data } = await axios.post<{
+      url: string;
+      fields: Record<string, string>;
+      fileUrl: string;
+    }>("/uploads", { type: file.type });
+
+    // the signed fields first, the file last, as S3 expects
+    const form = new FormData();
+    Object.entries(data.fields).forEach(([name, value]) =>
+      form.append(name, value)
     );
-    await axios.put(data.uploadUrl, file, {
-      // the signed url only accepts this exact type, and no login token
-      headers: { "Content-Type": file.type, Authorization: null },
-    });
+    form.append("file", file);
+    // the bucket must not receive the login token
+    await axios.post(data.url, form, { headers: { Authorization: null } });
     return data.fileUrl;
   },
 };

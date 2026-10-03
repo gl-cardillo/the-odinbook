@@ -4,7 +4,6 @@ import logger from "morgan";
 import compression from "compression";
 import helmet from "helmet";
 import cors from "cors";
-import rateLimit from "express-rate-limit";
 
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users.js";
@@ -12,6 +11,7 @@ import postsRouter from "./routes/posts.js";
 import commentsRouter from "./routes/comments.js";
 import uploadsRouter from "./routes/uploads.js";
 import { errorHandler, routeNotFound } from "./middleware/errors.js";
+import { authLimiter } from "./middleware/rateLimits.js";
 
 const app = express();
 
@@ -28,12 +28,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// slow down password guessing on login and signup
-app.use(
-  "/auth",
-  rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true }),
-  authRouter
-);
+app.use("/auth", authLimiter, authRouter);
 app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
 app.use("/comments", commentsRouter);

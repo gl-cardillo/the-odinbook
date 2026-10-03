@@ -1,12 +1,14 @@
 import User from "../models/user.js";
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
-import { deleteFile, isBucketUrl } from "../config/s3.js";
+import { deleteFile, fileUrl } from "../config/s3.js";
+import Upload from "../models/upload.js";
+import { claimUpload, forgetUpload } from "./uploadController.js";
 import { body } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
 import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
-import { badRequest, forbidden, notFound, validate } from "../middleware/errors.js";
+import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { nameRule } from "./authController.js";
 import { findUserSummaries, userSummaries } from "./details.js";
 
@@ -164,16 +166,18 @@ export const changePicture = [
     body("kind", "kind must be profile or cover").isIn(["profile", "cover"])
   ),
   async (req: Request, res: Response) => {
-    const { kind, url } = req.body;
-    if (!isBucketUrl(url)) {
-      throw badRequest("Invalid picture url");
-    }
-    const user = await User.findByIdAndUpdate(
-      currentUserId(req),
-      kind === "profile" ? { profilePicUrl: url } : { coverPicUrl: url },
-      { new: true }
-    );
-    if (!user) throw notFound("User");
+    const { kind } = req.body;
+    const field = kind === "profile" ? "profilePicUrl" : "coverPicUrl";
+    const user = await findUser(currentUserId(req));
+    const url = await claimUpload(user.id, req.body.url);
+
+    // the replaced picture is not used anywhere else
+    const previous = user[field];
+    user[field] = url;
+    await user.save();
+    deleteFile(previous);
+    await forgetUpload(previous);
+
     res.json(user);
   },
 ];
@@ -188,10 +192,13 @@ export const deleteAccount = async (req: Request, res: Response) => {
   const posts = await Post.find({ authorId: id }, "picUrl");
   await account.deleteOne();
 
-  // pictures in the bucket
+  // every picture uploaded by the account, used or not
   deleteFile(account.profilePicUrl);
   deleteFile(account.coverPicUrl);
   posts.forEach((post) => deleteFile(post.picUrl));
+  const uploads = await Upload.find({ userId: id, used: false });
+  uploads.forEach((upload) => deleteFile(fileUrl(upload.key)));
+  await Upload.deleteMany({ userId: id });
 
   // posts, comments, likes, replies, friendships and notifications
   await Post.deleteMany({ authorId: id });

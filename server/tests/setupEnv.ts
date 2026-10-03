@@ -5,3 +5,6 @@ process.env.ACCESS_TOKEN_SECRET =
   process.env.ACCESS_TOKEN_SECRET || "test-secret";
 process.env.AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || "test-bucket";
 process.env.AWS_BUCKET_REGION = process.env.AWS_BUCKET_REGION || "eu-west-2";
+// the tests make many requests quickly, rateLimit.test checks the real limits
+process.env.WRITE_RATE_LIMIT = process.env.WRITE_RATE_LIMIT || "10000";
+process.env.UPLOAD_RATE_LIMIT = process.env.UPLOAD_RATE_LIMIT || "10000";

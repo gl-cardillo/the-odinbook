@@ -6,7 +6,7 @@ import User from "../models/user.js";
 import Post from "../models/post.js";
 import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
-import { tokenFor, bucketUrl } from "./helpers.js";
+import { tokenFor, uploadAs } from "./helpers.js";
 
 vi.mock("../config/s3.js", async (importOriginal) =>
   (await import("./helpers.js")).mockS3(importOriginal)
@@ -132,13 +132,23 @@ describe("POST /posts", () => {
     expect(res.statusCode).toEqual(400);
   });
 
-  it("should accept a picture from the bucket", async () => {
+  it("should accept a picture the user uploaded", async () => {
+    const picUrl = await uploadAs(app, token);
     const res = await request(app)
       .post("/posts")
-      .send({ text: "With picture", picUrl: bucketUrl("picture") })
+      .send({ text: "With picture", picUrl })
       .set("Authorization", token);
     expect(res.statusCode).toEqual(201);
-    expect(res.body.picUrl).toEqual(bucketUrl("picture"));
+    expect(res.body.picUrl).toEqual(picUrl);
+  });
+
+  it("should limit the length of a post", async () => {
+    const res = await request(app)
+      .post("/posts")
+      .send({ text: "a".repeat(5001) })
+      .set("Authorization", token);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toEqual("Posts can be at most 5000 characters");
   });
 });
 
@@ -215,6 +225,15 @@ describe("Comments", () => {
     expect(res.body.length).toEqual(1);
     expect(res.body[0].author).toHaveProperty("fullname", users[0].fullname);
     expect(res.body[0].likedBy).toEqual([]);
+  });
+
+  it("should limit the length of a comment", async () => {
+    const res = await request(app)
+      .post(`/posts/${postId}/comments`)
+      .set("Authorization", token)
+      .send({ text: "a".repeat(2001) });
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toEqual("Comments can be at most 2000 characters");
   });
 
   it("should answer 404 for a post that does not exist", async () => {

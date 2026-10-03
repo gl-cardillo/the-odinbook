@@ -1,12 +1,13 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import { checkId } from "../middleware/errors.js";
+import { writeLimiter } from "../middleware/rateLimits.js";
 import * as posts from "../controllers/postController.js";
 import * as comments from "../controllers/commentController.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+router.use(verifyToken, writeLimiter);
 
 router.get("/", posts.getPosts);
 router.get("/feed", posts.getFeed);

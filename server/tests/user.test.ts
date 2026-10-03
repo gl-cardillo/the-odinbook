@@ -6,7 +6,8 @@ import User from "../models/user.js";
 import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
 import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
-import { tokenFor, bucketUrl } from "./helpers.js";
+import Upload from "../models/upload.js";
+import { tokenFor, uploadAs } from "./helpers.js";
 
 vi.mock("../config/s3.js", async (importOriginal) =>
   (await import("./helpers.js")).mockS3(importOriginal)
@@ -345,8 +346,21 @@ describe("POST /uploads", () => {
       .send({ type: "image/png" })
       .set("Authorization", token);
     expect(png.statusCode).toEqual(201);
-    expect(png.body).toHaveProperty("uploadUrl");
+    expect(png.body).toHaveProperty("url");
+    expect(png.body.fields).toHaveProperty("Content-Type", "image/png");
     expect(png.body).toHaveProperty("fileUrl");
+    expect(png.body.maxBytes).toEqual(5 * 1024 * 1024);
+  });
+
+  it("Should clean up uploads never used after an hour", async () => {
+    const stale = await uploadAs(app, token);
+    const key = stale.split("amazonaws.com/")[1];
+    await Upload.updateOne(
+      { key },
+      { createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+    );
+    await uploadAs(app, token);
+    expect(await Upload.exists({ key })).toBeFalsy();
   });
 });
 
@@ -360,13 +374,29 @@ describe("PUT /users/me/picture", () => {
     expect(res.body.message).toEqual("Invalid picture url");
   });
 
-  it("Should change the profile picture", async () => {
+  it("Should refuse a picture uploaded by someone else", async () => {
+    const theirs = await uploadAs(app, tokenFor(users[1].id));
     const res = await request(app)
       .put("/users/me/picture")
-      .send({ kind: "profile", url: bucketUrl("new-picture") })
+      .send({ kind: "profile", url: theirs })
+      .set("Authorization", token);
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it("Should change the profile picture, once per upload", async () => {
+    const url = await uploadAs(app, token);
+    const res = await request(app)
+      .put("/users/me/picture")
+      .send({ kind: "profile", url })
       .set("Authorization", token);
     expect(res.statusCode).toEqual(200);
-    expect(res.body.profilePicUrl).toEqual(bucketUrl("new-picture"));
+    expect(res.body.profilePicUrl).toEqual(url);
+
+    const again = await request(app)
+      .put("/users/me/picture")
+      .send({ kind: "cover", url })
+      .set("Authorization", token);
+    expect(again.statusCode).toEqual(400);
   });
 });
 

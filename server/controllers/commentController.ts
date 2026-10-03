@@ -12,8 +12,16 @@ import {
   withCommentDetails,
 } from "./details.js";
 
+export const MAX_COMMENT_LENGTH = 2000;
+
+// comments and replies
 const textRule = () =>
-  body("text", "Text is required").trim().isLength({ min: 1 });
+  body("text")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Text is required")
+    .isLength({ max: MAX_COMMENT_LENGTH })
+    .withMessage(`Comments can be at most ${MAX_COMMENT_LENGTH} characters`);
 
 const findComment = async (id: string, fields?: string) => {
   const comment = await Comment.findById(id, fields);

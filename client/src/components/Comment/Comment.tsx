@@ -8,6 +8,7 @@ import { AiFillLike } from "react-icons/ai";
 import { IoReturnDownForwardOutline } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { MAX_COMMENT_LENGTH } from "../../api";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";
@@ -15,7 +16,11 @@ import { useCommentActions, useReplies, useReplyActions } from "../../queries";
 import type { Comment as CommentType, Reply } from "../../types";
 
 const schema = yup.object().shape({
-  text: yup.string().trim().required("Text in the post are required "),
+  text: yup
+    .string()
+    .trim()
+    .required("Text in the post are required ")
+    .max(MAX_COMMENT_LENGTH, `Comments can be at most ${MAX_COMMENT_LENGTH} characters`),
 });
 
 type ReplyForm = yup.InferType<typeof schema>;
@@ -189,6 +194,7 @@ export function Comment({ comment, postId }: CommentProps) {
             <form className="add-reply" onSubmit={handleSubmit(addReply)}>
               <div>
                 <textarea
+                  maxLength={MAX_COMMENT_LENGTH}
                   rows={3}
                   {...register("text")}
                   placeholder="Reply to the comment..."

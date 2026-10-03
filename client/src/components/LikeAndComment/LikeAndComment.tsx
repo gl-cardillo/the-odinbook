@@ -12,10 +12,15 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { MAX_COMMENT_LENGTH } from "../../api";
 import type { Post, UserSummary } from "../../types";
 
 const schema = yup.object().shape({
-  text: yup.string().trim().required("Text in the post are required "),
+  text: yup
+    .string()
+    .trim()
+    .required("Text in the post are required ")
+    .max(MAX_COMMENT_LENGTH, `Comments can be at most ${MAX_COMMENT_LENGTH} characters`),
 });
 
 type CommentForm = yup.InferType<typeof schema>;
@@ -129,6 +134,7 @@ export function LikeAndComment({ post }: { post: Post }) {
           )}
           <form className="add-comment" onSubmit={handleSubmit(addComment)}>
             <textarea
+              maxLength={MAX_COMMENT_LENGTH}
               rows={5}
               {...register("text")}
               placeholder="Write a comment..."

@@ -1,13 +1,6 @@
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import crypto from "node:crypto";
-import { promisify } from "node:util";
-
-const randomBytes = promisify(crypto.randomBytes);
 
 const s3 = new S3Client({
   region: process.env.AWS_BUCKET_REGION,
@@ -15,8 +8,6 @@ const s3 = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_S3_KEY_ID ?? "",
     secretAccessKey: process.env.AWS_SECRET_S3_ACCESS_KEY ?? "",
   },
-  // keep checksum params out of the signed url, the browser upload cannot send them
-  requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
 export const IMAGE_TYPES = [
@@ -28,29 +19,36 @@ export const IMAGE_TYPES = [
   "image/webp",
 ];
 
-// the upload must be sent with this exact content type or S3 rejects it
-export const generateUploadURL = async (contentType: string) => {
-  const rawBytes = await randomBytes(16);
-  const imageName = rawBytes.toString("hex");
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: imageName,
-    ContentType: contentType,
-  };
+const bucketUrl = () =>
+  `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/`;
 
-  const uploadURL = await getSignedUrl(s3, new PutObjectCommand(params), {
-    expiresIn: 60,
+// where a file in the bucket can be read
+export const fileUrl = (key: string) => bucketUrl() + key;
+
+// the key of a file in our bucket, undefined for any other url
+export const keyFromUrl = (url: unknown) =>
+  typeof url === "string" && url.startsWith(bucketUrl())
+    ? url.slice(bucketUrl().length)
+    : undefined;
+
+// a form the browser posts the image with; S3 itself rejects a file
+// over the size limit or of another type than the one signed here
+export const createUploadForm = async (contentType: string) => {
+  const key = `uploads/${crypto.randomBytes(16).toString("hex")}`;
+  const { url, fields } = await createPresignedPost(s3, {
+    Bucket: process.env.AWS_BUCKET_NAME ?? "",
+    Key: key,
+    Conditions: [
+      ["content-length-range", 1, MAX_UPLOAD_BYTES],
+      ["eq", "$Content-Type", contentType],
+    ],
+    Fields: { "Content-Type": contentType },
+    Expires: 60,
   });
-  return uploadURL;
+  return { url, fields, key };
 };
-
-// pictures can only point to files in our own bucket
-export const isBucketUrl = (url: unknown): url is string =>
-  typeof url === "string" &&
-  url.startsWith(
-    `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/`
-  );
 
 // default profile and cover pictures shared by all the users
 const defaultKeys = [

@@ -2,13 +2,16 @@ import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import User from "../models/user.js";
 import { body } from "express-validator";
-import { deleteFile, isBucketUrl } from "../config/s3.js";
+import { deleteFile } from "../config/s3.js";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
-import { badRequest, forbidden, notFound, validate } from "../middleware/errors.js";
+import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { notify } from "./notify.js";
 import { findUser } from "./userController.js";
 import { pageQuery, userSummaries, withPostDetails } from "./details.js";
+import { claimUpload, forgetUpload } from "./uploadController.js";
+
+export const MAX_POST_LENGTH = 5000;
 
 export const findPost = async (id: string, fields?: string) => {
   const post = await Post.findById(id, fields);
@@ -50,16 +53,19 @@ export const getPost = async (req: Request, res: Response) => {
 };
 
 export const createPost = [
-  ...validate(body("text", "Text is required").trim().isLength({ min: 1 })),
+  ...validate(
+    body("text", "Text is required").trim().isLength({ min: 1 }),
+    body("text", `Posts can be at most ${MAX_POST_LENGTH} characters`).isLength({
+      max: MAX_POST_LENGTH,
+    })
+  ),
   async (req: Request, res: Response) => {
     const { text, picUrl } = req.body;
-    if (picUrl && !isBucketUrl(picUrl)) {
-      throw badRequest("Invalid picture url");
-    }
+    const authorId = currentUserId(req);
     const post = await Post.create({
       text,
-      picUrl: picUrl || undefined,
-      authorId: currentUserId(req),
+      picUrl: picUrl ? await claimUpload(authorId, picUrl) : undefined,
+      authorId,
     });
     const [detailed] = await withPostDetails([post]);
     res.status(201).json(detailed);
@@ -74,6 +80,7 @@ export const deletePost = async (req: Request, res: Response) => {
 
   await post.deleteOne();
   deleteFile(post.picUrl);
+  await forgetUpload(post.picUrl);
 
   // the comments of the post and the notifications about it
   await Comment.deleteMany({ postId: post.id });

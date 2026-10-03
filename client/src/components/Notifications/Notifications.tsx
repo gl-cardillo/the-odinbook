@@ -19,10 +19,7 @@ export function Notifications() {
             <p>No notifications at the moment</p>
           ) : (
             data.notifications.map((notification) => (
-              <Link
-                to={notification.link}
-                key={notification.id}
-              >
+              <Link to={notification.link} key={notification.id}>
                 <div className="notification">
                   <div>
                     <img

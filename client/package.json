@@ -22,7 +22,15 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "e2e:api": "npm --prefix ../server run e2e:server",
+    "e2e:client": "vite build --mode e2e && vite preview --mode e2e --port 4173 --strictPort",
+    "cy:run": "cypress run",
+    "cy:open": "cypress open",
+    "e2e": "start-server-and-test e2e:api http://localhost:5050 e2e:client http://localhost:4173 cy:run",
+    "e2e:open": "start-server-and-test e2e:api http://localhost:5050 e2e:client http://localhost:4173 cy:open",
+    "format": "prettier --write . --ignore-path ../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../.prettierignore"
   },
   "type": "module",
   "devDependencies": {
@@ -30,10 +38,13 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "cypress": "^16.1.1",
     "eslint": "^10.11.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "start-server-and-test": "^3.0.12",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.3.1"

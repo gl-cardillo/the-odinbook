@@ -12,7 +12,11 @@ const MESSAGES: Record<NotificationType, string> = {
 };
 
 // one of these at a time per user and target, liking twice is still one
-const SINGLE: NotificationType[] = ["friend_request", "post_like", "comment_like"];
+const SINGLE: NotificationType[] = [
+  "friend_request",
+  "post_like",
+  "comment_like",
+];
 
 interface About {
   postId?: string;

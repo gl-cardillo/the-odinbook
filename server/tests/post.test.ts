@@ -7,7 +7,10 @@ import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import Reply from "../models/reply.js";
 import Notification from "../models/notification.js";
-import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
+import {
+  initializeMongoServer,
+  closeMongoServer,
+} from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
 import { tokenFor, uploadAs } from "./helpers.js";
 
@@ -162,7 +165,11 @@ describe("Post likes", () => {
       .set("Authorization", tokenFor(users[2].id));
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual([
-      { id: users[2].id, fullname: users[2].fullname, profilePicUrl: expect.any(String) },
+      {
+        id: users[2].id,
+        fullname: users[2].fullname,
+        profilePicUrl: expect.any(String),
+      },
     ]);
   });
 

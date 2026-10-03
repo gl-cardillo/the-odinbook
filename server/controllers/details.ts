@@ -27,7 +27,11 @@ export const findUserSummaries = async (ids: unknown[]) => {
   return new Map<string, UserSummary>(
     users.map((user) => [
       user.id,
-      { id: user.id, fullname: user.fullname, profilePicUrl: user.profilePicUrl },
+      {
+        id: user.id,
+        fullname: user.fullname,
+        profilePicUrl: user.profilePicUrl,
+      },
     ])
   );
 };
@@ -90,7 +94,10 @@ export const pageQuery = async (
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
   const conditions: Record<string, unknown>[] = [filter];
 
-  if (typeof query.before === "string" && mongoose.isValidObjectId(query.before)) {
+  if (
+    typeof query.before === "string" &&
+    mongoose.isValidObjectId(query.before)
+  ) {
     const last = await model.findById(query.before, "date");
     if (last) {
       // older than the last post, using the id to break ties on the same date

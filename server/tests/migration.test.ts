@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import mongoose from "mongoose";
-import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
+import {
+  initializeMongoServer,
+  closeMongoServer,
+} from "./mongoConfigTesting.js";
 import { migrate } from "../scripts/migrateEmbedded.js";
 
 const db = () => mongoose.connection.db as mongoose.mongo.Db;
@@ -63,7 +66,12 @@ beforeAll(async () => {
     ]);
   await db()
     .collection("posts")
-    .insertOne({ _id: post, authorId: String(alice), text: "Hi", likes: [bob] });
+    .insertOne({
+      _id: post,
+      authorId: String(alice),
+      text: "Hi",
+      likes: [bob],
+    });
   await db()
     .collection("comments")
     .insertOne({
@@ -148,7 +156,9 @@ describe("migrateEmbedded", () => {
     // the embedded copies are gone
     const user = await db().collection("users").findOne({ _id: alice });
     expect(user).not.toHaveProperty("notifications");
-    const oldComment = await db().collection("comments").findOne({ _id: comment });
+    const oldComment = await db()
+      .collection("comments")
+      .findOne({ _id: comment });
     expect(oldComment).not.toHaveProperty("reply");
   });
 

@@ -21,7 +21,10 @@ export const signup = [
   ...validate(
     nameRule("firstname", "First name"),
     nameRule("lastname", "Last name"),
-    body("email", "A valid email is required").trim().isEmail().normalizeEmail(),
+    body("email", "A valid email is required")
+      .trim()
+      .isEmail()
+      .normalizeEmail(),
     body("password", "Password must be at least 8 characters").isLength({
       min: 8,
     })

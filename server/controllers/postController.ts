@@ -55,9 +55,11 @@ export const getPost = async (req: Request, res: Response) => {
 export const createPost = [
   ...validate(
     body("text", "Text is required").trim().isLength({ min: 1 }),
-    body("text", `Posts can be at most ${MAX_POST_LENGTH} characters`).isLength({
-      max: MAX_POST_LENGTH,
-    })
+    body("text", `Posts can be at most ${MAX_POST_LENGTH} characters`).isLength(
+      {
+        max: MAX_POST_LENGTH,
+      }
+    )
   ),
   async (req: Request, res: Response) => {
     const { text, picUrl } = req.body;
@@ -118,6 +120,10 @@ export const unlikePost = async (req: Request, res: Response) => {
     { new: true, projection: "likes" }
   );
   if (!post) throw notFound("Post");
-  await removeNotifications({ actorId: me, type: "post_like", postId: post.id });
+  await removeNotifications({
+    actorId: me,
+    type: "post_like",
+    postId: post.id,
+  });
   res.json(await userSummaries(post.likes));
 };

@@ -15,13 +15,13 @@ A full-stack social network inspired by Facebook, built as the final project of 
 
 ## Tech stack
 
-| | |
-| --- | --- |
-| **Client** | React 19, TypeScript, Vite, React Router, React Hook Form + Yup |
-| **Server** | Node.js, Express 5, TypeScript, MongoDB + Mongoose, JWT auth |
-| **Storage** | AWS S3 (images, uploaded via presigned URLs) |
-| **Testing** | Vitest, Supertest, mongodb-memory-server |
-| **Hosting** | Vercel |
+|             |                                                                 |
+| ----------- | --------------------------------------------------------------- |
+| **Client**  | React 19, TypeScript, Vite, React Router, React Hook Form + Yup |
+| **Server**  | Node.js, Express 5, TypeScript, MongoDB + Mongoose, JWT auth    |
+| **Storage** | AWS S3 (images, uploaded via presigned URLs)                    |
+| **Testing** | Vitest, Supertest, mongodb-memory-server, Cypress               |
+| **Hosting** | Vercel                                                          |
 
 ## Getting started
 
@@ -64,14 +64,16 @@ npm run dev --prefix client   # http://localhost:3000
 
 ## Scripts
 
-| Folder | Command | Description |
-| --- | --- | --- |
-| `server` | `npm run dev` | Start the API with live reload |
-| `server` | `npm test` | Run the API tests (in-memory MongoDB, no `.env` needed) |
-| `server` | `npm run build` / `npm start` | Compile to `dist/` and run it |
-| `client` | `npm run dev` | Start the Vite dev server |
-| `client` | `npm run build` | Type-check and build to `dist/` |
-| `client` | `npm run lint` | Lint with ESLint |
+| Folder   | Command                       | Description                                             |
+| -------- | ----------------------------- | ------------------------------------------------------- |
+| `server` | `npm run dev`                 | Start the API with live reload                          |
+| `server` | `npm test`                    | Run the API tests (in-memory MongoDB, no `.env` needed) |
+| `server` | `npm run build` / `npm start` | Compile to `dist/` and run it                           |
+| `client` | `npm run dev`                 | Start the Vite dev server                               |
+| `client` | `npm run build`               | Type-check and build to `dist/`                         |
+| `client` | `npm run e2e`                 | Cypress tests against the API on an in-memory database  |
+| both     | `npm run lint`                | Lint with ESLint                                        |
+| both     | `npm run format`              | Format with Prettier                                    |
 
 ## Upgrading an existing database
 

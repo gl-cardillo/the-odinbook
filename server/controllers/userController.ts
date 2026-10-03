@@ -112,7 +112,9 @@ export const updateProfile = [
     body("school").optional().trim().isLength({ max: 30 }),
     body("relationship").optional().trim(),
     body("gender").optional().trim(),
-    body("dateOfBirth", "Invalid date of birth").optional({ values: "falsy" }).isISO8601()
+    body("dateOfBirth", "Invalid date of birth")
+      .optional({ values: "falsy" })
+      .isISO8601()
   ),
   async (req: Request, res: Response) => {
     const {

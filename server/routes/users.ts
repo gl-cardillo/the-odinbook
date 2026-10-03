@@ -20,8 +20,16 @@ router.get("/me/suggestions", users.getSuggestions);
 router.get("/me/notifications", users.getNotifications);
 router.post("/me/notifications/seen", users.markNotificationsSeen);
 router.get("/me/friend-requests", friends.getFriendRequests);
-router.post("/me/friend-requests/:userId/accept", checkId, friends.acceptFriendRequest);
-router.delete("/me/friend-requests/:userId", checkId, friends.declineFriendRequest);
+router.post(
+  "/me/friend-requests/:userId/accept",
+  checkId,
+  friends.acceptFriendRequest
+);
+router.delete(
+  "/me/friend-requests/:userId",
+  checkId,
+  friends.declineFriendRequest
+);
 router.delete("/me/friends/:userId", checkId, friends.removeFriend);
 
 // any user

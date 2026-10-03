@@ -99,7 +99,8 @@ export const api = {
       method: like ? "put" : "delete",
       url: `/comments/${id}/like`,
     }),
-  replies: (commentId: string) => get<Reply[]>(`/comments/${commentId}/replies`),
+  replies: (commentId: string) =>
+    get<Reply[]>(`/comments/${commentId}/replies`),
   createReply: (commentId: string, text: string) =>
     axios
       .post<Reply>(`/comments/${commentId}/replies`, { text })

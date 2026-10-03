@@ -57,7 +57,10 @@ export function Navbar() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (notificationRef.current && !notificationRef.current.contains(target)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(target)
+      ) {
         setShowNotification(false);
       }
       if (settingsRef.current && !settingsRef.current.contains(target)) {
@@ -148,19 +151,14 @@ export function Navbar() {
               onClick={toggleNotifications}
               className="icon notification-icon"
             />
-            {unseen > 0 && (
-              <p className="notification-count">{unseen}</p>
-            )}
+            {unseen > 0 && <p className="notification-count">{unseen}</p>}
             {showNotification && (
               <div className="notifications-container">
                 <h2 className="notification-title">Notifications</h2>
                 {notifications.length > 0 ? (
                   <div>
                     {notifications.slice(0, 4).map((notification) => (
-                      <Link
-                        key={notification.id}
-                        to={notification.link}
-                      >
+                      <Link key={notification.id} to={notification.link}>
                         <div
                           className={
                             notification.seen

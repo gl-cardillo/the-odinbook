@@ -60,7 +60,8 @@ export function About({ profile }: { profile: User }) {
       lastname: profile.lastname,
       gender: profile.gender,
       // the date input only accepts yyyy-mm-dd
-      dateOfBirth: (profile.dateOfBirth_toISODate ?? undefined) as unknown as Date,
+      dateOfBirth: (profile.dateOfBirth_toISODate ??
+        undefined) as unknown as Date,
       hometown: profile.hometown,
       worksAt: profile.worksAt,
       school: profile.school,
@@ -101,20 +102,12 @@ export function About({ profile }: { profile: User }) {
           <form className="about-form" onSubmit={handleSubmit(updateInfo)}>
             <div>
               <label htmlFor="firstname">First name</label>
-              <input
-                {...register("firstname")}
-                type="text"
-                id="firstname"
-              />
+              <input {...register("firstname")} type="text" id="firstname" />
               <p className="error-about">{errors?.firstname?.message}</p>
             </div>
             <div>
               <label htmlFor="lastname">Last name</label>
-              <input
-                {...register("lastname")}
-                type="text"
-                id="lastname"
-              />
+              <input {...register("lastname")} type="text" id="lastname" />
               <p className="error-about">{errors?.lastname?.message}</p>
             </div>
             <div>
@@ -128,39 +121,23 @@ export function About({ profile }: { profile: User }) {
             </div>
             <div>
               <label htmlFor="hometown">Hometown</label>
-              <input
-                {...register("hometown")}
-                type="text"
-                id="hometown"
-              />
+              <input {...register("hometown")} type="text" id="hometown" />
               <p className="error-about">{errors?.hometown?.message}</p>
             </div>
 
             <div>
               <label htmlFor="worksAt">Works at</label>
-              <input
-                {...register("worksAt")}
-                type="text"
-                id="worksAt"
-              />
+              <input {...register("worksAt")} type="text" id="worksAt" />
               <p className="error-about">{errors?.worksAt?.message}</p>
             </div>
             <div>
               <label htmlFor="school">Studied at</label>
-              <input
-                {...register("school")}
-                type="text"
-                id="school"
-              />
+              <input {...register("school")} type="text" id="school" />
               <p className="error-about">{errors?.school?.message}</p>
             </div>
             <div>
               <label htmlFor="gender">Gender</label>
-              <select
-                {...register("gender")}
-                id="gender"
-                defaultValue={""}
-              >
+              <select {...register("gender")} id="gender" defaultValue={""}>
                 <option value="Male"> Male</option>
                 <option value="Female"> Female</option>
                 <option value="Non-binary"> Non-binary</option>

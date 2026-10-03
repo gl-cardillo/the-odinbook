@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import request from "supertest";
 import type { Express } from "express";
-import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
+import {
+  initializeMongoServer,
+  closeMongoServer,
+} from "./mongoConfigTesting.js";
 import { tokenFor } from "./helpers.js";
 
 vi.mock("../config/s3.js", async (importOriginal) =>

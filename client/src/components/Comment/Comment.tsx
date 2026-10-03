@@ -1,4 +1,9 @@
-import { nFormatter, getTime, confirmDelete, handleSuccess } from "../../utils/utils";
+import {
+  nFormatter,
+  getTime,
+  confirmDelete,
+  handleSuccess,
+} from "../../utils/utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useCurrentUser } from "../../dataContext/dataContext";
@@ -20,7 +25,10 @@ const schema = yup.object().shape({
     .string()
     .trim()
     .required("Text in the post are required ")
-    .max(MAX_COMMENT_LENGTH, `Comments can be at most ${MAX_COMMENT_LENGTH} characters`),
+    .max(
+      MAX_COMMENT_LENGTH,
+      `Comments can be at most ${MAX_COMMENT_LENGTH} characters`
+    ),
 });
 
 type ReplyForm = yup.InferType<typeof schema>;
@@ -55,7 +63,9 @@ export function Comment({ comment, postId }: CommentProps) {
     replyActions.create.mutate(data.text, { onSuccess: () => reset() });
 
   const onDeleteComment = async () => {
-    if (!(await confirmDelete("Are you sure you want to delete this comment?"))) {
+    if (
+      !(await confirmDelete("Are you sure you want to delete this comment?"))
+    ) {
       return;
     }
     commentActions.remove.mutate(comment.id, {

@@ -80,7 +80,9 @@ const pagedPosts = (
   initialPageParam: undefined as string | undefined,
   // a full page means there may be more, older than its last post
   getNextPageParam: (lastPage: Post[]) =>
-    lastPage.length === PAGE_SIZE ? lastPage[lastPage.length - 1].id : undefined,
+    lastPage.length === PAGE_SIZE
+      ? lastPage[lastPage.length - 1].id
+      : undefined,
 });
 
 export const useFeed = () => useInfiniteQuery(pagedPosts(keys.feed, api.feed));
@@ -209,8 +211,13 @@ export function useUpdateProfile(onSaved: (user: User) => void) {
 export function useChangePicture(onSaved: (user: User) => void) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: async ({ kind, file }: { kind: "profile" | "cover"; file: File }) =>
-      api.changePicture(kind, await api.uploadImage(file)),
+    mutationFn: async ({
+      kind,
+      file,
+    }: {
+      kind: "profile" | "cover";
+      file: File;
+    }) => api.changePicture(kind, await api.uploadImage(file)),
     onSuccess: (user) => {
       client.setQueryData(keys.user(user.id), user);
       onSaved(user);
@@ -228,4 +235,5 @@ export function useNotificationsSeen() {
   });
 }
 
-export const useDeleteAccount = () => useMutation({ mutationFn: api.deleteAccount });
+export const useDeleteAccount = () =>
+  useMutation({ mutationFn: api.deleteAccount });

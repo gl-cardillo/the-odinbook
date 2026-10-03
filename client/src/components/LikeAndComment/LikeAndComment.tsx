@@ -20,7 +20,10 @@ const schema = yup.object().shape({
     .string()
     .trim()
     .required("Text in the post are required ")
-    .max(MAX_COMMENT_LENGTH, `Comments can be at most ${MAX_COMMENT_LENGTH} characters`),
+    .max(
+      MAX_COMMENT_LENGTH,
+      `Comments can be at most ${MAX_COMMENT_LENGTH} characters`
+    ),
 });
 
 type CommentForm = yup.InferType<typeof schema>;
@@ -66,7 +69,8 @@ export function LikeAndComment({ post }: { post: Post }) {
               <AiFillLike className="like-comment" /> {likes[0].fullname}
               {
                 // with more than one like show the first name and how many others
-                likes.length > 1 && ` and an other ${nFormatter(likes.length - 1)}`
+                likes.length > 1 &&
+                  ` and an other ${nFormatter(likes.length - 1)}`
               }
             </p>
           )}

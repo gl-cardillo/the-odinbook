@@ -4,7 +4,10 @@ import jwt from "jsonwebtoken";
 import app from "../app.js";
 import User from "../models/user.js";
 import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
-import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
+import {
+  initializeMongoServer,
+  closeMongoServer,
+} from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
 import Upload from "../models/upload.js";
 import Notification from "../models/notification.js";

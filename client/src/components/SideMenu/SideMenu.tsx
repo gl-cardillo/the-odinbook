@@ -3,11 +3,7 @@ import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import {
-  useFriendActions,
-  useFriendRequests,
-  useFriends,
-} from "../../queries";
+import { useFriendActions, useFriendRequests, useFriends } from "../../queries";
 
 export function SideMenu() {
   const { user } = useCurrentUser();

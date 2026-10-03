@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose";
 type Db = mongoose.mongo.Db;
 import type { NotificationType } from "../models/notification.js";
@@ -112,7 +110,10 @@ export const migrate = async (db: Db, apply: boolean) => {
       }
     }
     if (apply) {
-      await users.updateOne({ _id: user._id }, { $unset: { notifications: "" } });
+      await users.updateOne(
+        { _id: user._id },
+        { $unset: { notifications: "" } }
+      );
     }
   }
 
@@ -176,7 +177,9 @@ if (process.argv[1]?.endsWith("migrateEmbedded.ts")) {
   console.table(report);
   if (apply) {
     // create the indexes of the new collections
-    await import("../models/notification.js").then((m) => m.default.syncIndexes());
+    await import("../models/notification.js").then((m) =>
+      m.default.syncIndexes()
+    );
     await import("../models/reply.js").then((m) => m.default.syncIndexes());
   } else {
     console.log("Run again with --apply to make these changes.");

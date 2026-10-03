@@ -189,7 +189,7 @@ export function useReplyActions(commentId: string, postId: string) {
       onSuccess: refresh,
     }),
     remove: useMutation({
-      mutationFn: (date: string | number) => api.deleteReply(commentId, date),
+      mutationFn: (replyId: string) => api.deleteReply(commentId, replyId),
       onSuccess: refresh,
     }),
   };

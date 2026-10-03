@@ -1,5 +1,5 @@
 import Comment from "../models/comment.js";
-import User from "../models/user.js";
+import Reply from "../models/reply.js";
 import { body } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
@@ -29,6 +29,17 @@ const findComment = async (id: string, fields?: string) => {
   return comment;
 };
 
+type ReplyDoc = InstanceType<typeof Reply>;
+
+// replies with their author, null when the account was deleted
+const withAuthors = async (replies: ReplyDoc[]) => {
+  const users = await findUserSummaries(replies.map((reply) => reply.authorId));
+  return replies.map((reply) => ({
+    ...reply.toJSON(),
+    author: users.get(reply.authorId) ?? null,
+  }));
+};
+
 // GET /posts/:postId/comments, oldest first
 export const getComments = async (req: Request, res: Response) => {
   const comments = await Comment.find({
@@ -49,11 +60,9 @@ export const createComment = [
       postId: post.id,
       authorId: me,
     });
-    await notify(post.authorId, me, {
-      message: "commented your post",
-      elementId: post.id,
+    await notify(post.authorId, me, "post_comment", {
+      postId: post.id,
       commentId: comment.id,
-      link: `/singlePost/${post.id}`,
     });
 
     const [detailed] = await withCommentDetails([comment]);
@@ -68,47 +77,19 @@ export const deleteComment = async (req: Request, res: Response) => {
   }
   await comment.deleteOne();
 
-  // notifications about the comment, its likes and its replies
-  await User.updateMany(
-    {
-      $or: [
-        { "notifications.commentId": comment.id },
-        { "notifications.elementId": comment.id },
-      ],
-    },
-    {
-      $pull: {
-        notifications: {
-          $or: [{ commentId: comment.id }, { elementId: comment.id }],
-        },
-      },
-    }
-  );
+  // its replies and every notification about it, its likes and its replies
+  await Reply.deleteMany({ commentId: comment.id });
+  await removeNotifications({ commentId: comment.id });
 
   res.sendStatus(204);
 };
 
-// GET /comments/:commentId/replies
+// GET /comments/:commentId/replies, oldest first
 export const getReplies = async (req: Request, res: Response) => {
-  const comment = await findComment(String(req.params.commentId), "reply");
-  const users = await findUserSummaries(
-    comment.reply.map((reply) => reply.authorId)
-  );
-  const replies = comment.reply.flatMap((reply) => {
-    const user = users.get(String(reply.authorId));
-    // skip replies whose author deleted the account
-    if (!user) return [];
-    return [
-      {
-        authorId: reply.authorId,
-        text: reply.text,
-        profilePicUrl: user.profilePicUrl,
-        authorFullname: user.fullname,
-        date: reply.date,
-      },
-    ];
-  });
-  res.json(replies);
+  const replies = await Reply.find({
+    commentId: String(req.params.commentId),
+  }).sort({ date: 1 });
+  res.json(await withAuthors(replies));
 };
 
 // POST /comments/:commentId/replies
@@ -120,41 +101,36 @@ export const createReply = [
       String(req.params.commentId),
       "authorId postId"
     );
-    const date = Date.now();
 
-    await Comment.updateOne(
-      { _id: comment.id },
-      { $push: { reply: { text: req.body.text, authorId: me, date } } }
-    );
-    await notify(comment.authorId, me, {
-      message: "replied to your comment",
-      elementId: comment.id,
-      date,
-      link: `/singlePost/${comment.postId}`,
+    const reply = await Reply.create({
+      commentId: comment.id,
+      postId: comment.postId,
+      authorId: me,
+      text: req.body.text,
+    });
+    await notify(comment.authorId, me, "comment_reply", {
+      postId: comment.postId,
+      commentId: comment.id,
+      replyId: reply.id,
     });
 
-    res.sendStatus(201);
+    const [detailed] = await withAuthors([reply]);
+    res.status(201).json(detailed);
   },
 ];
 
-// DELETE /comments/:commentId/replies/:date, replies are identified by
-// their author and date, and only your own can be deleted
+// DELETE /comments/:commentId/replies/:replyId, only your own
 export const deleteReply = async (req: Request, res: Response) => {
-  const me = currentUserId(req);
-  const date = Number(req.params.date);
-  const comment = await findComment(String(req.params.commentId), "authorId");
-
-  const result = await Comment.updateOne(
-    { _id: comment.id, reply: { $elemMatch: { authorId: me, date } } },
-    { $pull: { reply: { authorId: me, date } } }
-  );
-  if (result.matchedCount === 0) throw notFound("Reply");
-
-  await removeNotifications(comment.authorId, {
-    elementId: comment.id,
-    userId: me,
-    date,
+  const reply = await Reply.findOne({
+    _id: String(req.params.replyId),
+    commentId: String(req.params.commentId),
   });
+  if (!reply) throw notFound("Reply");
+  if (reply.authorId !== currentUserId(req)) {
+    throw forbidden("You can only delete your own replies");
+  }
+  await reply.deleteOne();
+  await removeNotifications({ replyId: reply.id });
   res.sendStatus(204);
 };
 
@@ -168,11 +144,9 @@ export const likeComment = async (req: Request, res: Response) => {
 
   if (!comment.likes.includes(me)) {
     await Comment.updateOne({ _id: comment.id }, { $addToSet: { likes: me } });
-    await notify(comment.authorId, me, {
-      message: "liked your comment",
-      elementId: comment.postId,
+    await notify(comment.authorId, me, "comment_like", {
+      postId: comment.postId,
       commentId: comment.id,
-      link: `/singlePost/${comment.postId}`,
     });
   }
 
@@ -182,11 +156,17 @@ export const likeComment = async (req: Request, res: Response) => {
 
 // DELETE /comments/:commentId/like
 export const unlikeComment = async (req: Request, res: Response) => {
+  const me = currentUserId(req);
   const comment = await Comment.findByIdAndUpdate(
     String(req.params.commentId),
-    { $pull: { likes: currentUserId(req) } },
+    { $pull: { likes: me } },
     { new: true, projection: "likes" }
   );
   if (!comment) throw notFound("Comment");
+  await removeNotifications({
+    actorId: me,
+    type: "comment_like",
+    commentId: comment.id,
+  });
   res.json(await userSummaries(comment.likes));
 };

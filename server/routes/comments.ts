@@ -13,6 +13,6 @@ router.put("/:commentId/like", checkId, comments.likeComment);
 router.delete("/:commentId/like", checkId, comments.unlikeComment);
 router.get("/:commentId/replies", checkId, comments.getReplies);
 router.post("/:commentId/replies", checkId, comments.createReply);
-router.delete("/:commentId/replies/:date", checkId, comments.deleteReply);
+router.delete("/:commentId/replies/:replyId", checkId, comments.deleteReply);
 
 export default router;

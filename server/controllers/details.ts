@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/user.js";
 import Comment from "../models/comment.js";
+import Reply from "../models/reply.js";
 import type Post from "../models/post.js";
 import type CommentModel from "../models/comment.js";
 
@@ -60,16 +61,23 @@ export const withPostDetails = async (posts: PostDoc[]) => {
   }));
 };
 
-// comments with author and who liked them
+// comments with author, who liked them and how many replies they have
 export const withCommentDetails = async (comments: CommentDoc[]) => {
   if (comments.length === 0) return [];
   const users = await findUserSummaries(
     comments.flatMap((comment) => [comment.authorId, ...comment.likes])
   );
+  const counts = await Reply.aggregate<{ _id: string; count: number }>([
+    { $match: { commentId: { $in: comments.map((comment) => comment.id) } } },
+    { $group: { _id: "$commentId", count: { $sum: 1 } } },
+  ]);
+  const repliesCount = new Map(counts.map((c) => [c._id, c.count]));
+
   return comments.map((comment) => ({
     ...comment.toJSON(),
     author: users.get(comment.authorId) ?? null,
     likedBy: pickUsers(comment.likes, users),
+    repliesCount: repliesCount.get(comment.id) ?? 0,
   }));
 };
 

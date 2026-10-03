@@ -49,7 +49,7 @@ export function Navbar() {
   const { data: friendRequests = [] } = useFriendRequests();
   const { data: notificationsData } = useNotifications();
   const notifications = notificationsData?.notifications ?? [];
-  const unchecked = notificationsData?.unchecked ?? [];
+  const unseen = notificationsData?.unseen ?? 0;
   const markSeen = useNotificationsSeen();
   const deleteAccount = useDeleteAccount();
   const isGuest = user.email === GUEST_EMAIL;
@@ -87,7 +87,7 @@ export function Navbar() {
   };
 
   const toggleNotifications = () => {
-    if (unchecked.length > 0) {
+    if (unseen > 0) {
       markSeen.mutate();
     }
     setShowNotification(!showNotification);
@@ -148,8 +148,8 @@ export function Navbar() {
               onClick={toggleNotifications}
               className="icon notification-icon"
             />
-            {unchecked.length > 0 && (
-              <p className="notification-count">{unchecked.length}</p>
+            {unseen > 0 && (
+              <p className="notification-count">{unseen}</p>
             )}
             {showNotification && (
               <div className="notifications-container">
@@ -158,7 +158,7 @@ export function Navbar() {
                   <div>
                     {notifications.slice(0, 4).map((notification) => (
                       <Link
-                        key={`${notification.userId}-${notification.date}`}
+                        key={notification.id}
                         to={notification.link}
                       >
                         <div

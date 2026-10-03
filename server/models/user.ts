@@ -12,9 +12,10 @@ const UserSchema = new Schema(
     password: { type: String, select: false },
     profilePicUrl: { type: String },
     coverPicUrl: { type: String },
-    friends: { type: [String] },
-    friendRequests: { type: [String] },
-    notifications: { type: Array },
+    // ids of the users
+    friends: { type: [String], default: [] },
+    // ids of the users who asked this user for friendship
+    friendRequests: { type: [String], default: [] },
     gender: { type: String },
     hometown: { type: String },
     dateOfBirth: { type: Date },
@@ -30,7 +31,7 @@ const UserSchema = new Schema(
       transform(_doc, ret) {
         const data = ret as Record<string, unknown>;
         delete data.password;
-        // notifications have their own endpoint, only for their owner
+        // left over in old documents, notifications are a collection now
         delete data.notifications;
         return ret;
       },

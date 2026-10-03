@@ -10,7 +10,10 @@ import { currentUserId } from "../middleware/verifyToken.js";
 import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
 import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { nameRule } from "./authController.js";
-import { findUserSummaries, userSummaries } from "./details.js";
+import { userSummaries } from "./details.js";
+import Notification from "../models/notification.js";
+import Reply from "../models/reply.js";
+import { listNotifications } from "./notify.js";
 
 type UserDoc = InstanceType<typeof User>;
 
@@ -87,34 +90,15 @@ export const getFriends = async (req: Request, res: Response) => {
   res.json(friends.slice(0, listLimit(req, friends.length || 1)));
 };
 
+// the latest 50 notifications and how many are not seen yet
 export const getNotifications = async (req: Request, res: Response) => {
-  const user = await findUser(currentUserId(req), "notifications");
-
-  const senders = await findUserSummaries(
-    user.notifications.map((notification) => notification.userId)
-  );
-  // add picture and name of the sender, kept empty if the account was deleted
-  const notifications = user.notifications
-    .map((notification) => {
-      const sender = senders.get(String(notification.userId));
-      return {
-        ...notification,
-        profilePicUrl: sender?.profilePicUrl,
-        fullname: sender?.fullname,
-      };
-    })
-    .sort((a, b) => b.date - a.date);
-
-  const unchecked = notifications.filter(
-    (notification) => notification.seen === false
-  );
-  res.json({ notifications, unchecked });
+  res.json(await listNotifications(currentUserId(req)));
 };
 
 export const markNotificationsSeen = async (req: Request, res: Response) => {
-  await User.updateOne(
-    { _id: currentUserId(req) },
-    { $set: { "notifications.$[].seen": true } }
+  await Notification.updateMany(
+    { recipientId: currentUserId(req), seen: false },
+    { seen: true }
   );
   res.sendStatus(204);
 };
@@ -190,6 +174,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
   }
 
   const posts = await Post.find({ authorId: id }, "picUrl");
+  const postIds = posts.map((post) => post.id);
   await account.deleteOne();
 
   // every picture uploaded by the account, used or not
@@ -200,23 +185,32 @@ export const deleteAccount = async (req: Request, res: Response) => {
   uploads.forEach((upload) => deleteFile(fileUrl(upload.key)));
   await Upload.deleteMany({ userId: id });
 
-  // posts, comments, likes, replies, friendships and notifications
+  // the posts with everything under them, even from other users
   await Post.deleteMany({ authorId: id });
+  await Comment.deleteMany({ postId: { $in: postIds } });
+  await Reply.deleteMany({ postId: { $in: postIds } });
+  await Notification.deleteMany({ postId: { $in: postIds } });
+
+  // what the account wrote or did elsewhere
+  const comments = await Comment.find({ authorId: id }, "_id");
+  const commentIds = comments.map((comment) => comment.id);
   await Comment.deleteMany({ authorId: id });
+  await Reply.deleteMany({
+    $or: [{ authorId: id }, { commentId: { $in: commentIds } }],
+  });
   await Post.updateMany({ likes: id }, { $pull: { likes: id } });
   await Comment.updateMany({ likes: id }, { $pull: { likes: id } });
-  await Comment.updateMany(
-    { "reply.authorId": id },
-    { $pull: { reply: { authorId: id } } }
-  );
   await User.updateMany(
     { $or: [{ friends: id }, { friendRequests: id }] },
     { $pull: { friendRequests: id, friends: id } }
   );
-  await User.updateMany(
-    { "notifications.userId": id },
-    { $pull: { notifications: { userId: id } } }
-  );
+  await Notification.deleteMany({
+    $or: [
+      { recipientId: id },
+      { actorId: id },
+      { commentId: { $in: commentIds } },
+    ],
+  });
 
   res.sendStatus(204);
 };

@@ -101,9 +101,11 @@ export const api = {
     }),
   replies: (commentId: string) => get<Reply[]>(`/comments/${commentId}/replies`),
   createReply: (commentId: string, text: string) =>
-    axios.post(`/comments/${commentId}/replies`, { text }),
-  deleteReply: (commentId: string, date: string | number) =>
-    axios.delete(`/comments/${commentId}/replies/${new Date(date).getTime()}`),
+    axios
+      .post<Reply>(`/comments/${commentId}/replies`, { text })
+      .then((res) => res.data),
+  deleteReply: (commentId: string, replyId: string) =>
+    axios.delete(`/comments/${commentId}/replies/${replyId}`),
 
   // uploads the image straight to the bucket and returns where it can be read
   uploadImage: async (file: File) => {

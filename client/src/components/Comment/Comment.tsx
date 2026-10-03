@@ -67,7 +67,7 @@ export function Comment({ comment, postId }: CommentProps) {
     if (!(await confirmDelete("Are you sure you want to delete this reply?"))) {
       return;
     }
-    replyActions.remove.mutate(reply.date, {
+    replyActions.remove.mutate(reply.id, {
       onSuccess: () => handleSuccess("Reply deleted successfully"),
     });
   };
@@ -146,20 +146,20 @@ export function Comment({ comment, postId }: CommentProps) {
           )}
         </div>
       </div>
-      {comment.reply.length > 0 && (
+      {comment.repliesCount > 0 && (
         <div onClick={() => setShowReply(!showReply)} className="reply-count">
           <IoReturnDownForwardOutline className="icon-arrow" />
-          {replies ? replies.length : comment.reply.length} Replies
+          {replies ? replies.length : comment.repliesCount} Replies
         </div>
       )}
       {showReply && (
         <div className="reply-container">
           {replies ? (
             replies.map((reply) => (
-              <div key={`${reply.authorId}-${reply.date}`} className="comment-container">
+              <div key={reply.id} className="comment-container">
                 <Link to={`/profile/${reply.authorId}`}>
                   <img
-                    src={reply.profilePicUrl}
+                    src={reply.author?.profilePicUrl}
                     className="avatar-pic"
                     alt="avatar"
                   />
@@ -167,7 +167,9 @@ export function Comment({ comment, postId }: CommentProps) {
                 <div className="comment-info">
                   <div className="comment-author-message">
                     <Link to={`/profile/${reply.authorId}`}>
-                      <p className="author">{reply.authorFullname}</p>
+                      <p className="author">
+                        {reply.author ? reply.author.fullname : "Deleted user"}
+                      </p>
                     </Link>
                     <p>{reply.text}</p>
                   </div>
@@ -186,7 +188,7 @@ export function Comment({ comment, postId }: CommentProps) {
           ) : (
             <Skeleton
               height={50}
-              count={comment.reply.length || 1}
+              count={comment.repliesCount || 1}
               style={{ margin: "10px 0" }}
             />
           )}

@@ -21,7 +21,7 @@ export function Notifications() {
             data.notifications.map((notification) => (
               <Link
                 to={notification.link}
-                key={`${notification.userId}-${notification.date}`}
+                key={notification.id}
               >
                 <div className="notification">
                   <div>

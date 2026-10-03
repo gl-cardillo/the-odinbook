@@ -50,34 +50,48 @@ export interface Comment {
   text: string;
   date: string;
   likes: string[];
-  reply: { authorId: string; text: string; date: string }[];
   author: UserSummary | null;
   likedBy: UserSummary[];
+  repliesCount: number;
 }
 
 export interface Reply {
+  id: string;
+  commentId: string;
   authorId: string;
-  authorFullname: string;
-  profilePicUrl: string;
+  // null when the author deleted the account
+  author: UserSummary | null;
   text: string;
   date: string;
 }
 
+export type NotificationType =
+  | "friend_request"
+  | "friend_accept"
+  | "post_like"
+  | "post_comment"
+  | "comment_like"
+  | "comment_reply";
+
 export interface Notification {
+  id: string;
+  type: NotificationType;
+  // who did it
   userId: string;
   message: string;
-  date: number;
-  seen: boolean;
   link: string;
-  elementId?: string;
+  postId?: string;
+  seen: boolean;
+  date: string;
   // missing when the sender deleted the account
   profilePicUrl?: string;
   fullname?: string;
 }
 
 export interface NotificationsResponse {
+  // the latest 50
   notifications: Notification[];
-  unchecked: Notification[];
+  unseen: number;
 }
 
 export interface AuthResponse {

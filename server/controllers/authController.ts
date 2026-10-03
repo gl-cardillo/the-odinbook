@@ -40,7 +40,6 @@ export const signup = [
       password: await bcrypt.hash(password, 10),
       profilePicUrl: DEFAULT_PROFILE_PIC,
       coverPicUrl: DEFAULT_COVER_PIC,
-      notifications: [],
     });
 
     res.status(201).json({ user, token: signToken(user.id) });

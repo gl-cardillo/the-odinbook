@@ -73,6 +73,16 @@ npm run dev --prefix client   # http://localhost:3000
 | `client` | `npm run build` | Type-check and build to `dist/` |
 | `client` | `npm run lint` | Lint with ESLint |
 
+## Upgrading an existing database
+
+Older versions stored notifications inside users and replies inside comments. Move them to their own collections once, after deploying:
+
+```bash
+cd server
+npm run migrate            # dry run, only reports what would change
+npm run migrate -- --apply # makes the changes, safe to run again
+```
+
 ## Project structure
 
 ```

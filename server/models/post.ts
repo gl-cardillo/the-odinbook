@@ -6,7 +6,8 @@ const PostSchema = new Schema({
   authorId: { type: String, required: true },
   text: { type: String, required: true, maxlength: 5000 },
   date: { type: Date, default: Date.now },
-  likes: { type: Array },
+  // ids of the users who liked the post
+  likes: { type: [String], default: [] },
   picUrl: { type: String },
 });
 

@@ -7,6 +7,7 @@ import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
 import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
 import Upload from "../models/upload.js";
+import Notification from "../models/notification.js";
 import { tokenFor, uploadAs } from "./helpers.js";
 
 vi.mock("../config/s3.js", async (importOriginal) =>
@@ -247,7 +248,9 @@ describe("Friend requests", () => {
     expect(res.statusCode).toEqual(204);
     const receiver = await User.findById(users[0].id);
     expect(receiver?.friendRequests).toEqual([]);
-    expect(receiver?.notifications).toEqual([]);
+    expect(
+      await Notification.countDocuments({ recipientId: users[0].id })
+    ).toEqual(0);
   });
 
   it("Should not accept a request that was never sent", async () => {
@@ -329,7 +332,7 @@ describe("Notifications", () => {
       .get("/users/me/notifications")
       .set("Authorization", token);
     expect(after.body.notifications.length).toBeGreaterThan(0);
-    expect(after.body.unchecked).toEqual([]);
+    expect(after.body.unseen).toEqual(0);
   });
 });
 
@@ -483,7 +486,9 @@ describe("DELETE /users/me", () => {
 
     const other = await User.findById(users[3].id);
     expect(other?.friendRequests).not.toContain(userId);
-    expect(other?.notifications).toEqual([]);
+    expect(
+      await Notification.countDocuments({ recipientId: users[3].id })
+    ).toEqual(0);
   });
 
   it("Should return 404 when GET the deleted user", async () => {

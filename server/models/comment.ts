@@ -7,11 +7,12 @@ const CommentSchema = new Schema({
   postId: { type: String, required: true },
   text: { type: String, required: true, maxlength: 2000 },
   date: { type: Date, default: Date.now },
-  reply: { type: Array, default: [] },
-  likes: { type: Array },
+  // ids of the users who liked the comment
+  likes: { type: [String], default: [] },
 });
 
-CommentSchema.index({ postId: 1 });
+CommentSchema.index({ postId: 1, date: 1 });
+CommentSchema.index({ authorId: 1 });
 
 CommentSchema.set("toObject", { virtuals: true });
 CommentSchema.set("toJSON", { virtuals: true });

@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import app from "../app.js";
 import User from "../models/user.js";
 import Post from "../models/post.js";
+import Comment from "../models/comment.js";
+import Reply from "../models/reply.js";
+import Notification from "../models/notification.js";
 import { initializeMongoServer, closeMongoServer } from "./mongoConfigTesting.js";
 import { seed } from "./seed.js";
 import { tokenFor, uploadAs } from "./helpers.js";
@@ -174,8 +177,22 @@ describe("Post likes", () => {
     const notifications = await notificationsOf(userId);
     expect(notifications.length).toEqual(1);
     expect(notifications[0].fullname).toEqual(users[2].fullname);
+    expect(notifications[0].type).toEqual("post_like");
     expect(notifications[0].message).toEqual("liked your post");
-    expect(notifications[0].elementId).toEqual(postId);
+    expect(notifications[0].postId).toEqual(postId);
+    expect(notifications[0].link).toEqual(`/singlePost/${postId}`);
+  });
+
+  it("should not pile up notifications when liking again and again", async () => {
+    for (let i = 0; i < 3; i++) {
+      await request(app)
+        .delete(`/posts/${postId}/like`)
+        .set("Authorization", tokenFor(users[2].id));
+      await request(app)
+        .put(`/posts/${postId}/like`)
+        .set("Authorization", tokenFor(users[2].id));
+    }
+    expect((await notificationsOf(userId)).length).toEqual(1);
   });
 
   it("should list who liked the post", async () => {
@@ -185,12 +202,13 @@ describe("Post likes", () => {
     expect(res.body.map((u: { id: string }) => u.id)).toEqual([users[2].id]);
   });
 
-  it("should remove the like", async () => {
+  it("should remove the like and its notification", async () => {
     const res = await request(app)
       .delete(`/posts/${postId}/like`)
       .set("Authorization", tokenFor(users[2].id));
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual([]);
+    expect(await notificationsOf(userId)).toEqual([]);
   });
 });
 
@@ -214,7 +232,7 @@ describe("Comments", () => {
     expect(latest.fullname).toEqual(users[0].fullname);
     expect(latest.message).toEqual("commented your post");
     expect(latest.seen).toEqual(false);
-    expect(latest.elementId).toEqual(postId);
+    expect(latest.postId).toEqual(postId);
   });
 
   it("should list the comments of the post", async () => {
@@ -225,6 +243,8 @@ describe("Comments", () => {
     expect(res.body.length).toEqual(1);
     expect(res.body[0].author).toHaveProperty("fullname", users[0].fullname);
     expect(res.body[0].likedBy).toEqual([]);
+    expect(res.body[0].repliesCount).toEqual(0);
+    expect(res.body[0]).not.toHaveProperty("reply");
   });
 
   it("should limit the length of a comment", async () => {
@@ -262,34 +282,42 @@ describe("Comments", () => {
       .set("Authorization", token)
       .send({ text: "Reply example" });
     expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty("id");
+    expect(res.body.author).toHaveProperty("fullname", "Luca Cardi");
 
     const replies = await request(app)
       .get(`/comments/${commentId}/replies`)
       .set("Authorization", token);
     expect(replies.body.length).toEqual(1);
     expect(replies.body[0]).toMatchObject({
+      id: res.body.id,
       authorId: userId,
-      authorFullname: "Luca Cardi",
       text: "Reply example",
     });
 
+    const comments = await request(app)
+      .get(`/posts/${postId}/comments`)
+      .set("Authorization", token);
+    expect(comments.body[0].repliesCount).toEqual(1);
+
     const [latest] = await notificationsOf(users[0].id);
     expect(latest.message).toEqual("replied to your comment");
+    expect(latest.link).toEqual(`/singlePost/${postId}`);
   });
 
   it("should only let the author delete a reply", async () => {
     const replies = await request(app)
       .get(`/comments/${commentId}/replies`)
       .set("Authorization", token);
-    const { date } = replies.body[0];
+    const replyId = replies.body[0].id;
 
     const notMine = await request(app)
-      .delete(`/comments/${commentId}/replies/${date}`)
+      .delete(`/comments/${commentId}/replies/${replyId}`)
       .set("Authorization", tokenFor(users[0].id));
-    expect(notMine.statusCode).toEqual(404);
+    expect(notMine.statusCode).toEqual(403);
 
     const mine = await request(app)
-      .delete(`/comments/${commentId}/replies/${date}`)
+      .delete(`/comments/${commentId}/replies/${replyId}`)
       .set("Authorization", token);
     expect(mine.statusCode).toEqual(204);
 
@@ -388,6 +416,45 @@ describe("DELETE /posts/:postId", () => {
       .get(`/posts/${postId}`)
       .set("Authorization", token);
     expect(res.statusCode).toEqual(404);
+  });
+});
+
+describe("Deleting an account", () => {
+  it("should remove the comments, replies and notifications on its posts", async () => {
+    const author = await request(app).post("/auth/signup").send({
+      firstname: "Leaving",
+      lastname: "User",
+      email: "leaving@example.com",
+      password: "password123",
+    });
+    const asAuthor = `Bearer ${author.body.token}`;
+    const asFriend = tokenFor(users[0].id);
+
+    const post = await request(app)
+      .post("/posts")
+      .send({ text: "Goodbye" })
+      .set("Authorization", asAuthor);
+    const comment = await request(app)
+      .post(`/posts/${post.body.id}/comments`)
+      .send({ text: "See you" })
+      .set("Authorization", asFriend);
+    await request(app)
+      .post(`/comments/${comment.body.id}/replies`)
+      .send({ text: "Bye" })
+      .set("Authorization", asFriend);
+
+    const res = await request(app)
+      .delete("/users/me")
+      .set("Authorization", asAuthor);
+    expect(res.statusCode).toEqual(204);
+
+    expect(await Comment.exists({ _id: comment.body.id })).toBeFalsy();
+    expect(await Reply.countDocuments({ postId: post.body.id })).toEqual(0);
+    expect(
+      await Notification.countDocuments({
+        $or: [{ recipientId: author.body.user.id }, { postId: post.body.id }],
+      })
+    ).toEqual(0);
   });
 });
 

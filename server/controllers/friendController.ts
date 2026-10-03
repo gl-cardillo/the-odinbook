@@ -6,8 +6,6 @@ import { notify, removeNotifications } from "./notify.js";
 import { findUser } from "./userController.js";
 import { userSummaries } from "./details.js";
 
-const REQUEST_MESSAGE = "sent you a friend request";
-
 // requests the logged in user received
 export const getFriendRequests = async (req: Request, res: Response) => {
   const me = await findUser(currentUserId(req), "friendRequests");
@@ -35,10 +33,7 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
     { _id: profileId },
     { $addToSet: { friendRequests: me } }
   );
-  await notify(profileId, me, {
-    message: REQUEST_MESSAGE,
-    link: "/friendRequests",
-  });
+  await notify(profileId, me, "friend_request");
   res.sendStatus(204);
 };
 
@@ -51,7 +46,11 @@ export const cancelFriendRequest = async (req: Request, res: Response) => {
     { $pull: { friendRequests: me } }
   );
   if (result.matchedCount === 0) throw notFound("Request");
-  await removeNotifications(profileId, { userId: me, message: REQUEST_MESSAGE });
+  await removeNotifications({
+    recipientId: profileId,
+    actorId: me,
+    type: "friend_request",
+  });
   res.sendStatus(204);
 };
 
@@ -71,11 +70,12 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
   }
   await User.updateOne({ _id: profileId }, { $addToSet: { friends: me } });
 
-  await removeNotifications(me, { userId: profileId, message: REQUEST_MESSAGE });
-  await notify(profileId, me, {
-    message: "accepted your friend request",
-    link: `/profile/${me}`,
+  await removeNotifications({
+    recipientId: me,
+    actorId: profileId,
+    type: "friend_request",
   });
+  await notify(profileId, me, "friend_accept");
   res.sendStatus(204);
 };
 
@@ -90,7 +90,11 @@ export const declineFriendRequest = async (req: Request, res: Response) => {
   if (result.matchedCount === 0) {
     throw badRequest("No request to decline");
   }
-  await removeNotifications(me, { userId: profileId, message: REQUEST_MESSAGE });
+  await removeNotifications({
+    recipientId: me,
+    actorId: profileId,
+    type: "friend_request",
+  });
   res.sendStatus(204);
 };
 

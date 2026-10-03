@@ -1,12 +1,12 @@
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
-import User from "../models/user.js";
 import { body } from "express-validator";
 import { deleteFile } from "../config/s3.js";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
 import { forbidden, notFound, validate } from "../middleware/errors.js";
-import { notify } from "./notify.js";
+import { notify, removeNotifications } from "./notify.js";
+import Reply from "../models/reply.js";
 import { findUser } from "./userController.js";
 import { pageQuery, userSummaries, withPostDetails } from "./details.js";
 import { claimUpload, forgetUpload } from "./uploadController.js";
@@ -82,12 +82,10 @@ export const deletePost = async (req: Request, res: Response) => {
   deleteFile(post.picUrl);
   await forgetUpload(post.picUrl);
 
-  // the comments of the post and the notifications about it
+  // everything under the post and the notifications about it
   await Comment.deleteMany({ postId: post.id });
-  await User.updateMany(
-    { "notifications.elementId": post.id },
-    { $pull: { notifications: { elementId: post.id } } }
-  );
+  await Reply.deleteMany({ postId: post.id });
+  await removeNotifications({ postId: post.id });
 
   res.sendStatus(204);
 };
@@ -104,11 +102,7 @@ export const likePost = async (req: Request, res: Response) => {
 
   if (!post.likes.includes(me)) {
     await Post.updateOne({ _id: post.id }, { $addToSet: { likes: me } });
-    await notify(post.authorId, me, {
-      message: "liked your post",
-      elementId: post.id,
-      link: `/singlePost/${post.id}`,
-    });
+    await notify(post.authorId, me, "post_like", { postId: post.id });
   }
 
   const updated = await findPost(post.id, "likes");
@@ -124,5 +118,6 @@ export const unlikePost = async (req: Request, res: Response) => {
     { new: true, projection: "likes" }
   );
   if (!post) throw notFound("Post");
+  await removeNotifications({ actorId: me, type: "post_like", postId: post.id });
   res.json(await userSummaries(post.likes));
 };

@@ -1,15 +1,6 @@
 import mongoose from "mongoose";
 
-export const NOTIFICATION_TYPES = [
-  "friend_request",
-  "friend_accept",
-  "post_like",
-  "post_comment",
-  "comment_like",
-  "comment_reply",
-] as const;
-
-export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+import { NOTIFICATION_TYPES } from "@odinbook/shared";
 
 // something another user did that concerns the recipient
 const NotificationSchema = new mongoose.Schema({

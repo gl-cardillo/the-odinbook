@@ -4,3 +4,4 @@ coverage
 package-lock.json
 client/cypress/screenshots
 client/cypress/videos
+shared/dist

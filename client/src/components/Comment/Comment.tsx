@@ -13,7 +13,7 @@ import { AiFillLike } from "react-icons/ai";
 import { IoReturnDownForwardOutline } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { MAX_COMMENT_LENGTH } from "../../api";
+import { MAX_COMMENT_LENGTH } from "@odinbook/shared";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MdDelete } from "react-icons/md";

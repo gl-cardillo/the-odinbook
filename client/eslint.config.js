@@ -11,6 +11,8 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       globals: globals.browser,
+      // this folder, not the repository root the editor may run from
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
     },
     plugins: {
       "react-hooks": reactHooks,

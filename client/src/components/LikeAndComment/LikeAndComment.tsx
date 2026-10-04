@@ -12,7 +12,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { MAX_COMMENT_LENGTH } from "../../api";
+import { MAX_COMMENT_LENGTH } from "@odinbook/shared";
 import type { Post, UserSummary } from "../../types";
 
 const schema = yup.object().shape({

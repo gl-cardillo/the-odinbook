@@ -5,11 +5,11 @@ import {
   createUploadForm,
   deleteFile,
   fileUrl,
-  IMAGE_TYPES,
   keyFromUrl,
-  MAX_UPLOAD_BYTES,
 } from "../config/s3.js";
 import { currentUserId } from "../middleware/verifyToken.js";
+import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@odinbook/shared";
+import type { UploadForm } from "@odinbook/shared";
 import { badRequest, validate } from "../middleware/errors.js";
 
 // an upload not used by a post or a picture within this time is deleted
@@ -33,7 +33,7 @@ export const createUpload = [
       "Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)"
     ).isIn(IMAGE_TYPES)
   ),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response<UploadForm>) => {
     const userId = currentUserId(req);
     // clean up after the uploader instead of a scheduled job
     await deleteUnusedUploads(userId);
@@ -45,7 +45,7 @@ export const createUpload = [
       url,
       fields,
       fileUrl: fileUrl(key),
-      maxBytes: MAX_UPLOAD_BYTES,
+      maxBytes: MAX_IMAGE_BYTES,
     });
   },
 ];

@@ -30,15 +30,6 @@ export function readStorage<T>(key: string): T | null {
   }
 }
 
-export const imageTypes = [
-  "image/bmp",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/tiff",
-  "image/webp",
-];
-
 export function nFormatter(n: number) {
   if (n > 999999) {
     return `${n / 1000000}m`;

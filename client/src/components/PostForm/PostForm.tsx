@@ -3,9 +3,12 @@ import { useState, useRef } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { BsX } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
-import { imageTypes } from "../../utils/utils";
 import { useCreatePost } from "../../queries";
-import { MAX_IMAGE_BYTES, MAX_POST_LENGTH } from "../../api";
+import {
+  IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_POST_LENGTH,
+} from "@odinbook/shared";
 import type { User } from "../../types";
 
 export function PostForm({ user }: { user: User }) {
@@ -53,7 +56,7 @@ export function PostForm({ user }: { user: User }) {
       return;
     }
 
-    if (imageTypes.includes(selected.type)) {
+    if (IMAGE_TYPES.includes(selected.type)) {
       const reader = new FileReader();
 
       reader.onloadend = () => {

@@ -8,3 +8,6 @@
 
 # Local Netlify folder
 .netlify
+
+# build output of the shared package
+/shared/dist

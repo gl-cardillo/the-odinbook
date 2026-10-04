@@ -14,7 +14,8 @@
     "react-loading-skeleton": "^3.5.0",
     "react-router": "^7.18.4",
     "sweetalert2": "^11.26.25",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "@odinbook/shared": "1.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -28,9 +29,7 @@
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "e2e": "start-server-and-test e2e:api http://localhost:5050 e2e:client http://localhost:4173 cy:run",
-    "e2e:open": "start-server-and-test e2e:api http://localhost:5050 e2e:client http://localhost:4173 cy:open",
-    "format": "prettier --write . --ignore-path ../.prettierignore",
-    "format:check": "prettier --check . --ignore-path ../.prettierignore"
+    "e2e:open": "start-server-and-test e2e:api http://localhost:5050 e2e:client http://localhost:4173 cy:open"
   },
   "type": "module",
   "devDependencies": {
@@ -43,7 +42,6 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.12.0",
-    "prettier": "^3.9.9",
     "start-server-and-test": "^3.0.12",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0",

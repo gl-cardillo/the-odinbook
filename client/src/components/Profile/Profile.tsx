@@ -11,8 +11,7 @@ import { SideMenu } from "../SideMenu/SideMenu";
 import { TiPlusOutline } from "react-icons/ti";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { imageTypes } from "../../utils/utils";
-import { MAX_IMAGE_BYTES } from "../../api";
+import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@odinbook/shared";
 import {
   useChangePicture,
   useFriendActions,
@@ -74,7 +73,7 @@ export function Profile() {
     (kind: "profile" | "cover") => (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      if (!imageTypes.includes(file.type)) {
+      if (!IMAGE_TYPES.includes(file.type)) {
         alert("Insert a valid image format (bmp, gif, jpeg, png, tiff, webp)");
         return;
       }

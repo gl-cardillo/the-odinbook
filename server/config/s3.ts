@@ -1,6 +1,7 @@
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import crypto from "node:crypto";
+import { MAX_IMAGE_BYTES } from "@odinbook/shared";
 
 const s3 = new S3Client({
   region: process.env.AWS_BUCKET_REGION,
@@ -9,17 +10,6 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_S3_ACCESS_KEY ?? "",
   },
 });
-
-export const IMAGE_TYPES = [
-  "image/bmp",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/tiff",
-  "image/webp",
-];
-
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 const bucketUrl = () =>
   `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/`;
@@ -41,7 +31,7 @@ export const createUploadForm = async (contentType: string) => {
     Bucket: process.env.AWS_BUCKET_NAME ?? "",
     Key: key,
     Conditions: [
-      ["content-length-range", 1, MAX_UPLOAD_BYTES],
+      ["content-length-range", 1, MAX_IMAGE_BYTES],
       ["eq", "$Content-Type", contentType],
     ],
     Fields: { "Content-Type": contentType },

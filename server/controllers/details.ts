@@ -4,16 +4,15 @@ import Comment from "../models/comment.js";
 import Reply from "../models/reply.js";
 import type Post from "../models/post.js";
 import type CommentModel from "../models/comment.js";
+import { PAGE_SIZE } from "@odinbook/shared";
+import type {
+  Comment as CommentResponse,
+  Post as PostResponse,
+  UserSummary,
+} from "@odinbook/shared";
 
 type PostDoc = InstanceType<typeof Post>;
 type CommentDoc = InstanceType<typeof CommentModel>;
-
-// the little a list needs to show someone: name, picture and a link
-export interface UserSummary {
-  id: string;
-  fullname: string;
-  profilePicUrl?: string | null;
-}
 
 // one query for any number of users, instead of one findById each
 export const findUserSummaries = async (ids: unknown[]) => {
@@ -30,7 +29,7 @@ export const findUserSummaries = async (ids: unknown[]) => {
       {
         id: user.id,
         fullname: user.fullname,
-        profilePicUrl: user.profilePicUrl,
+        profilePicUrl: user.profilePicUrl ?? undefined,
       },
     ])
   );
@@ -46,7 +45,9 @@ export const userSummaries = async (ids: unknown[]) =>
   pickUsers(ids, await findUserSummaries(ids));
 
 // posts with author, who liked them and how many comments they have
-export const withPostDetails = async (posts: PostDoc[]) => {
+export const withPostDetails = async (
+  posts: PostDoc[]
+): Promise<PostResponse[]> => {
   if (posts.length === 0) return [];
   const users = await findUserSummaries(
     posts.flatMap((post) => [post.authorId, ...post.likes])
@@ -58,7 +59,10 @@ export const withPostDetails = async (posts: PostDoc[]) => {
   const commentsCount = new Map(counts.map((c) => [c._id, c.count]));
 
   return posts.map((post) => ({
-    ...post.toJSON(),
+    ...(post.toJSON() as unknown as Omit<
+      PostResponse,
+      "author" | "likedBy" | "commentsCount"
+    >),
     author: users.get(post.authorId) ?? null,
     likedBy: pickUsers(post.likes, users),
     commentsCount: commentsCount.get(post.id) ?? 0,
@@ -66,7 +70,9 @@ export const withPostDetails = async (posts: PostDoc[]) => {
 };
 
 // comments with author, who liked them and how many replies they have
-export const withCommentDetails = async (comments: CommentDoc[]) => {
+export const withCommentDetails = async (
+  comments: CommentDoc[]
+): Promise<CommentResponse[]> => {
   if (comments.length === 0) return [];
   const users = await findUserSummaries(
     comments.flatMap((comment) => [comment.authorId, ...comment.likes])
@@ -78,7 +84,10 @@ export const withCommentDetails = async (comments: CommentDoc[]) => {
   const repliesCount = new Map(counts.map((c) => [c._id, c.count]));
 
   return comments.map((comment) => ({
-    ...comment.toJSON(),
+    ...(comment.toJSON() as unknown as Omit<
+      CommentResponse,
+      "author" | "likedBy" | "repliesCount"
+    >),
     author: users.get(comment.authorId) ?? null,
     likedBy: pickUsers(comment.likes, users),
     repliesCount: repliesCount.get(comment.id) ?? 0,
@@ -91,7 +100,7 @@ export const pageQuery = async (
   filter: Record<string, unknown>,
   query: { before?: unknown; limit?: unknown }
 ) => {
-  const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
+  const limit = Math.min(Math.max(Number(query.limit) || PAGE_SIZE, 1), 50);
   const conditions: Record<string, unknown>[] = [filter];
 
   if (

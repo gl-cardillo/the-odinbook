@@ -3,6 +3,12 @@ import Reply from "../models/reply.js";
 import { body } from "express-validator";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
+import { MAX_COMMENT_LENGTH } from "@odinbook/shared";
+import type {
+  Comment as CommentResponse,
+  Reply as ReplyResponse,
+  UserSummary,
+} from "@odinbook/shared";
 import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { notify, removeNotifications } from "./notify.js";
 import { findPost } from "./postController.js";
@@ -11,8 +17,6 @@ import {
   userSummaries,
   withCommentDetails,
 } from "./details.js";
-
-export const MAX_COMMENT_LENGTH = 2000;
 
 // comments and replies
 const textRule = () =>
@@ -32,16 +36,24 @@ const findComment = async (id: string, fields?: string) => {
 type ReplyDoc = InstanceType<typeof Reply>;
 
 // replies with their author, null when the account was deleted
-const withAuthors = async (replies: ReplyDoc[]) => {
+const withAuthors = async (replies: ReplyDoc[]): Promise<ReplyResponse[]> => {
   const users = await findUserSummaries(replies.map((reply) => reply.authorId));
   return replies.map((reply) => ({
-    ...reply.toJSON(),
+    id: reply.id,
+    commentId: reply.commentId,
+    postId: reply.postId,
+    authorId: reply.authorId,
     author: users.get(reply.authorId) ?? null,
+    text: reply.text,
+    date: reply.date.toISOString(),
   }));
 };
 
 // GET /posts/:postId/comments, oldest first
-export const getComments = async (req: Request, res: Response) => {
+export const getComments = async (
+  req: Request,
+  res: Response<CommentResponse[]>
+) => {
   const comments = await Comment.find({
     postId: String(req.params.postId),
   }).sort({ date: 1 });
@@ -85,7 +97,10 @@ export const deleteComment = async (req: Request, res: Response) => {
 };
 
 // GET /comments/:commentId/replies, oldest first
-export const getReplies = async (req: Request, res: Response) => {
+export const getReplies = async (
+  req: Request,
+  res: Response<ReplyResponse[]>
+) => {
   const replies = await Reply.find({
     commentId: String(req.params.commentId),
   }).sort({ date: 1 });
@@ -135,7 +150,10 @@ export const deleteReply = async (req: Request, res: Response) => {
 };
 
 // PUT /comments/:commentId/like, answers with the new list of likes
-export const likeComment = async (req: Request, res: Response) => {
+export const likeComment = async (
+  req: Request,
+  res: Response<UserSummary[]>
+) => {
   const me = currentUserId(req);
   const comment = await findComment(
     String(req.params.commentId),
@@ -155,7 +173,10 @@ export const likeComment = async (req: Request, res: Response) => {
 };
 
 // DELETE /comments/:commentId/like
-export const unlikeComment = async (req: Request, res: Response) => {
+export const unlikeComment = async (
+  req: Request,
+  res: Response<UserSummary[]>
+) => {
   const me = currentUserId(req);
   const comment = await Comment.findByIdAndUpdate(
     String(req.params.commentId),

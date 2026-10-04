@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 type Db = mongoose.mongo.Db;
-import type { NotificationType } from "../models/notification.js";
+import type { NotificationType } from "@odinbook/shared";
 
 interface LegacyNotification {
   userId?: unknown;

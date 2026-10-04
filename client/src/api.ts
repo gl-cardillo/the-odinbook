@@ -1,4 +1,5 @@
 import axios from "axios";
+import { MAX_IMAGE_BYTES, PAGE_SIZE } from "@odinbook/shared";
 import type {
   AuthResponse,
   Comment,
@@ -7,19 +8,13 @@ import type {
   Reply,
   User,
   UserSummary,
+  UploadForm,
 } from "./types";
 
 // every call to the server goes through here
 
 const get = <T>(url: string, params?: Record<string, unknown>) =>
   axios.get<T>(url, { params }).then((res) => res.data);
-
-export const PAGE_SIZE = 10;
-
-// the same limits the server enforces
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-export const MAX_POST_LENGTH = 5000;
-export const MAX_COMMENT_LENGTH = 2000;
 
 export interface ProfileUpdate {
   firstname: string;
@@ -113,11 +108,9 @@ export const api = {
     if (file.size > MAX_IMAGE_BYTES) {
       throw new Error("Images can be at most 5 MB");
     }
-    const { data } = await axios.post<{
-      url: string;
-      fields: Record<string, string>;
-      fileUrl: string;
-    }>("/uploads", { type: file.type });
+    const { data } = await axios.post<UploadForm>("/uploads", {
+      type: file.type,
+    });
 
     // the signed fields first, the file last, as S3 expects
     const form = new FormData();

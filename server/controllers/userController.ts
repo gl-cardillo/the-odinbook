@@ -11,6 +11,7 @@ import { TEST_ACCOUNT_EMAIL } from "../config/env.js";
 import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { nameRule } from "./authController.js";
 import { userSummaries } from "./details.js";
+import type { UserSummary } from "@odinbook/shared";
 import Notification from "../models/notification.js";
 import Reply from "../models/reply.js";
 import { listNotifications } from "./notify.js";
@@ -40,7 +41,10 @@ export const findUser = async (id: string, fields?: string) => {
 const escapeRegex = (text: string) =>
   text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const searchUsers = async (req: Request, res: Response) => {
+export const searchUsers = async (
+  req: Request,
+  res: Response<UserSummary[]>
+) => {
   const words = String(req.query.q ?? "")
     .trim()
     .split(/\s+/)
@@ -65,7 +69,7 @@ export const searchUsers = async (req: Request, res: Response) => {
     users.map((user) => ({
       id: user.id,
       fullname: user.fullname,
-      profilePicUrl: user.profilePicUrl,
+      profilePicUrl: user.profilePicUrl ?? undefined,
     }))
   );
 };

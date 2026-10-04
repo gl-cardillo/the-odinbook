@@ -5,7 +5,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { api, PAGE_SIZE } from "./api";
+import { api } from "./api";
+import { PAGE_SIZE } from "@odinbook/shared";
 import { errorMessage, handleError } from "./utils/utils";
 import type { Post, User } from "./types";
 

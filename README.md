@@ -30,8 +30,7 @@ Requires Node.js 22+ and a MongoDB database.
 ```bash
 git clone https://github.com/gl-cardillo/the-odinbook.git
 cd the-odinbook
-npm install --prefix server
-npm install --prefix client
+npm install   # every package, and builds the shared one
 ```
 
 Create `server/.env`:
@@ -55,39 +54,44 @@ Create `client/.env`:
 VITE_API_URL=http://localhost:5000
 ```
 
-Run both in separate terminals:
+Start the API and the client together:
 
 ```bash
-npm run dev --prefix server   # http://localhost:5000
-npm run dev --prefix client   # http://localhost:3000
+npm run dev   # API on http://localhost:5000, client on http://localhost:3000
 ```
 
 ## Scripts
 
-| Folder   | Command                       | Description                                             |
-| -------- | ----------------------------- | ------------------------------------------------------- |
-| `server` | `npm run dev`                 | Start the API with live reload                          |
-| `server` | `npm test`                    | Run the API tests (in-memory MongoDB, no `.env` needed) |
-| `server` | `npm run build` / `npm start` | Compile to `dist/` and run it                           |
-| `client` | `npm run dev`                 | Start the Vite dev server                               |
-| `client` | `npm run build`               | Type-check and build to `dist/`                         |
-| `client` | `npm run e2e`                 | Cypress tests against the API on an in-memory database  |
-| both     | `npm run lint`                | Lint with ESLint                                        |
-| both     | `npm run format`              | Format with Prettier                                    |
+Run from the repository root:
+
+| Command               | Description                                                     |
+| --------------------- | --------------------------------------------------------------- |
+| `npm run dev`         | Start the API and the client with live reload                   |
+| `npm test`            | API tests on an in-memory MongoDB, no `.env` needed             |
+| `npm run e2e`         | Cypress tests of the client against the API on an in-memory one |
+| `npm run lint`        | Lint with ESLint                                                |
+| `npm run typecheck`   | Type-check every package                                        |
+| `npm run format`      | Format with Prettier                                            |
+| `npm run build`       | Build the shared package, the API and the client                |
+| `npm start -w server` | Run the built API                                               |
+
+## Deployment
+
+The client and the API are two Vercel projects deployed from this repository, with **Root Directory** set to `client` and `server`. Both use the `shared` package, so Vercel must build from the whole repository: connect the GitHub repository to both projects (every push to `main` deploys) and keep "Include files outside the root directory" enabled.
 
 ## Upgrading an existing database
 
 Older versions stored notifications inside users and replies inside comments. Move them to their own collections once, after deploying:
 
 ```bash
-cd server
-npm run migrate            # dry run, only reports what would change
-npm run migrate -- --apply # makes the changes, safe to run again
+npm run migrate -w server              # dry run, only reports what would change
+npm run migrate -w server -- --apply   # makes the changes, safe to run again
 ```
 
 ## Project structure
 
 ```
-client/   React app (components, shared types, API helpers)
+client/   React app (components, queries, API helpers, Cypress tests)
 server/   Express API (routes, controllers, Mongoose models, tests)
+shared/   types of the API answers and limits used by both
 ```

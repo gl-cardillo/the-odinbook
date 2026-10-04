@@ -1,5 +1,5 @@
 import Notification from "../models/notification.js";
-import type { NotificationType } from "../models/notification.js";
+import type { NotificationType, NotificationsResponse } from "@odinbook/shared";
 import { findUserSummaries } from "./details.js";
 
 const MESSAGES: Record<NotificationType, string> = {
@@ -60,7 +60,10 @@ const linkFor = (notification: NotificationDoc) => {
 };
 
 // the latest notifications of a user, ready to show
-export const listNotifications = async (recipientId: string, limit = 50) => {
+export const listNotifications = async (
+  recipientId: string,
+  limit = 50
+): Promise<NotificationsResponse> => {
   const [notifications, unseen] = await Promise.all([
     Notification.find({ recipientId }).sort({ createdAt: -1 }).limit(limit),
     Notification.countDocuments({ recipientId, seen: false }),
@@ -79,9 +82,9 @@ export const listNotifications = async (recipientId: string, limit = 50) => {
         profilePicUrl: actor?.profilePicUrl,
         message: MESSAGES[notification.type],
         link: linkFor(notification),
-        postId: notification.postId,
+        postId: notification.postId ?? undefined,
         seen: notification.seen,
-        date: notification.createdAt,
+        date: notification.createdAt.toISOString(),
       };
     }),
     unseen,

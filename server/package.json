@@ -11,9 +11,7 @@
     "test": "vitest run",
     "migrate": "tsx scripts/migrateEmbedded.ts",
     "e2e:server": "tsx scripts/e2eServer.ts",
-    "lint": "eslint .",
-    "format": "prettier --write . --ignore-path ../.prettierignore",
-    "format:check": "prettier --check . --ignore-path ../.prettierignore"
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -31,7 +29,8 @@
     "jsonwebtoken": "^9.0.3",
     "luxon": "^3.7.2",
     "mongoose": "^9.10.3",
-    "morgan": "^1.12.1"
+    "morgan": "^1.12.1",
+    "@odinbook/shared": "1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -47,7 +46,6 @@
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "mongodb-memory-server": "^11.3.0",
-    "prettier": "^3.9.9",
     "supertest": "^7.3.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",

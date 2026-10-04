@@ -4,14 +4,14 @@ import { body } from "express-validator";
 import { deleteFile } from "../config/s3.js";
 import type { Request, Response } from "express";
 import { currentUserId } from "../middleware/verifyToken.js";
+import { MAX_POST_LENGTH } from "@odinbook/shared";
+import type { Post as PostResponse, UserSummary } from "@odinbook/shared";
 import { forbidden, notFound, validate } from "../middleware/errors.js";
 import { notify, removeNotifications } from "./notify.js";
 import Reply from "../models/reply.js";
 import { findUser } from "./userController.js";
 import { pageQuery, userSummaries, withPostDetails } from "./details.js";
 import { claimUpload, forgetUpload } from "./uploadController.js";
-
-export const MAX_POST_LENGTH = 5000;
 
 export const findPost = async (id: string, fields?: string) => {
   const post = await Post.findById(id, fields);
@@ -20,13 +20,13 @@ export const findPost = async (id: string, fields?: string) => {
 };
 
 // GET /posts, every post
-export const getPosts = async (req: Request, res: Response) => {
+export const getPosts = async (req: Request, res: Response<PostResponse[]>) => {
   const posts = await pageQuery(Post, {}, req.query);
   res.json(await withPostDetails(posts));
 };
 
 // GET /posts/feed, posts of the logged in user and their friends
-export const getFeed = async (req: Request, res: Response) => {
+export const getFeed = async (req: Request, res: Response<PostResponse[]>) => {
   const me = await findUser(currentUserId(req), "friends");
   const posts = await pageQuery(
     Post,
@@ -37,7 +37,10 @@ export const getFeed = async (req: Request, res: Response) => {
 };
 
 // GET /users/:userId/posts
-export const getUserPosts = async (req: Request, res: Response) => {
+export const getUserPosts = async (
+  req: Request,
+  res: Response<PostResponse[]>
+) => {
   const posts = await pageQuery(
     Post,
     { authorId: String(req.params.userId) },
@@ -46,7 +49,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
   res.json(await withPostDetails(posts));
 };
 
-export const getPost = async (req: Request, res: Response) => {
+export const getPost = async (req: Request, res: Response<PostResponse>) => {
   const post = await findPost(String(req.params.postId));
   const [detailed] = await withPostDetails([post]);
   res.json(detailed);
@@ -61,7 +64,7 @@ export const createPost = [
       }
     )
   ),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response<PostResponse>) => {
     const { text, picUrl } = req.body;
     const authorId = currentUserId(req);
     const post = await Post.create({
@@ -92,13 +95,13 @@ export const deletePost = async (req: Request, res: Response) => {
   res.sendStatus(204);
 };
 
-export const getLikes = async (req: Request, res: Response) => {
+export const getLikes = async (req: Request, res: Response<UserSummary[]>) => {
   const post = await findPost(String(req.params.postId), "likes");
   res.json(await userSummaries(post.likes));
 };
 
 // PUT /posts/:postId/like, answers with the new list of likes
-export const likePost = async (req: Request, res: Response) => {
+export const likePost = async (req: Request, res: Response<UserSummary[]>) => {
   const me = currentUserId(req);
   const post = await findPost(String(req.params.postId), "authorId likes");
 
@@ -112,7 +115,10 @@ export const likePost = async (req: Request, res: Response) => {
 };
 
 // DELETE /posts/:postId/like
-export const unlikePost = async (req: Request, res: Response) => {
+export const unlikePost = async (
+  req: Request,
+  res: Response<UserSummary[]>
+) => {
   const me = currentUserId(req);
   const post = await Post.findByIdAndUpdate(
     String(req.params.postId),

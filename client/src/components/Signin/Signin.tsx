@@ -1,42 +1,42 @@
-import "./signin.css";
 import { useState, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { useNavigate, Link } from "react-router";
-import homePic from "../../images/home-pic.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { errorMessage } from "../../utils/utils";
 import { api } from "../../api";
+import { AuthLayout, Field } from "../AuthLayout/AuthLayout";
+import { inputProps } from "../AuthLayout/inputProps";
+import styles from "../AuthLayout/AuthLayout.module.scss";
+
+const name = (label: string) =>
+  yup
+    .string()
+    .required(`${label} is required`)
+    .min(2, `${label} must be at least 2 characters`)
+    .max(15, `${label} can be at most 15 characters`)
+    .matches(/^[a-zA-Z0-9]*$/, "Only letters and numbers");
 
 const schema = yup.object().shape({
-  firstname: yup
+  firstname: name("First name"),
+  lastname: name("Last name"),
+  email: yup
     .string()
-    .min(2)
-    .max(15)
-    .matches(/^[a-zA-Z0-9]{0,}$/, {
-      message: "Special character not allowed.",
-    })
-    .required("Name is a required field"),
-  lastname: yup
-    .string()
-    .min(2)
-    .max(15)
-    .matches(/^[a-zA-Z0-9]{0,}$/, {
-      message: "Special character not allowed.",
-    })
-    .required("Last name is a requited field"),
-  email: yup.string().email().required(),
+    .email("Enter a valid email")
+    .required("Email is required"),
   password: yup
     .string()
-    .min(8)
-    .max(15)
-    .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?])[A-Za-z\d@$!%*#?]{8,}$/, {
-      message:
-        "Password must be  eight characters, at least one letter, one number and one special character(@$!%*#?)",
-    })
-    .required(),
-  confirmPassword: yup.string().oneOf([yup.ref("password")]),
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .max(15, "Password can be at most 15 characters")
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?])[A-Za-z\d@$!%*#?]{8,}$/,
+      "Use at least one letter, one number and one of @$!%*#?"
+    ),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords should match"),
 });
 
 type SigninForm = yup.InferType<typeof schema>;
@@ -50,7 +50,7 @@ export function Signin() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SigninForm>({
     resolver: yupResolver(schema),
   });
@@ -66,85 +66,85 @@ export function Signin() {
       login(user, token);
       navigate("/home", { replace: true });
     } catch (err) {
-      console.log(err);
       setError(errorMessage(err) ?? "");
     }
   };
 
   return (
-    <div>
-      <div className="signlog-section">
-        <div>
-          <img src={homePic} alt="logo" />
-          <h1>Odinbook</h1>
-          <h2 className="text1024px">
-            Connect with friends and the world around you on Odinbook.
-          </h2>
+    <AuthLayout>
+      <h2 className={styles.heading}>Create a new account</h2>
+      <p className={styles.subheading}>It's quick and easy.</p>
+      <form onSubmit={handleSubmit(signin)} className={styles.form} noValidate>
+        {error && (
+          <p className={styles.alert} role="alert">
+            {error}
+          </p>
+        )}
+        <div className={styles.row}>
+          <Field
+            id="firstname"
+            label="First name"
+            error={errors.firstname?.message}
+          >
+            <input
+              type="text"
+              autoComplete="given-name"
+              {...inputProps("firstname", errors.firstname?.message)}
+              {...register("firstname")}
+            />
+          </Field>
+          <Field
+            id="lastname"
+            label="Last name"
+            error={errors.lastname?.message}
+          >
+            <input
+              type="text"
+              autoComplete="family-name"
+              {...inputProps("lastname", errors.lastname?.message)}
+              {...register("lastname")}
+            />
+          </Field>
         </div>
-        <div>
-          <form onSubmit={handleSubmit(signin)} className="signlog-form ">
-            <h2 className="text-signlog-form">Sign up, It's quick and easy.</h2>
-            <div className="label-input">
-              <label htmlFor="firstname">First name</label>
-              <input
-                className={errors?.firstname?.message ? "error-input" : ""}
-                type="text"
-                {...register("firstname")}
-              />
-            </div>
-            <p className="error-form">{errors?.firstname?.message}</p>
-            <div className="label-input">
-              <label htmlFor="email">Last name</label>
-              <input
-                className={errors?.lastname?.message ? "error-input" : ""}
-                type="text"
-                {...register("lastname")}
-              />
-            </div>
-            <p className="error-form">{errors.lastname?.message}</p>
-            <div className="label-input">
-              <label htmlFor="email">Email</label>
-              <input
-                className={errors?.email?.message ? "error-input" : ""}
-                type="email"
-                {...register("email")}
-              />
-            </div>
-            <p className="error-form">{errors?.email?.message}</p>
-            <div className="label-input">
-              <label htmlFor="password">Password</label>
-              <input
-                className={errors?.password?.message ? "error-input" : ""}
-                type="password"
-                {...register("password")}
-              />
-            </div>
-            <p className="error-form">{errors?.password?.message}</p>
-            <div className="label-input">
-              <label htmlFor="password">Confirm password</label>
-              <input
-                type="password"
-                {...register("confirmPassword")}
-                className={
-                  errors?.confirmPassword?.message ? "error-input" : ""
-                }
-              />
-            </div>
-            <p className="error-form">
-              {errors?.confirmPassword && "Passwords should match"}
-            </p>
-            <button className="signlog-button" type="submit">
-              Sign in
-            </button>{" "}
-            <p className="error-form">{error !== "" ? error : ""}</p>
-          </form>
-          <Link to={"/"}>
-            <p>
-              Already have an account? click <span className="blue">here</span>
-            </p>
-          </Link>
-        </div>
-      </div>
-    </div>
+        <Field id="email" label="Email" error={errors.email?.message}>
+          <input
+            type="email"
+            autoComplete="email"
+            {...inputProps("email", errors.email?.message)}
+            {...register("email")}
+          />
+        </Field>
+        <Field id="password" label="Password" error={errors.password?.message}>
+          <input
+            type="password"
+            autoComplete="new-password"
+            {...inputProps("password", errors.password?.message)}
+            {...register("password")}
+          />
+        </Field>
+        <Field
+          id="confirmPassword"
+          label="Confirm password"
+          error={errors.confirmPassword?.message}
+        >
+          <input
+            type="password"
+            autoComplete="new-password"
+            {...inputProps("confirmPassword", errors.confirmPassword?.message)}
+            {...register("confirmPassword")}
+          />
+        </Field>
+        <button
+          className={`${styles.button} ${styles.success}`}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          Sign up
+        </button>
+      </form>
+      <p className={styles.footer}>
+        Already have an account? <Link to="/">Log in</Link>
+      </p>
+    </AuthLayout>
   );
 }

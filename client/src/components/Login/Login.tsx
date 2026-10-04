@@ -1,16 +1,21 @@
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
 import { useNavigate, Link } from "react-router";
-import homePic from "../../images/home-pic.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { errorMessage } from "../../utils/utils";
 import { api } from "../../api";
+import { AuthLayout, Field } from "../AuthLayout/AuthLayout";
+import { inputProps } from "../AuthLayout/inputProps";
+import styles from "../AuthLayout/AuthLayout.module.scss";
 
 const schema = yup.object().shape({
-  email: yup.string().email().required(),
-  password: yup.string().required(),
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
 });
 
 type LoginForm = yup.InferType<typeof schema>;
@@ -29,7 +34,7 @@ export function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: yupResolver(schema),
   });
@@ -49,55 +54,51 @@ export function Login() {
   };
 
   return (
-    <div>
-      <div className="signlog-section">
-        <div>
-          <img src={homePic} alt="logo" />
-          <h1>Odinbook</h1>
-          <h2 className="text1024px">
-            Connect with friends and the world around you on Odinbook.
-          </h2>
-        </div>
-        <div>
-          <form onSubmit={handleSubmit(login)} className="signlog-form">
-            <h2 className="text-signlog-form">Login</h2>
-            <div className="label-input">
-              <p className="login-error">{error}</p>
-              <label htmlFor="username">Email</label>
-              <input
-                type="email"
-                {...register("email")}
-                className={errors?.email?.message && "error-input"}
-              />
-            </div>
-            <p className="error-form">{errors?.email?.message}</p>
-            <div className="label-input">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                {...register("password")}
-                className={errors?.password?.message && "error-input"}
-              />
-            </div>
-            <p className="error-form">{errors?.password?.message} </p>
-            <button className="signlog-button" type="submit">
-              Login
-            </button>
-            <Link to={"/signin"}>
-              <button className="signlog-button new-account">
-                Create new account
-              </button>
-            </Link>
-            <button
-              type="button"
-              className="signlog-button  test-account"
-              onClick={() => loginTestAccount()}
-            >
-              Login without an account
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <AuthLayout>
+      <h2 className={styles.heading}>Log in</h2>
+      <p className={styles.subheading}>Welcome back! Good to see you.</p>
+      <form onSubmit={handleSubmit(login)} className={styles.form} noValidate>
+        {error && (
+          <p className={styles.alert} role="alert">
+            {error}
+          </p>
+        )}
+        <Field id="email" label="Email" error={errors.email?.message}>
+          <input
+            type="email"
+            autoComplete="email"
+            {...inputProps("email", errors.email?.message)}
+            {...register("email")}
+          />
+        </Field>
+        <Field id="password" label="Password" error={errors.password?.message}>
+          <input
+            type="password"
+            autoComplete="current-password"
+            {...inputProps("password", errors.password?.message)}
+            {...register("password")}
+          />
+        </Field>
+        <button
+          className={`${styles.button} ${styles.primary}`}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          Log in
+        </button>
+        <button
+          type="button"
+          className={`${styles.button} ${styles.outline}`}
+          onClick={loginTestAccount}
+          disabled={isSubmitting}
+        >
+          Try it without an account
+        </button>
+        <div className={styles.divider} />
+        <Link to="/signin" className={`${styles.button} ${styles.success}`}>
+          Create new account
+        </Link>
+      </form>
+    </AuthLayout>
   );
 }

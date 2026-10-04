@@ -13,13 +13,13 @@ describe("Posts, likes and comments", () => {
   const writePost = (text: string) => {
     cy.get("textarea[name=text]").type(text);
     cy.contains("button", "Add Post").click();
-    cy.contains(".post", text).should("exist");
+    cy.contains("[data-cy=post]", text).should("exist");
   };
 
   it("publishes a post that is still there after a reload", () => {
     writePost("My first post");
     cy.reload();
-    cy.contains(".post", "My first post").within(() => {
+    cy.contains("[data-cy=post]", "My first post").within(() => {
       cy.contains(me.user.fullname);
     });
   });
@@ -35,7 +35,7 @@ describe("Posts, likes and comments", () => {
 
   it("likes and unlikes a post", () => {
     writePost("Like me");
-    cy.contains(".post", "Like me").within(() => {
+    cy.contains("[data-cy=post]", "Like me").within(() => {
       cy.contains("button", "Like").click();
       cy.get(".like-count").should("contain", me.user.fullname);
       cy.contains("button", "Like").click();
@@ -45,7 +45,7 @@ describe("Posts, likes and comments", () => {
 
   it("comments, replies and deletes the comment", () => {
     writePost("Talk to me");
-    cy.contains(".post", "Talk to me").within(() => {
+    cy.contains("[data-cy=post]", "Talk to me").within(() => {
       cy.contains("button", "Comment").click();
       cy.get("textarea[placeholder='Write a comment...']").type("First!");
       cy.contains("button", "Add Comment").click();
@@ -68,14 +68,18 @@ describe("Posts, likes and comments", () => {
   it("keeps a post when the delete is cancelled, removes it when confirmed", () => {
     writePost("Maybe delete me");
 
-    cy.contains(".post", "Maybe delete me").find(".delete-button").click();
+    cy.contains("[data-cy=post]", "Maybe delete me")
+      .find("[data-cy=delete-post]")
+      .click();
     cy.contains("Are you sure you want to delete this post?");
     cy.contains("button", "Cancel").click();
-    cy.contains(".post", "Maybe delete me").should("exist");
+    cy.contains("[data-cy=post]", "Maybe delete me").should("exist");
 
-    cy.contains(".post", "Maybe delete me").find(".delete-button").click();
+    cy.contains("[data-cy=post]", "Maybe delete me")
+      .find("[data-cy=delete-post]")
+      .click();
     cy.contains("button", "Delete").click();
-    cy.contains(".post", "Maybe delete me").should("not.exist");
+    cy.contains("[data-cy=post]", "Maybe delete me").should("not.exist");
     cy.contains("Post deleted successfully");
   });
 
@@ -90,6 +94,6 @@ describe("Posts, likes and comments", () => {
       cy.apiAs(friend, "POST", "/posts", { text: "Hello from a friend" });
     });
     cy.reload();
-    cy.contains(".post", "Hello from a friend");
+    cy.contains("[data-cy=post]", "Hello from a friend");
   });
 });

@@ -13,7 +13,7 @@ declare global {
       // a new account made through the API, faster than the form
       signupApi(
         firstname?: string
-      ): Chainable<AuthResponse & { password: string }>;
+      ): Chainable<AuthResponse & { email: string; password: string }>;
       // opens a page already logged in as that account
       visitAs(session: AuthResponse, url: string): Chainable<void>;
       // calls the API as that account, to act as a second user
@@ -29,14 +29,15 @@ declare global {
 
 Cypress.Commands.add("signupApi", (firstname = "Tester") => {
   const password = "password123";
+  const email = `${firstname.toLowerCase()}.${stamp()}@example.com`;
   return cy
     .request("POST", api("/auth/signup"), {
       firstname,
       lastname: `T${stamp()}`,
-      email: `${firstname.toLowerCase()}.${stamp()}@example.com`,
+      email,
       password,
     })
-    .then((res) => ({ ...(res.body as AuthResponse), password }));
+    .then((res) => ({ ...(res.body as AuthResponse), email, password }));
 });
 
 Cypress.Commands.add("visitAs", (session, url) => {

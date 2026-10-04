@@ -1,3 +1,4 @@
+import "./styles/global.scss";
 import "./App.css";
 // the styles are global and shared between pages, so they load up front
 // even though the pages themselves are loaded lazily

@@ -30,7 +30,7 @@ describe("Authentication", () => {
   it("refuses a wrong password", () => {
     cy.signupApi().then((session) => {
       cy.visit("/");
-      cy.get("input[name=email]").type(session.user.email);
+      cy.get("input[name=email]").type(session.email);
       cy.get("input[name=password]").type("wrong-password");
       cy.contains("button", "Login").click();
       cy.contains("Invalid email or password");
@@ -41,7 +41,7 @@ describe("Authentication", () => {
   it("logs in and out", () => {
     cy.signupApi("Grace").then((session) => {
       cy.visit("/");
-      cy.get("input[name=email]").type(session.user.email);
+      cy.get("input[name=email]").type(session.email);
       cy.get("input[name=password]").type(session.password);
       cy.contains("button", "Login").click();
       cy.location("pathname").should("eq", "/home");

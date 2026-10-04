@@ -11,3 +11,9 @@
 
 # build output of the shared package
 /shared/dist
+
+# vercel cli link
+.vercel
+
+.vercel
+.env*

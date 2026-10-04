@@ -1,4 +1,4 @@
-import "./post.css";
+import styles from "./Post.module.scss";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
@@ -22,8 +22,8 @@ export function Post({ post }: { post: PostType }) {
 
   return (
     <div>
-      <div className="post">
-        <div className="post-info">
+      <div className={styles.card} data-cy="post">
+        <div className={styles.header}>
           <Link to={`/profile/${post.authorId}`}>
             <img
               className="avatar-pic"
@@ -31,30 +31,32 @@ export function Post({ post }: { post: PostType }) {
               alt="avatar"
             />
           </Link>
-          <div className="author-time">
+          <div className={styles.authorTime}>
             <Link to={`/profile/${post.authorId}`}>
-              <p className="author">
+              <p className={styles.author}>
                 {post.author ? post.author.fullname : "Deleted user"}
               </p>
             </Link>
-            <p className="time">{getTime(post.date)}</p>
+            <p className={styles.time}>{getTime(post.date)}</p>
           </div>
           {
             //if author posts is the user show delete button
             post.authorId === user._id && (
               <button
-                className="delete-button"
+                className={styles.deleteButton}
                 onClick={onDelete}
                 disabled={deletePost.isPending}
+                aria-label="Delete post"
+                data-cy="delete-post"
               >
                 <MdDelete color="red" size={17} />
               </button>
             )
           }
         </div>
-        <p className="post-message">{post.text}</p>
+        <p className={styles.message}>{post.text}</p>
         {post.picUrl && (
-          <img className="post-image" src={post.picUrl} alt="post picture" />
+          <img className={styles.image} src={post.picUrl} alt="post picture" />
         )}
         <LikeAndComment post={post} />
       </div>

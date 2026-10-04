@@ -1,12 +1,9 @@
-.post-info,
+/* still used by comments and the post form */
+
 .comment-container {
   display: flex;
   gap: 5px;
   text-align: left;
-}
-.author-time {
-  width: 90%;
-  padding-top: 5px;
 }
 
 .author {
@@ -19,11 +16,6 @@
   font-size: 12px;
 }
 
-.post-message {
-  margin: 10px 0 5px 10px;
-  border-radius: 10px;
-}
-
 .delete-button {
   align-self: baseline;
   border: 0;
@@ -34,11 +26,6 @@
   width: 20px;
 }
 
-.post-image {
-  object-fit: contain;
-  max-height: 600px;
-}
-
 .icon-remove-pic {
   align-self: flex-end;
   font-size: 25px;
@@ -46,7 +33,6 @@
 }
 
 @media screen and (min-width: 425px) {
-  .post-info,
   .comment-container {
     gap: 10px;
   }

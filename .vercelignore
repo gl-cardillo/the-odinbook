@@ -1,0 +1,8 @@
+# never upload local secrets, installs or test output
+**/.env
+**/.env.local
+**/.env.*.local
+**/node_modules
+**/dist
+client/cypress/screenshots
+client/cypress/videos

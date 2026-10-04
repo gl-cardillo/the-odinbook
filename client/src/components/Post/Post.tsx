@@ -24,13 +24,17 @@ export function Post({ post }: { post: PostType }) {
     <div>
       <div className={styles.card} data-cy="post">
         <div className={styles.header}>
-          <Link to={`/profile/${post.authorId}`}>
-            <img
-              className="avatar-pic"
-              src={post.author?.profilePicUrl}
-              alt="avatar"
-            />
-          </Link>
+          {post.author ? (
+            <Link to={`/profile/${post.authorId}`}>
+              <img
+                className="avatar-pic"
+                src={post.author.profilePicUrl}
+                alt="avatar"
+              />
+            </Link>
+          ) : (
+            <span className="avatar-pic avatar-pic-blank" aria-hidden />
+          )}
           <div className={styles.authorTime}>
             <Link to={`/profile/${post.authorId}`}>
               <p className={styles.author}>

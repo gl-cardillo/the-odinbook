@@ -15,6 +15,11 @@
   user-select: none;
 }
 
+.blank {
+  display: inline-block;
+  background-color: transparent;
+}
+
 .xs {
   width: 24px;
   height: 24px;

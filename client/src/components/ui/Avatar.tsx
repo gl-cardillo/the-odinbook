@@ -22,6 +22,10 @@ export function Avatar({ src, name, size = "md", alt = name }: AvatarProps) {
   const [failedSrc, setFailedSrc] = useState<string>();
   const className = `${styles.avatar} ${styles[size]}`;
 
+  // an empty space of the same size when there is no user (deleted account)
+  if (!name) {
+    return <span className={`${className} ${styles.blank}`} aria-hidden />;
+  }
   if (!src || failedSrc === src) {
     return (
       <span

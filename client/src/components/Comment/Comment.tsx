@@ -85,13 +85,17 @@ export function Comment({ comment, postId }: CommentProps) {
   return (
     <div className="comment-reply-container">
       <div className="comment-container">
-        <Link to={`/profile/${comment.authorId}`}>
-          <img
-            className="avatar-pic"
-            src={comment.author?.profilePicUrl}
-            alt="avatar"
-          />
-        </Link>
+        {comment.author ? (
+          <Link to={`/profile/${comment.authorId}`}>
+            <img
+              className="avatar-pic"
+              src={comment.author.profilePicUrl}
+              alt="avatar"
+            />
+          </Link>
+        ) : (
+          <span className="avatar-pic avatar-pic-blank" aria-hidden />
+        )}
         <div className="comment-info">
           <div className="comment-author-message">
             <Link to={`/profile/${comment.authorId}`}>
@@ -167,13 +171,17 @@ export function Comment({ comment, postId }: CommentProps) {
           {replies ? (
             replies.map((reply) => (
               <div key={reply.id} className="comment-container">
-                <Link to={`/profile/${reply.authorId}`}>
-                  <img
-                    src={reply.author?.profilePicUrl}
-                    className="avatar-pic"
-                    alt="avatar"
-                  />
-                </Link>
+                {reply.author ? (
+                  <Link to={`/profile/${reply.authorId}`}>
+                    <img
+                      src={reply.author.profilePicUrl}
+                      className="avatar-pic"
+                      alt="avatar"
+                    />
+                  </Link>
+                ) : (
+                  <span className="avatar-pic avatar-pic-blank" aria-hidden />
+                )}
                 <div className="comment-info">
                   <div className="comment-author-message">
                     <Link to={`/profile/${reply.authorId}`}>

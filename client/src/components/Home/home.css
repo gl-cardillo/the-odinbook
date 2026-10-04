@@ -10,6 +10,12 @@
   image-rendering: -webkit-optimize-contrast;
   object-fit: cover;
 }
+
+/* keeps the place of the picture when the user deleted the account */
+.avatar-pic-blank {
+  display: inline-block;
+  flex-shrink: 0;
+}
 .pic-30px {
   width: 30px;
   height: 30px;

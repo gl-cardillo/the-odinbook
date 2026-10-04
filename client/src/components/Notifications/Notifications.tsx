@@ -22,11 +22,15 @@ export function Notifications() {
               <Link to={notification.link} key={notification.id}>
                 <div className="notification">
                   <div>
-                    <img
-                      src={notification.profilePicUrl}
-                      className="avatar-pic"
-                      alt="avatar"
-                    />
+                    {notification.fullname ? (
+                      <img
+                        src={notification.profilePicUrl}
+                        className="avatar-pic"
+                        alt="avatar"
+                      />
+                    ) : (
+                      <span className="avatar-pic avatar-pic-blank" aria-hidden />
+                    )}
                     <p className="notification-text">
                       {notification.fullname ?? "Deleted user"}{" "}
                       {notification.message}

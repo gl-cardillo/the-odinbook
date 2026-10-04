@@ -61,6 +61,14 @@ const SinglePost = lazy(() =>
     default: m.SinglePost,
   }))
 );
+// left out of production builds
+const UiPreview = import.meta.env.DEV
+  ? lazy(() =>
+      import("./components/ui/UiPreview").then((m) => ({
+        default: m.UiPreview,
+      }))
+    )
+  : null;
 
 function App() {
   const [user, setUser] = useState<User | null>(readStorage<User>("user"));
@@ -125,6 +133,7 @@ function App() {
                     />
                   </Route>
                 </Route>
+                {UiPreview && <Route path="/ui" element={<UiPreview />} />}
                 <Route path="*" element={<GenericNotFound />} />
               </Routes>
             </Suspense>

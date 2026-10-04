@@ -17,24 +17,3 @@ export function AuthLayout({ children }: { children: ReactNode }) {
     </main>
   );
 }
-
-interface FieldProps {
-  id: string;
-  label: string;
-  error?: string;
-  children: ReactNode;
-}
-
-export function Field({ id, label, error, children }: FieldProps) {
-  return (
-    <div className={styles.field}>
-      <label htmlFor={id}>{label}</label>
-      {children}
-      {error && (
-        <p className={styles.fieldError} id={`${id}-error`}>
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}

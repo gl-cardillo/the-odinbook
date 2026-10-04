@@ -6,9 +6,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { errorMessage } from "../../utils/utils";
 import { api } from "../../api";
-import { AuthLayout, Field } from "../AuthLayout/AuthLayout";
-import { inputProps } from "../AuthLayout/inputProps";
+import { AuthLayout } from "../AuthLayout/AuthLayout";
 import styles from "../AuthLayout/AuthLayout.module.scss";
+import { Alert, Button, Field, inputProps } from "../ui";
 
 const name = (label: string) =>
   yup
@@ -75,11 +75,7 @@ export function Signin() {
       <h2 className={styles.heading}>Create a new account</h2>
       <p className={styles.subheading}>It's quick and easy.</p>
       <form onSubmit={handleSubmit(signin)} className={styles.form} noValidate>
-        {error && (
-          <p className={styles.alert} role="alert">
-            {error}
-          </p>
-        )}
+        {error && <Alert>{error}</Alert>}
         <div className={styles.row}>
           <Field
             id="firstname"
@@ -134,13 +130,15 @@ export function Signin() {
             {...register("confirmPassword")}
           />
         </Field>
-        <button
-          className={`${styles.button} ${styles.success}`}
+        <Button
           type="submit"
+          variant="success"
+          size="lg"
+          fullWidth
           disabled={isSubmitting}
         >
           Sign up
-        </button>
+        </Button>
       </form>
       <p className={styles.footer}>
         Already have an account? <Link to="/">Log in</Link>

@@ -1,0 +1,49 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px;
+  border-radius: 8px;
+
+  &:hover .name {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.action {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}

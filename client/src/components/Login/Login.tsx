@@ -1,14 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../dataContext/dataContext";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { errorMessage } from "../../utils/utils";
 import { api } from "../../api";
-import { AuthLayout, Field } from "../AuthLayout/AuthLayout";
-import { inputProps } from "../AuthLayout/inputProps";
+import { AuthLayout } from "../AuthLayout/AuthLayout";
 import styles from "../AuthLayout/AuthLayout.module.scss";
+import { Alert, Button, ButtonLink, Field, inputProps } from "../ui";
 
 const schema = yup.object().shape({
   email: yup
@@ -58,11 +58,7 @@ export function Login() {
       <h2 className={styles.heading}>Log in</h2>
       <p className={styles.subheading}>Welcome back! Good to see you.</p>
       <form onSubmit={handleSubmit(login)} className={styles.form} noValidate>
-        {error && (
-          <p className={styles.alert} role="alert">
-            {error}
-          </p>
-        )}
+        {error && <Alert>{error}</Alert>}
         <Field id="email" label="Email" error={errors.email?.message}>
           <input
             type="email"
@@ -79,25 +75,22 @@ export function Login() {
             {...register("password")}
           />
         </Field>
-        <button
-          className={`${styles.button} ${styles.primary}`}
-          type="submit"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
           Log in
-        </button>
-        <button
-          type="button"
-          className={`${styles.button} ${styles.outline}`}
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          fullWidth
           onClick={loginTestAccount}
           disabled={isSubmitting}
         >
           Try it without an account
-        </button>
+        </Button>
         <div className={styles.divider} />
-        <Link to="/signin" className={`${styles.button} ${styles.success}`}>
+        <ButtonLink to="/signin" variant="success" size="lg" fullWidth>
           Create new account
-        </Link>
+        </ButtonLink>
       </form>
     </AuthLayout>
   );

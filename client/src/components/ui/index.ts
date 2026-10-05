@@ -7,3 +7,4 @@ export { Field } from "./Field";
 export { inputProps } from "./inputProps";
 export { Modal } from "./Modal";
 export { PersonRow } from "./PersonRow";
+export { useDismiss } from "./useDismiss";

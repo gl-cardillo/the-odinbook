@@ -46,7 +46,7 @@ describe("Authentication", () => {
       cy.contains("button", "Log in").click();
       cy.location("pathname").should("eq", "/home");
 
-      cy.get(".settings svg").click();
+      cy.get("[data-cy=account-menu]").click();
       cy.contains("Log out").click();
       cy.location("pathname").should("eq", "/");
 

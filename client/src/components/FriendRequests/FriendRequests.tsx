@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useFriendActions, useFriendRequests } from "../../queries";
@@ -9,7 +10,7 @@ export function FriendRequests() {
   const { accept, decline } = useFriendActions();
 
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="containers friend-requests">
         <h2>Friend Requests</h2>
         <div className="requests-container">
@@ -53,7 +54,6 @@ export function FriendRequests() {
           )}
         </div>
       </div>
-      <SideMenu />
-    </div>
+    </PageLayout>
   );
 }

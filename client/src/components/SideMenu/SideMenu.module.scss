@@ -1,0 +1,30 @@
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.me {
+  padding: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seeAll {
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.empty {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}

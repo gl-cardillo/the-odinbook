@@ -1,9 +1,10 @@
-import "./sideMenu.css";
-import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useCurrentUser } from "../../dataContext/dataContext";
 import { useFriendActions, useFriendRequests, useFriends } from "../../queries";
+import { Button, Card, PersonRow } from "../ui";
+import styles from "./SideMenu.module.scss";
 
 export function SideMenu() {
   const { user } = useCurrentUser();
@@ -12,77 +13,64 @@ export function SideMenu() {
   const { accept } = useFriendActions();
 
   return (
-    <div className="side-menu-container">
-      <div className="s-m-profile">
-        <Link to={`/profile/${user._id}`}>
-          <div>
-            <img src={user.profilePicUrl} className="avatar-pic" alt="" />
-            {user.fullname}
-          </div>
-        </Link>
-      </div>
-      <div className="s-m-friendRequests">
-        <h3>Requests</h3>
-        {requests ? (
-          requests.length > 0 ? (
-            <div>
-              {requests.map((request) => (
-                <div className="s-m-div" key={request.id}>
-                  <img
-                    src={request.profilePicUrl}
-                    className="avatar-pic"
-                    alt="avatar"
-                  />
-                  <Link to={`/profile/${request.id}`}>
-                    <p>{request.fullname}</p>
-                  </Link>
-                  <button
+    <div className={styles.side}>
+      <Card className={styles.me}>
+        <PersonRow person={user} subtitle="See your profile" size="lg" />
+      </Card>
+
+      <Card
+        title="Friend requests"
+        action={
+          <Link to="/friendRequests" className={styles.seeAll}>
+            See all
+          </Link>
+        }
+      >
+        {!requests ? (
+          <Skeleton height={40} count={2} style={{ marginBottom: 8 }} />
+        ) : requests.length === 0 ? (
+          <p className={styles.empty}>No requests at the moment</p>
+        ) : (
+          <div className={styles.list}>
+            {requests.map((request) => (
+              <PersonRow
+                key={request.id}
+                person={request}
+                action={
+                  <Button
+                    size="sm"
                     onClick={() => accept.mutate(request.id)}
                     disabled={accept.isPending}
                   >
                     Accept
-                  </button>
-                </div>
-              ))}
-              <Link to="/friendRequests">
-                <p className="see-more">See more...</p>
-              </Link>
-            </div>
-          ) : (
-            <p>No requests at moment</p>
-          )
-        ) : (
-          <Skeleton height={30} style={{ margin: "5px 0" }} count={3} />
+                  </Button>
+                }
+              />
+            ))}
+          </div>
         )}
-      </div>
-      <div className="s-m-friendRequests">
-        <h3>Friends</h3>
-        {friends ? (
-          friends.length > 0 ? (
-            <div>
-              {friends.map((friend) => (
-                <div className="s-m-div" key={friend.id}>
-                  <img
-                    src={friend.profilePicUrl}
-                    className="avatar-pic"
-                    alt="avatar"
-                  />
-                  <Link to={`/profile/${friend.id}`}>
-                    <p>{friend.fullname}</p>
-                  </Link>
-                </div>
-              ))}
-              <Link to="/friends">
-                <p className="see-more">See more...</p>
-              </Link>
-            </div>
-          ) : (
-            <p>No friends at the moment </p>
-          )
+      </Card>
+
+      <Card
+        title="Friends"
+        action={
+          <Link to="/friends" className={styles.seeAll}>
+            See all
+          </Link>
+        }
+      >
+        {!friends ? (
+          <Skeleton height={40} count={2} style={{ marginBottom: 8 }} />
+        ) : friends.length === 0 ? (
+          <p className={styles.empty}>No friends yet</p>
         ) : (
-          <Skeleton height={30} style={{ margin: "5px 0" }} count={3} />
+          <div className={styles.list}>
+            {friends.map((friend) => (
+              <PersonRow key={friend.id} person={friend} />
+            ))}
+          </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

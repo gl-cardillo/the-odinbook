@@ -226,17 +226,6 @@
   .friends {
     margin: 10px 10px 80px;
   }
-
-  .suggested-profile-page,
-  .search-section,
-  .containers {
-    width: 60%;
-  }
-
-  .main-page {
-    display: flex;
-    justify-content: space-around;
-  }
 }
 
 .load-more {
@@ -267,4 +256,20 @@
 
 .blue {
   color: #1877f2;
+}
+
+/* notifications page, until it is converted */
+.notification {
+  padding: 10px 5px;
+  border-bottom: 1px solid #c7c8c8;
+}
+
+.notification-text {
+  font-size: 14px;
+}
+
+.notification div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }

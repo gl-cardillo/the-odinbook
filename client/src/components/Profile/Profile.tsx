@@ -8,6 +8,7 @@ import { PostList } from "../PostList/PostList";
 import { Friends } from "../Friends/Friends";
 import { About } from "../About/About";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import { TiPlusOutline } from "react-icons/ti";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -85,7 +86,7 @@ export function Profile() {
     };
 
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="containers">
         {profile ? (
           <div className="profile-info-container">
@@ -161,7 +162,6 @@ export function Profile() {
           </div>
         )}
       </div>
-      <SideMenu />
-    </div>
+    </PageLayout>
   );
 }

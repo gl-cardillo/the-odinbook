@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import { FriendButton } from "../FriendButton/FriendButton";
 import { useSuggestions } from "../../queries";
 
@@ -9,7 +10,7 @@ export function SuggestedProfile() {
   const { data: suggestedProfile } = useSuggestions();
 
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="suggested-profile-page">
         <h2>People you may know...</h2>
         <div className="suggested-profile-container">
@@ -37,7 +38,6 @@ export function SuggestedProfile() {
           )}
         </div>
       </div>
-      <SideMenu />
-    </div>
+    </PageLayout>
   );
 }

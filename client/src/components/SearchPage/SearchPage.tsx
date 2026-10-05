@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import { useSearch } from "../../queries";
 
 // the search is in the url (/searchPage?q=...), so it survives a refresh
@@ -9,7 +10,7 @@ export function SearchPage() {
   const { data: results = [], isLoading } = useSearch(q);
 
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="search-section">
         <h2>Users found: </h2>
         <div className="search-container">
@@ -28,7 +29,6 @@ export function SearchPage() {
           ))}
         </div>
       </div>
-      <SideMenu />
-    </div>
+    </PageLayout>
   );
 }

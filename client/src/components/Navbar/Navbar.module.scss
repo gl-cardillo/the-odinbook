@@ -1,0 +1,378 @@
+@use "../../styles/tokens" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+}
+
+.bar {
+  display: grid;
+  grid-template-areas:
+    "start end"
+    "tabs tabs";
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 12px;
+  padding: 0 12px;
+
+  @include from(md) {
+    grid-template-areas: "start tabs end";
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    height: 56px;
+    padding: 0 16px;
+  }
+}
+
+.start {
+  grid-area: start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 56px;
+}
+
+.end {
+  grid-area: end;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.logo {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+
+  &:focus-visible {
+    outline: none;
+    border-radius: 8px;
+    box-shadow: var(--focus-shadow);
+  }
+}
+
+.logoFull {
+  display: none;
+
+  @include from(sm) {
+    display: inline;
+  }
+}
+
+.logoShort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-round);
+
+  @include from(sm) {
+    display: none;
+  }
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  max-width: 260px;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px 0 36px;
+    font-size: 15px;
+    background-color: var(--color-background);
+    border: 0;
+    border-radius: 20px;
+    outline: none;
+
+    &:focus {
+      box-shadow: var(--focus-shadow);
+    }
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.tabs {
+  grid-area: tabs;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid var(--color-background);
+
+  @include from(md) {
+    gap: 4px;
+    height: 100%;
+    border-top: 0;
+  }
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  color: var(--color-text-secondary);
+  font-size: 24px;
+  border-bottom: 3px solid transparent;
+
+  &:hover {
+    background-color: var(--color-background);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset var(--focus-shadow);
+  }
+
+  @include from(md) {
+    flex: none;
+    width: 96px;
+    height: 100%;
+  }
+}
+
+.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 6px;
+  left: calc(50% + 6px);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  background-color: var(--color-danger);
+  border-radius: 9px;
+}
+
+// on phones the dropdowns line up with the right edge of the screen
+.menu {
+  @include from(md) {
+    position: relative;
+  }
+}
+
+.iconButton,
+.avatarButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-round);
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+
+  &[aria-expanded="true"] {
+    color: var(--color-primary);
+  }
+}
+
+.iconButton {
+  color: var(--color-text);
+  font-size: 22px;
+  background-color: var(--color-neutral);
+
+  &:hover {
+    background-color: var(--color-neutral-hover);
+  }
+
+  .badge {
+    top: -4px;
+    left: auto;
+    right: -4px;
+  }
+}
+
+.avatarButton {
+  background-color: transparent;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(520px, calc(100vh - 80px));
+  overflow-y: auto;
+  padding: 8px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-raised);
+}
+
+.alignEnd {
+  left: auto;
+  right: 0;
+}
+
+.narrow {
+  width: min(250px, calc(100vw - 24px));
+}
+
+.panelTitle {
+  padding: 4px 8px 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.panelEmpty {
+  padding: 12px 8px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+.panelFooter {
+  display: block;
+  padding: 8px;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-align: center;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--color-background);
+  }
+}
+
+.list {
+  list-style: none;
+}
+
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--color-background);
+  }
+}
+
+.notificationText {
+  display: block;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.secondaryText {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.unseenDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-left: auto;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-round);
+}
+
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--color-background);
+  }
+}
+
+.separator {
+  margin: 6px 8px;
+  border: 0;
+  border-top: 1px solid var(--color-input-border);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 8px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  background-color: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  svg {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background-color: var(--color-background);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+}
+
+.danger {
+  color: var(--color-danger);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

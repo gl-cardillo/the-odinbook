@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import { getTime } from "../../utils/utils";
 import { useNotifications } from "../../queries";
 
@@ -9,7 +10,7 @@ export function Notifications() {
   const { data } = useNotifications();
 
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="containers">
         <h2>Notification</h2>
         <div className="notification-container">
@@ -29,7 +30,10 @@ export function Notifications() {
                         alt="avatar"
                       />
                     ) : (
-                      <span className="avatar-pic avatar-pic-blank" aria-hidden />
+                      <span
+                        className="avatar-pic avatar-pic-blank"
+                        aria-hidden
+                      />
                     )}
                     <p className="notification-text">
                       {notification.fullname ?? "Deleted user"}{" "}
@@ -43,7 +47,6 @@ export function Notifications() {
           )}
         </div>
       </div>
-      <SideMenu />
-    </div>
+    </PageLayout>
   );
 }

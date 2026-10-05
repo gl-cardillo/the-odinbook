@@ -8,7 +8,6 @@ import "./components/PostForm/postform.css";
 import "./components/LikeAndComment/likeAndComment.css";
 import "./components/Profile/profile.css";
 import "./components/About/about.css";
-import "./components/SideMenu/sideMenu.css";
 import "animate.css";
 
 import axios from "axios";

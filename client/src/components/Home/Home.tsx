@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { PostForm } from "../PostForm/PostForm";
 import { PostList } from "../PostList/PostList";
 import { SideMenu } from "../SideMenu/SideMenu";
+import { PageLayout } from "../PageLayout/PageLayout";
 import { FriendButton } from "../FriendButton/FriendButton";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -14,10 +15,8 @@ export function Home() {
   const { data: suggestedProfile } = useSuggestions(3);
   const feed = useFeed();
 
-  const isMoreThen768 = window.matchMedia("(min-width: 768px)");
-
   return (
-    <div className="main-page">
+    <PageLayout aside={<SideMenu />}>
       <div className="containers">
         <PostForm user={user} />
         <div>
@@ -60,7 +59,6 @@ export function Home() {
         </div>
         <PostList query={feed} emptyText="No post at the moment" />
       </div>
-      {isMoreThen768.matches && <SideMenu />}
-    </div>
+    </PageLayout>
   );
 }

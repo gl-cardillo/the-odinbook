@@ -17,11 +17,11 @@ describe("Friends and notifications", () => {
 
     // Bob sees the request and its notification
     cy.then(() => cy.visitAs(bob, "/home"));
-    cy.get(".request-count").should("have.text", "1");
-    cy.get(".notification-count").should("have.text", "1");
-    cy.get(".notification-icon").first().click();
-    cy.contains(".notifications-container", "sent you a friend request");
-    cy.get(".notification-count").should("not.exist");
+    cy.get("[data-cy=requests-badge]").should("have.text", "1");
+    cy.get("[data-cy=notifications-badge]").should("have.text", "1");
+    cy.get("[data-cy=notifications-button]").click();
+    cy.contains("[data-cy=notifications-panel]", "sent you a friend request");
+    cy.get("[data-cy=notifications-badge]").should("not.exist");
 
     cy.visit("/friendRequests");
     cy.contains(".requests", alice.user.fullname).within(() => {
@@ -41,7 +41,7 @@ describe("Friends and notifications", () => {
   it("finds people with the search", () => {
     cy.then(() => cy.visitAs(alice, "/home"));
     cy.get("#search").type(bob.user.lastname);
-    cy.contains(".search-result a", bob.user.fullname).click();
+    cy.contains("[data-cy=search-results] a", bob.user.fullname).click();
     cy.location("pathname").should("eq", `/profile/${bob.user.id}`);
     cy.contains(".profile-username", bob.user.fullname);
   });

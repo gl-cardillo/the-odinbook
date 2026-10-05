@@ -3,9 +3,6 @@ import "./App.css";
 // the styles are global and shared between pages, so they load up front
 // even though the pages themselves are loaded lazily
 import "./components/Home/home.css";
-import "./components/Post/post.css";
-import "./components/PostForm/postform.css";
-import "./components/LikeAndComment/likeAndComment.css";
 import "./components/Profile/profile.css";
 import "./components/About/about.css";
 import "animate.css";

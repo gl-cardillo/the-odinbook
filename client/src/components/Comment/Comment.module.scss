@@ -1,0 +1,167 @@
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.entry {
+  display: flex;
+  gap: 8px;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.bubbleRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover .delete,
+  &:focus-within .delete {
+    opacity: 1;
+  }
+}
+
+.bubble {
+  max-width: 100%;
+  padding: 8px 12px;
+  background-color: var(--color-background);
+  border-radius: 18px;
+}
+
+.author {
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.text {
+  font-size: 15px;
+  white-space: pre-wrap;
+}
+
+.likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  background-color: transparent;
+  border: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.likeIcon {
+  padding: 2px;
+  color: #fff;
+  font-size: 15px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-round);
+}
+
+.delete {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 6px;
+  color: var(--color-danger);
+  font-size: 16px;
+  background-color: transparent;
+  border: 0;
+  border-radius: var(--radius-round);
+  opacity: 0.6;
+
+  &:hover {
+    background-color: var(--color-danger-soft);
+  }
+
+  @media (hover: hover) {
+    opacity: 0;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.action {
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  background-color: transparent;
+  border: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.liked {
+  color: var(--color-primary);
+}
+
+.showReplies {
+  align-self: flex-start;
+  margin-left: 52px;
+}
+
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 0 40px;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+}
+
+.formBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 15px;
+  background-color: var(--color-background);
+  border: 1px solid transparent;
+  border-radius: 18px;
+  outline: none;
+  resize: none;
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-shadow);
+  }
+
+  &[aria-invalid="true"] {
+    border-color: var(--color-danger);
+  }
+}
+
+.error {
+  align-self: flex-start;
+  color: var(--color-danger);
+  font-size: 13px;
+}

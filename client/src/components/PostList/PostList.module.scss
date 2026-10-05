@@ -1,0 +1,10 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeleton {
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg);
+}

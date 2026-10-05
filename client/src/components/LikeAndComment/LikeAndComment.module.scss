@@ -1,0 +1,85 @@
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  text-align: left;
+  background-color: transparent;
+  border: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.commentsCount {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.likeIcon {
+  flex-shrink: 0;
+  padding: 3px;
+  color: #fff;
+  font-size: 18px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-round);
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+  border-top: 1px solid var(--color-neutral);
+}
+
+.action {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  background-color: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  svg {
+    font-size: 18px;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-background);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-shadow);
+  }
+}
+
+.active {
+  color: var(--color-primary);
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-neutral);
+}

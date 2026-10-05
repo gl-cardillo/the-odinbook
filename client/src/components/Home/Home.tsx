@@ -1,4 +1,3 @@
-import "./home.css";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { PostForm } from "../PostForm/PostForm";
@@ -6,9 +5,11 @@ import { PostList } from "../PostList/PostList";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { PageLayout } from "../PageLayout/PageLayout";
 import { FriendButton } from "../FriendButton/FriendButton";
+import { Avatar, Card } from "../ui";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useFeed, useSuggestions } from "../../queries";
+import styles from "./Home.module.scss";
 
 export function Home() {
   const { user } = useCurrentUser();
@@ -17,46 +18,42 @@ export function Home() {
 
   return (
     <PageLayout aside={<SideMenu />}>
-      <div className="containers">
+      <div className={styles.feed}>
         <PostForm user={user} />
-        <div>
-          {suggestedProfile ? (
-            // show profiles the user is not friend with
-            suggestedProfile.length > 0 && (
-              <div className="home-suggested-profile-container">
-                <h3>People you may know...</h3>
-                <div className="home-suggested-profile">
-                  {suggestedProfile.map((profile) => (
-                    <div key={profile.id}>
-                      <Link to={`/profile/${profile.id}`}>
-                        <img
-                          src={profile.profilePicUrl}
-                          className="avatar-pic"
-                          alt="avatar"
-                        />
-                      </Link>
-                      <Link to={`/profile/${profile.id}`}>
-                        <p className="none1024px">{profile.firstname}</p>
-                      </Link>
-                      <Link to={`/profile/${profile.id}`}>
-                        <p className="none1024px">{profile.lastname}</p>
-                      </Link>
-                      <Link to={`/profile/${profile.id}`}>
-                        <p className="block1024px">{profile.fullname}</p>
-                      </Link>
-                      <FriendButton profile={profile} />
-                    </div>
-                  ))}
-                </div>
-                <Link to={"/suggestedProfiles"}>
-                  <p className="see-more">See more...</p>
+        {!suggestedProfile ? (
+          <Skeleton height={200} borderRadius={12} />
+        ) : (
+          suggestedProfile.length > 0 && (
+            <Card
+              title="People you may know"
+              action={
+                <Link to="/suggestedProfiles" className={styles.seeAll}>
+                  See all
                 </Link>
-              </div>
-            )
-          ) : (
-            <Skeleton height={150} style={{ margin: "10px 0" }} />
-          )}
-        </div>
+              }
+            >
+              <ul className={styles.suggestions}>
+                {suggestedProfile.map((profile) => (
+                  <li key={profile.id} className={styles.suggestion}>
+                    <Link
+                      to={`/profile/${profile.id}`}
+                      className={styles.person}
+                    >
+                      <Avatar
+                        src={profile.profilePicUrl}
+                        name={profile.fullname}
+                        size="lg"
+                        alt=""
+                      />
+                      <span className={styles.name}>{profile.fullname}</span>
+                    </Link>
+                    <FriendButton profile={profile} fullWidth />
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )
+        )}
         <PostList query={feed} emptyText="No post at the moment" />
       </div>
     </PageLayout>

@@ -37,9 +37,9 @@ describe("Posts, likes and comments", () => {
     writePost("Like me");
     cy.contains("[data-cy=post]", "Like me").within(() => {
       cy.contains("button", "Like").click();
-      cy.get(".like-count").should("contain", me.user.fullname);
+      cy.get("[data-cy=like-count]").should("contain", me.user.fullname);
       cy.contains("button", "Like").click();
-      cy.get(".like-count").should("not.exist");
+      cy.get("[data-cy=like-count]").should("not.exist");
     });
   });
 
@@ -49,20 +49,23 @@ describe("Posts, likes and comments", () => {
       cy.contains("button", "Comment").click();
       cy.get("textarea[placeholder='Write a comment...']").type("First!");
       cy.contains("button", "Add Comment").click();
-      cy.contains(".comment-message", "First!");
+      cy.contains("[data-cy=comment-text]", "First!");
       cy.contains("1 comment");
 
-      cy.contains(".button", "Reply").click();
+      cy.get("[data-cy=reply-toggle]").click();
       cy.get("textarea[placeholder='Reply to the comment...']").type("Thanks");
       cy.contains("button", "Add Reply").click();
-      cy.contains(".reply-container", "Thanks");
-      cy.contains("1 Replies");
+      cy.contains("[data-cy=replies]", "Thanks");
+      cy.get("[data-cy=reply-toggle]").click();
+      cy.contains("button", "1 reply");
     });
 
-    // the first delete button of the comment is the comment's own
-    cy.contains(".comment-container", "First!").find(".delete-button").click();
+    // the replies are hidden, so the only delete button is the comment's own
+    cy.contains("[data-cy=comment]", "First!")
+      .find("[data-cy=delete-comment]")
+      .click();
     cy.contains("button", "Delete").click();
-    cy.contains(".comment-message", "First!").should("not.exist");
+    cy.contains("[data-cy=comment-text]", "First!").should("not.exist");
   });
 
   it("keeps a post when the delete is cancelled, removes it when confirmed", () => {

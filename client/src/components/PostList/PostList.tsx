@@ -4,8 +4,11 @@ import type {
 } from "@tanstack/react-query";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { BsFileEarmarkText } from "react-icons/bs";
 import { Post } from "../Post/Post";
+import { Button, Card, EmptyState } from "../ui";
 import type { Post as PostType } from "../../types";
+import styles from "./PostList.module.scss";
 
 interface PostListProps {
   query: UseInfiniteQueryResult<InfiniteData<PostType[]>>;
@@ -17,32 +20,37 @@ export function PostList({ query, emptyText }: PostListProps) {
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } = query;
 
   if (!data) {
-    return <Skeleton height={300} style={{ margin: "10px 0" }} count={3} />;
+    return (
+      <div className={styles.list}>
+        <Skeleton height={300} count={3} className={styles.skeleton} />
+      </div>
+    );
   }
 
   const posts = data.pages.flat();
   if (posts.length === 0) {
     return (
-      <div className="post no-data-available-container">
-        <p>{emptyText}</p>
-      </div>
+      <Card>
+        <EmptyState icon={<BsFileEarmarkText />} title={emptyText} />
+      </Card>
     );
   }
 
   return (
-    <>
+    <div className={styles.list}>
       {posts.map((post) => (
         <Post key={post.id} post={post} />
       ))}
       {hasNextPage && (
-        <button
-          className="load-more"
+        <Button
+          variant="secondary"
+          fullWidth
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
           {isFetchingNextPage ? "Loading..." : "Load more posts"}
-        </button>
+        </Button>
       )}
-    </>
+    </div>
   );
 }

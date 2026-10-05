@@ -228,13 +228,6 @@
   }
 }
 
-.load-more {
-  display: block;
-  margin: 10px auto 20px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
 .swal-danger-button {
   background-color: #f56565 !important;
   border: none;
@@ -254,11 +247,12 @@
   box-shadow: var(--focus-shadow) !important;
 }
 
-.blue {
-  color: #1877f2;
+/* notifications page, until it is converted */
+.time {
+  color: #8d8989;
+  font-size: 12px;
 }
 
-/* notifications page, until it is converted */
 .notification {
   padding: 10px 5px;
   border-bottom: 1px solid #c7c8c8;

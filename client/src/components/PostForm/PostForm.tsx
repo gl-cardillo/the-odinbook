@@ -1,4 +1,3 @@
-import "./postform.css";
 import { useState, useRef } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { BsX } from "react-icons/bs";
@@ -9,7 +8,9 @@ import {
   MAX_IMAGE_BYTES,
   MAX_POST_LENGTH,
 } from "@odinbook/shared";
+import { Avatar, Button } from "../ui";
 import type { User } from "../../types";
+import styles from "./PostForm.module.scss";
 
 export function PostForm({ user }: { user: User }) {
   const imageInput = useRef<HTMLInputElement>(null);
@@ -72,12 +73,16 @@ export function PostForm({ user }: { user: User }) {
   };
 
   return (
-    <div>
-      <form className="add-post" onSubmit={addPost}>
+    <form className={styles.card} onSubmit={addPost}>
+      <div className={styles.top}>
+        <Avatar src={user.profilePicUrl} name={user.fullname} alt="" />
         <textarea
+          className={styles.input}
           maxLength={MAX_POST_LENGTH}
-          rows={4}
+          rows={3}
           name="text"
+          aria-label="Post text"
+          aria-invalid={Boolean(error)}
           onChange={(e) => {
             setText(e.target.value);
             setError("");
@@ -85,30 +90,42 @@ export function PostForm({ user }: { user: User }) {
           value={text}
           placeholder={`What's on your mind, ${user.firstname}?`}
         />
-        {error !== "" && <p className="error-form-home">{error}</p>}
-        {previewPicture && (
-          <div className="form-image-container">
-            <BsX className="icon-remove-pic" onClick={removePic} />
-            {createPost.isPending && <div className="loader"></div>}
-            <img src={previewPicture} alt="insert picture" />
-          </div>
-        )}
-        <div className="post-form-buttons">
-          <label htmlFor="file-input">
-            <input
-              type="file"
-              id="file-input"
-              accept="image/*"
-              ref={imageInput}
-              onChange={handlePreview}
-            />
-            <RiImageAddLine className="icon-image" />
-          </label>
-          <button type="submit" disabled={createPost.isPending}>
-            Add Post
+      </div>
+      {error !== "" && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
+      {previewPicture && (
+        <div className={styles.preview}>
+          <img src={previewPicture} alt="Picture to post" />
+          <button
+            type="button"
+            className={styles.removePic}
+            onClick={removePic}
+            disabled={createPost.isPending}
+            aria-label="Remove picture"
+          >
+            <BsX />
           </button>
+          {createPost.isPending && <div className={styles.loader} />}
         </div>
-      </form>
-    </div>
+      )}
+      <div className={styles.buttons}>
+        <label className={styles.photo}>
+          <input
+            type="file"
+            accept="image/*"
+            ref={imageInput}
+            onChange={handlePreview}
+          />
+          <RiImageAddLine className={styles.photoIcon} />
+          Photo
+        </label>
+        <Button type="submit" disabled={createPost.isPending}>
+          Add Post
+        </Button>
+      </div>
+    </form>
   );
 }

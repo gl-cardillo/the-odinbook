@@ -127,7 +127,10 @@
 }
 
 .profile-post-section {
-  margin: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 @media screen and (min-width: 768px) {

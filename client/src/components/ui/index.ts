@@ -6,5 +6,6 @@ export { EmptyState } from "./EmptyState";
 export { Field } from "./Field";
 export { inputProps } from "./inputProps";
 export { Modal } from "./Modal";
+export { PeopleGrid, PeopleGridSkeleton } from "./PeopleGrid";
 export { PersonRow } from "./PersonRow";
 export { useDismiss } from "./useDismiss";

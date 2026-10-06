@@ -43,20 +43,6 @@ button[disabled] {
   opacity: 0.6;
 }
 
-.search-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.search-container div {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 30px;
-  font-weight: bold;
-}
-
 .not-found-page {
   margin-top: 30px;
   display: flex;

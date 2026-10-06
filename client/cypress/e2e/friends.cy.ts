@@ -24,12 +24,12 @@ describe("Friends and notifications", () => {
     cy.get("[data-cy=notifications-badge]").should("not.exist");
 
     cy.visit("/friendRequests");
-    cy.contains(".requests", alice.user.fullname).within(() => {
+    cy.contains("[data-cy=request]", alice.user.fullname).within(() => {
       cy.contains("button", "Accept").click();
     });
     cy.contains("No friend requests at the moment");
     cy.visit("/friends");
-    cy.contains(".friend", alice.user.fullname);
+    cy.contains("[data-cy=person]", alice.user.fullname);
 
     // Alice is told, and Bob is now her friend
     cy.then(() => cy.visitAs(alice, "/notifications"));
@@ -46,12 +46,22 @@ describe("Friends and notifications", () => {
     cy.contains("[data-cy=profile-name]", bob.user.fullname);
   });
 
+  it("opens the search page with Enter", () => {
+    cy.then(() => cy.visitAs(alice, "/home"));
+    cy.get("#search").type(`${bob.user.lastname}{enter}`);
+    cy.location("search").should("contain", bob.user.lastname);
+    cy.contains("[data-cy=search-result]", bob.user.fullname);
+
+    cy.visit("/searchPage?q=nobody-has-this-name");
+    cy.contains("No users found");
+  });
+
   it("declines a request", () => {
     cy.then(() =>
       cy.apiAs(bob, "POST", `/users/${alice.user.id}/friend-request`)
     );
     cy.then(() => cy.visitAs(alice, "/friendRequests"));
-    cy.contains(".requests", bob.user.fullname).within(() => {
+    cy.contains("[data-cy=request]", bob.user.fullname).within(() => {
       cy.contains("button", "Decline").click();
     });
     cy.contains("No friend requests at the moment");

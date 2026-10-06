@@ -5,7 +5,7 @@ import { PostList } from "../PostList/PostList";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { PageLayout } from "../PageLayout/PageLayout";
 import { FriendButton } from "../FriendButton/FriendButton";
-import { Avatar, Card } from "../ui";
+import { Card, PeopleGrid } from "../ui";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useFeed, useSuggestions } from "../../queries";
@@ -32,25 +32,12 @@ export function Home() {
                 </Link>
               }
             >
-              <ul className={styles.suggestions}>
-                {suggestedProfile.map((profile) => (
-                  <li key={profile.id} className={styles.suggestion}>
-                    <Link
-                      to={`/profile/${profile.id}`}
-                      className={styles.person}
-                    >
-                      <Avatar
-                        src={profile.profilePicUrl}
-                        name={profile.fullname}
-                        size="lg"
-                        alt=""
-                      />
-                      <span className={styles.name}>{profile.fullname}</span>
-                    </Link>
-                    <FriendButton profile={profile} fullWidth />
-                  </li>
-                ))}
-              </ul>
+              <PeopleGrid
+                people={suggestedProfile}
+                action={(profile) => (
+                  <FriendButton profile={profile} fullWidth />
+                )}
+              />
             </Card>
           )
         )}

@@ -1,9 +1,8 @@
+import { BsPeople } from "react-icons/bs";
 import { useCurrentUser } from "../../dataContext/dataContext";
-import { Link } from "react-router";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { PageLayout } from "../PageLayout/PageLayout";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { Card, EmptyState, PeopleGrid, PeopleGridSkeleton } from "../ui";
 import { useFriends } from "../../queries";
 import type { User } from "../../types";
 
@@ -11,35 +10,20 @@ import type { User } from "../../types";
 export function Friends({ profile }: { profile?: User }) {
   const { user } = useCurrentUser();
   const { data: friends } = useFriends(profile ? profile.id : user.id);
+  const isMe = !profile || profile.id === user.id;
 
   const content = (
-    <div className="containers friends">
-      {!profile && <h2>Friends</h2>}
-      <div className="friends-container">
-        {friends ? (
-          friends.length > 0 ? (
-            friends.map((friend) => (
-              <div className="friend" key={friend.id}>
-                <Link to={`/profile/${friend.id}`}>
-                  <img
-                    src={friend.profilePicUrl}
-                    className="avatar-pic"
-                    alt="avatar"
-                  />
-                </Link>
-                <Link to={`/profile/${friend.id}`}>
-                  <p className="username">{friend.fullname}</p>
-                </Link>
-              </div>
-            ))
-          ) : (
-            <h3>No friends at the moment</h3>
-          )
-        ) : (
-          <Skeleton height={80} style={{ margin: "10px 0" }} count={3} />
-        )}
-      </div>
-    </div>
+    <Card title={friends ? `Friends · ${friends.length}` : "Friends"}>
+      {!friends ? (
+        <PeopleGridSkeleton />
+      ) : friends.length > 0 ? (
+        <PeopleGrid people={friends} />
+      ) : (
+        <EmptyState icon={<BsPeople />} title="No friends at the moment">
+          {isMe && "Look at the suggestions to find people you may know"}
+        </EmptyState>
+      )}
+    </Card>
   );
 
   return profile ? (

@@ -43,7 +43,7 @@ describe("Friends and notifications", () => {
     cy.get("#search").type(bob.user.lastname);
     cy.contains("[data-cy=search-results] a", bob.user.fullname).click();
     cy.location("pathname").should("eq", `/profile/${bob.user.id}`);
-    cy.contains(".profile-username", bob.user.fullname);
+    cy.contains("[data-cy=profile-name]", bob.user.fullname);
   });
 
   it("declines a request", () => {

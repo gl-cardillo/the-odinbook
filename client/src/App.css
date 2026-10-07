@@ -1,34 +1,3 @@
-/* notifications page, until it is converted */
-.containers h2,
-.containers h3 {
-  color: #3b5998;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.notification-container {
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 400px;
-  margin: auto;
-}
-
-.notification-container .notification {
-  padding: 10px 50px;
-}
-
-.notification-container p {
-  font-size: 16px;
-}
-
 /* swall Styles */
 .swal-popup {
   padding-bottom: 0.5rem;
@@ -110,24 +79,4 @@
 .swal-danger-button:focus,
 .swal-neutral-button:focus {
   box-shadow: var(--focus-shadow) !important;
-}
-
-.time {
-  color: #8d8989;
-  font-size: 12px;
-}
-
-.notification {
-  padding: 10px 5px;
-  border-bottom: 1px solid #c7c8c8;
-}
-
-.notification-text {
-  font-size: 14px;
-}
-
-.notification div {
-  display: flex;
-  gap: 10px;
-  align-items: center;
 }

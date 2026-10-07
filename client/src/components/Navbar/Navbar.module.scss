@@ -285,37 +285,10 @@
   list-style: none;
 }
 
-.notification {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 8px;
-
-  &:hover {
-    background-color: var(--color-background);
-  }
-}
-
-.notificationText {
-  display: block;
-  font-size: 14px;
-  line-height: 1.35;
-}
-
 .secondaryText {
   display: block;
   color: var(--color-text-secondary);
   font-size: 13px;
-}
-
-.unseenDot {
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  margin-left: auto;
-  background-color: var(--color-primary);
-  border-radius: var(--radius-round);
 }
 
 .profileLink {

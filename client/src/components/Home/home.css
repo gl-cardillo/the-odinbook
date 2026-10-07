@@ -1,43 +1,3 @@
-.containers {
-  margin: 0;
-  text-align: center;
-}
-
-.avatar-pic {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  image-rendering: -webkit-optimize-contrast;
-  object-fit: cover;
-}
-
-/* keeps the place of the picture when the user deleted the account */
-.avatar-pic-blank {
-  display: inline-block;
-  flex-shrink: 0;
-}
-.pic-30px {
-  width: 30px;
-  height: 30px;
-}
-.post {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
-  margin: 20px 0;
-  text-align: left;
-}
-
-.no-data-available-container {
-  text-align: center !important;
-  color: #374151;
-}
-
 button:disabled,
 button[disabled] {
   opacity: 0.6;
@@ -77,7 +37,4 @@ button[disabled] {
   .not-found-page h1 {
     font-size: 35px;
   }
-}
-
-@media screen and (min-width: 2560px) {
 }

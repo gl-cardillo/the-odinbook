@@ -33,7 +33,7 @@ describe("Friends and notifications", () => {
 
     // Alice is told, and Bob is now her friend
     cy.then(() => cy.visitAs(alice, "/notifications"));
-    cy.contains(".notification", "accepted your friend request");
+    cy.contains("[data-cy=notification]", "accepted your friend request");
     cy.visit(`/profile/${bob.user.id}`);
     cy.contains("button", "Remove friend");
   });

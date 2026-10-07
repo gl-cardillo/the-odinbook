@@ -1,52 +1,57 @@
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { IoNotificationsOutline } from "react-icons/io5";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { PageLayout } from "../PageLayout/PageLayout";
-import { getTime } from "../../utils/utils";
-import { useNotifications } from "../../queries";
+import { Card, EmptyState } from "../ui";
+import { NotificationItem } from "./NotificationItem";
+import { useNotifications, useNotificationsSeen } from "../../queries";
+import styles from "./Notifications.module.scss";
 
 export function Notifications() {
   const { data } = useNotifications();
+  const { mutate: markSeen } = useNotificationsSeen();
+  // the ones new when the page opened keep their dot after being marked seen
+  const [fresh, setFresh] = useState<Set<string> | null>(null);
+
+  if (data && fresh === null) {
+    setFresh(
+      new Set(data.notifications.filter((n) => !n.seen).map((n) => n.id))
+    );
+  }
+
+  useEffect(() => {
+    if (fresh && fresh.size > 0) markSeen();
+  }, [fresh, markSeen]);
 
   return (
     <PageLayout aside={<SideMenu />}>
-      <div className="containers">
-        <h2>Notification</h2>
-        <div className="notification-container">
-          {!data ? (
-            <Skeleton height={60} style={{ margin: "5px 0" }} count={4} />
-          ) : data.notifications.length === 0 ? (
-            <p>No notifications at the moment</p>
-          ) : (
-            data.notifications.map((notification) => (
-              <Link to={notification.link} key={notification.id}>
-                <div className="notification">
-                  <div>
-                    {notification.fullname ? (
-                      <img
-                        src={notification.profilePicUrl}
-                        className="avatar-pic"
-                        alt="avatar"
-                      />
-                    ) : (
-                      <span
-                        className="avatar-pic avatar-pic-blank"
-                        aria-hidden
-                      />
-                    )}
-                    <p className="notification-text">
-                      {notification.fullname ?? "Deleted user"}{" "}
-                      {notification.message}
-                    </p>
-                  </div>
-                  <p className="time">{getTime(notification.date)}</p>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
-      </div>
+      <Card title="Notifications">
+        {!data ? (
+          <Skeleton height={64} count={4} style={{ marginBottom: 8 }} />
+        ) : data.notifications.length === 0 ? (
+          <EmptyState
+            icon={<IoNotificationsOutline />}
+            title="No notifications at the moment"
+          >
+            Likes, comments and friend requests will show up here
+          </EmptyState>
+        ) : (
+          <ul className={styles.list}>
+            {data.notifications.map((notification) => (
+              <li key={notification.id}>
+                <NotificationItem
+                  notification={notification}
+                  isNew={
+                    !notification.seen || Boolean(fresh?.has(notification.id))
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </PageLayout>
   );
 }

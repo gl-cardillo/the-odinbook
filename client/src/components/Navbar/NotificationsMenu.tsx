@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { getTime } from "../../utils/utils";
 import { useNotifications, useNotificationsSeen } from "../../queries";
-import { Avatar, useDismiss } from "../ui";
+import { useDismiss } from "../ui";
+import { NotificationItem } from "../Notifications/NotificationItem";
 import styles from "./Navbar.module.scss";
 
 export function NotificationsMenu() {
   const [open, setOpen] = useState(false);
+  // the ones new when the menu opened keep their dot after being marked seen
+  const [fresh, setFresh] = useState<Set<string>>(new Set());
   const ref = useDismiss<HTMLDivElement>(open, () => setOpen(false));
   const { data } = useNotifications();
   const markSeen = useNotificationsSeen();
@@ -15,7 +17,10 @@ export function NotificationsMenu() {
   const unseen = data?.unseen ?? 0;
 
   const toggle = () => {
-    if (!open && unseen > 0) markSeen.mutate();
+    if (!open) {
+      setFresh(new Set(notifications.filter((n) => !n.seen).map((n) => n.id)));
+      if (unseen > 0) markSeen.mutate();
+    }
     setOpen(!open);
   };
 
@@ -50,31 +55,11 @@ export function NotificationsMenu() {
             <ul className={styles.list}>
               {notifications.slice(0, 6).map((notification) => (
                 <li key={notification.id}>
-                  <Link
-                    to={notification.link}
-                    className={styles.notification}
+                  <NotificationItem
+                    notification={notification}
+                    isNew={!notification.seen || fresh.has(notification.id)}
                     onClick={() => setOpen(false)}
-                  >
-                    <Avatar
-                      src={notification.profilePicUrl}
-                      name={notification.fullname ?? ""}
-                      alt=""
-                    />
-                    <span>
-                      <span className={styles.notificationText}>
-                        <strong>
-                          {notification.fullname ?? "Deleted user"}
-                        </strong>{" "}
-                        {notification.message}
-                      </span>
-                      <span className={styles.secondaryText}>
-                        {getTime(notification.date)}
-                      </span>
-                    </span>
-                    {!notification.seen && (
-                      <span className={styles.unseenDot} aria-label="new" />
-                    )}
-                  </Link>
+                  />
                 </li>
               ))}
             </ul>

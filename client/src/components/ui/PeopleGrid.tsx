@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { Avatar } from "./Avatar";
 import type { UserSummary } from "../../types";
 import styles from "./PeopleGrid.module.scss";

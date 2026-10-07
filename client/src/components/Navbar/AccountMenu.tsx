@@ -4,8 +4,7 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useDeleteAccount } from "../../queries";
-import { confirmDelete } from "../../utils/utils";
-import { Avatar, useDismiss } from "../ui";
+import { Avatar, confirmDelete, useDismiss } from "../ui";
 import styles from "./Navbar.module.scss";
 
 const GUEST_EMAIL = "test-account@example.com";
@@ -26,7 +25,8 @@ export function AccountMenu() {
   const onDeleteAccount = async () => {
     setOpen(false);
     const confirmed = await confirmDelete(
-      "Are you sure you want to delete your account? Your posts, comments and friends will be deleted too."
+      "Delete your account?",
+      "Your posts, comments and friends will be deleted too. This can't be undone."
     );
     if (!confirmed) return;
     deleteAccount.mutate(undefined, { onSuccess: logoutUser });

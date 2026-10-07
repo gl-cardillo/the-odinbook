@@ -4,16 +4,10 @@ import { Link } from "react-router";
 import { AiFillLike } from "react-icons/ai";
 import { MdDelete } from "react-icons/md";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import {
-  nFormatter,
-  getTime,
-  confirmDelete,
-  handleSuccess,
-} from "../../utils/utils";
+import { nFormatter, getTime } from "../../utils/utils";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useCommentActions, useReplies, useReplyActions } from "../../queries";
-import { Avatar } from "../ui";
+import { Avatar, confirmDelete, toast } from "../ui";
 import { LikesModal } from "../LikeAndComment/LikesModal";
 import { CommentForm } from "./CommentForm";
 import type { Comment as CommentType, Reply, UserSummary } from "../../types";
@@ -96,21 +90,29 @@ export function Comment({ comment, postId }: CommentProps) {
 
   const onDeleteComment = async () => {
     if (
-      !(await confirmDelete("Are you sure you want to delete this comment?"))
+      !(await confirmDelete(
+        "Delete comment?",
+        "Are you sure you want to delete this comment?"
+      ))
     ) {
       return;
     }
     commentActions.remove.mutate(comment.id, {
-      onSuccess: () => handleSuccess("Comment deleted"),
+      onSuccess: () => toast.success("Comment deleted"),
     });
   };
 
   const onDeleteReply = async (reply: Reply) => {
-    if (!(await confirmDelete("Are you sure you want to delete this reply?"))) {
+    if (
+      !(await confirmDelete(
+        "Delete reply?",
+        "Are you sure you want to delete this reply?"
+      ))
+    ) {
       return;
     }
     replyActions.remove.mutate(reply.id, {
-      onSuccess: () => handleSuccess("Reply deleted successfully"),
+      onSuccess: () => toast.success("Reply deleted"),
     });
   };
 

@@ -63,4 +63,10 @@ describe("Authentication", () => {
       cy.location("pathname").should("eq", "/");
     });
   });
+
+  it("shows a page for links that don't exist", () => {
+    cy.visit("/this-page-does-not-exist");
+    cy.contains("h1", "This page doesn't exist");
+    cy.contains("a", "Go back home").should("have.attr", "href", "/home");
+  });
 });

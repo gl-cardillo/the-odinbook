@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-query";
 import { api } from "./api";
 import { PAGE_SIZE } from "@odinbook/shared";
-import { errorMessage, handleError } from "./utils/utils";
+import { errorMessage } from "./utils/utils";
+import { toast } from "./components/ui/feedbackStore";
 import type { Post, User } from "./types";
 
 export const queryClient = new QueryClient({
@@ -19,7 +20,7 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
     mutations: {
-      onError: (err) => handleError(errorMessage(err)),
+      onError: (err) => toast.error(errorMessage(err)),
     },
   },
 });

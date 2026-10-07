@@ -1,6 +1,7 @@
 import { Component } from "react";
 import type { ErrorInfo, ReactNode } from "react";
-import homePic from "../../images/home-pic.png";
+import { StatusPage } from "../StatusPage/StatusPage";
+import { Button } from "../ui";
 
 interface Props {
   children: ReactNode;
@@ -26,14 +27,25 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!this.state.error) {
       return this.props.children;
     }
+    // outside the router, so plain navigation instead of links
     return (
-      <div className="not-found-page" role="alert">
-        <img src={homePic} alt="logo" />
-        <h1>Something went wrong :(</h1>
-        <p>Try again, or go back to the home page.</p>
-        <button onClick={() => window.location.reload()}>Try again</button>
-        <a href="/home">Go back home!</a>
-      </div>
+      <StatusPage
+        role="alert"
+        title="Something went wrong"
+        actions={
+          <>
+            <Button onClick={() => window.location.reload()}>Try again</Button>
+            <Button
+              variant="secondary"
+              onClick={() => window.location.assign("/home")}
+            >
+              Go back home
+            </Button>
+          </>
+        }
+      >
+        Try again, or go back to the home page.
+      </StatusPage>
     );
   }
 }

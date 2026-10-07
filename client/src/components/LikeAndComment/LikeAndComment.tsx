@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { FaRegComment, FaComment } from "react-icons/fa";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Comment } from "../Comment/Comment";
 import { CommentForm } from "../Comment/CommentForm";

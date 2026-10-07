@@ -1,6 +1,4 @@
 import axios from "axios";
-import Swal from "sweetalert2";
-import type { SweetAlertOptions } from "sweetalert2";
 
 // message sent by the API, or the error itself if the request never got an answer
 export const errorMessage = (err: unknown): string | undefined => {
@@ -64,77 +62,3 @@ export function getTime(time: string | number) {
     return date.toLocaleDateString("en-UK");
   }
 }
-
-export const swalStyle: SweetAlertOptions = {
-  allowOutsideClick: false,
-  backdrop: false,
-  customClass: {
-    popup: "swal-popup dark-mode",
-    actions: "swal-actions",
-    confirmButton: "swal-confirm-button",
-    cancelButton: "swal-cancel-button",
-    title: "swal-title dark-mode",
-    htmlContainer: "swal-html-container dark-mode",
-  },
-  showClass: {
-    popup: "animate__animated animate__slideInDown animate__faster",
-  },
-  hideClass: {
-    popup: "animate__animated animate__fadeOutUp animate__faster",
-  },
-};
-
-export const handleError = (text?: string) => {
-  Swal.fire({
-    title: "Something went wrong",
-    text,
-    position: "top",
-    confirmButtonText: "Close",
-    ...swalStyle,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.close();
-    }
-  });
-};
-
-export const handleSuccess = (title: string, refresh = false) => {
-  Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 2000,
-  })
-    .fire({
-      icon: "success",
-      title,
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        if (refresh) {
-          window.location.reload();
-        }
-        Swal.close();
-      }
-    });
-};
-
-// asks before deleting something, resolves true only on "Delete"
-export const confirmDelete = async (title: string) => {
-  const result = await Swal.fire({
-    title,
-    position: "top",
-    showCancelButton: true,
-    confirmButtonText: "Delete",
-    cancelButtonText: "Cancel",
-    reverseButtons: true,
-    focusCancel: true,
-    ...swalStyle,
-    customClass: {
-      ...(swalStyle.customClass as object),
-      confirmButton: "swal-danger-button",
-      cancelButton: "swal-neutral-button",
-    },
-  });
-  return result.isConfirmed;
-};

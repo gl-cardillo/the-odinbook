@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useFriendActions, useFriendRequests, useFriends } from "../../queries";
 import { Button, Card, PersonRow } from "../ui";

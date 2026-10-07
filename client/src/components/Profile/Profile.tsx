@@ -11,7 +11,6 @@ import { PageLayout } from "../PageLayout/PageLayout";
 import { Alert, Avatar, Button } from "../ui";
 import { MdPhotoCamera } from "react-icons/md";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@odinbook/shared";
 import {
   useChangePicture,

@@ -75,6 +75,8 @@ describe("Posts, likes and comments", () => {
       .find("[data-cy=delete-post]")
       .click();
     cy.contains("Are you sure you want to delete this post?");
+    // the safe answer has the focus
+    cy.focused().should("have.text", "Cancel");
     cy.contains("button", "Cancel").click();
     cy.contains("[data-cy=post]", "Maybe delete me").should("exist");
 

@@ -1,10 +1,5 @@
+import "react-loading-skeleton/dist/skeleton.css";
 import "./styles/global.scss";
-import "./App.css";
-// the styles are global and shared between pages, so they load up front
-// even though the pages themselves are loaded lazily
-import "./components/Home/home.css";
-import "animate.css";
-
 import axios from "axios";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
@@ -14,6 +9,7 @@ import { Navbar } from "./components/Navbar/Navbar";
 import { GenericNotFound } from "./components/GenericNotFound/GenericNotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+import { Feedback } from "./components/ui";
 import { UserContext } from "./dataContext/dataContext";
 import { SkeletonTheme } from "react-loading-skeleton";
 import { readStorage, setAuthToken } from "./utils/utils";
@@ -99,7 +95,7 @@ function App() {
 
   return (
     <UserContext.Provider value={{ user, login, logout, updateUser }}>
-      <SkeletonTheme baseColor="#9b9b9b;" highlightColor="#979797">
+      <SkeletonTheme baseColor="#e4e6eb" highlightColor="#f0f2f5">
         <ErrorBoundary>
           <BrowserRouter>
             <Suspense fallback={null}>
@@ -132,6 +128,7 @@ function App() {
               </Routes>
             </Suspense>
           </BrowserRouter>
+          <Feedback />
         </ErrorBoundary>
       </SkeletonTheme>
     </UserContext.Provider>

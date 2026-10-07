@@ -1,6 +1,5 @@
 import { useParams } from "react-router";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { BsFileEarmarkX } from "react-icons/bs";
 import { SideMenu } from "../SideMenu/SideMenu";
 import { PageLayout } from "../PageLayout/PageLayout";

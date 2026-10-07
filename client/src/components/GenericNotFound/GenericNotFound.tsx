@@ -1,12 +1,14 @@
-import { Link } from "react-router";
-import homePic from "../../images/home-pic.png";
+import { StatusPage } from "../StatusPage/StatusPage";
+import { ButtonLink } from "../ui";
 
 export function GenericNotFound() {
   return (
-    <div className="not-found-page">
-      <img src={homePic} alt="logo" />
-      <h1>Sorry, we couldn't find this page :(</h1>
-      <Link to="/home">Go back home!</Link>
-    </div>
+    <StatusPage
+      code="404"
+      title="This page doesn't exist"
+      actions={<ButtonLink to="/home">Go back home</ButtonLink>}
+    >
+      The link may be broken, or the page may have been removed.
+    </StatusPage>
   );
 }

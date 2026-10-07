@@ -7,7 +7,6 @@ import { PageLayout } from "../PageLayout/PageLayout";
 import { FriendButton } from "../FriendButton/FriendButton";
 import { Card, PeopleGrid } from "../ui";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { useFeed, useSuggestions } from "../../queries";
 import styles from "./Home.module.scss";
 

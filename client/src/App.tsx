@@ -71,7 +71,9 @@ function App() {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.clear();
+    // the theme is a choice of this device, not of the account
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setAuthToken(null);
     queryClient.clear();
     setUser(null);

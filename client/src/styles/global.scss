@@ -32,29 +32,43 @@
   --focus-shadow: 0 0 0 3px rgb(24 119 242 / 0.35);
 }
 
-// follows the system setting
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-primary: #2d88ff;
-    --color-primary-hover: #4599ff;
-    --color-brand: #4b6cb7;
-    --color-background: #18191a;
-    --color-surface: #242526;
-    --color-text: #e4e6eb;
-    --color-text-secondary: #b0b3b8;
-    --color-text-muted: #8a8d91;
-    --color-border: #3e4042;
-    --color-input-border: #3e4042;
-    --color-danger: #f0484a;
-    --color-danger-hover: #f36163;
-    --color-danger-soft: #3d2324;
-    --color-neutral: #3a3b3c;
-    --color-neutral-hover: #4e4f50;
+@mixin dark-tokens {
+  color-scheme: dark;
 
-    --shadow-card: 0 1px 3px rgb(0 0 0 / 0.5);
-    --shadow-raised: 0 12px 28px rgb(0 0 0 / 0.6);
-    --focus-shadow: 0 0 0 3px rgb(45 136 255 / 0.5);
+  --color-primary: #2d88ff;
+  --color-primary-hover: #4599ff;
+  --color-brand: #4b6cb7;
+  --color-background: #18191a;
+  --color-surface: #242526;
+  --color-text: #e4e6eb;
+  --color-text-secondary: #b0b3b8;
+  --color-text-muted: #8a8d91;
+  --color-border: #3e4042;
+  --color-input-border: #3e4042;
+  --color-danger: #f0484a;
+  --color-danger-hover: #f36163;
+  --color-danger-soft: #3d2324;
+  --color-neutral: #3a3b3c;
+  --color-neutral-hover: #4e4f50;
+
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.5);
+  --shadow-raised: 0 12px 28px rgb(0 0 0 / 0.6);
+  --focus-shadow: 0 0 0 3px rgb(45 136 255 / 0.5);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+// the system setting, unless the user picked a theme in the account menu
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-tokens;
   }
+}
+
+:root[data-theme="dark"] {
+  @include dark-tokens;
 }
 
 * {

@@ -2,12 +2,21 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { FaSignOutAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { FiMonitor, FiMoon, FiSun } from "react-icons/fi";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useDeleteAccount } from "../../queries";
 import { Avatar, confirmDelete, useDismiss } from "../ui";
+import { readTheme, saveTheme, THEMES } from "../../utils/theme";
+import type { Theme } from "../../utils/theme";
 import styles from "./Navbar.module.scss";
 
 const GUEST_EMAIL = "test-account@example.com";
+
+const themeOptions = {
+  system: { label: "System", icon: <FiMonitor /> },
+  light: { label: "Light", icon: <FiSun /> },
+  dark: { label: "Dark", icon: <FiMoon /> },
+};
 
 export function AccountMenu() {
   const navigate = useNavigate();
@@ -16,6 +25,12 @@ export function AccountMenu() {
   const ref = useDismiss<HTMLDivElement>(open, () => setOpen(false));
   const deleteAccount = useDeleteAccount();
   const isGuest = user.email === GUEST_EMAIL;
+  const [theme, setTheme] = useState<Theme>(readTheme);
+
+  const changeTheme = (next: Theme) => {
+    saveTheme(next);
+    setTheme(next);
+  };
 
   const logoutUser = () => {
     navigate("/");
@@ -62,6 +77,31 @@ export function AccountMenu() {
               <span className={styles.secondaryText}>See your profile</span>
             </span>
           </Link>
+          <hr className={styles.separator} />
+          <div className={styles.themeRow}>
+            <span id="theme-label" className={styles.themeLabel}>
+              Theme
+            </span>
+            <div
+              className={styles.themeOptions}
+              role="radiogroup"
+              aria-labelledby="theme-label"
+            >
+              {THEMES.map((option) => (
+                <button
+                  key={option}
+                  role="radio"
+                  aria-checked={theme === option}
+                  className={`${styles.themeOption} ${theme === option ? styles.themeActive : ""}`}
+                  onClick={() => changeTheme(option)}
+                  data-cy={`theme-${option}`}
+                >
+                  {themeOptions[option].icon}
+                  {themeOptions[option].label}
+                </button>
+              ))}
+            </div>
+          </div>
           <hr className={styles.separator} />
           <button className={styles.menuItem} onClick={logoutUser}>
             <FaSignOutAlt aria-hidden="true" /> Log out

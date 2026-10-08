@@ -25,7 +25,7 @@ export function Notifications() {
   }, [fresh, markSeen]);
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title="Notifications" aside={<SideMenu />}>
       <Card title="Notifications">
         {!data ? (
           <Skeleton height={64} count={4} style={{ marginBottom: 8 }} />

@@ -16,7 +16,7 @@ export function Home() {
   const feed = useFeed();
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title="Home" aside={<SideMenu />}>
       <div className={styles.feed}>
         <PostForm user={user} />
         {!suggestedProfile ? (

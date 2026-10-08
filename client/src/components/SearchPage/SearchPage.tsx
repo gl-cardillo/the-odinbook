@@ -14,7 +14,7 @@ export function SearchPage() {
   const { data: results, isLoading } = useSearch(q);
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title={q ? `Search: ${q}` : "Search"} aside={<SideMenu />}>
       <Card title={q ? `Results for "${q}"` : "Search"}>
         {!q ? (
           <EmptyState icon={<BsSearch />} title="Search for people">

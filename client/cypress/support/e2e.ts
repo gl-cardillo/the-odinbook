@@ -58,4 +58,13 @@ Cypress.Commands.add("apiAs", (session, method, path, body) =>
   })
 );
 
+// anything the content security policy blocks fails the test
+Cypress.on("window:before:load", (win) => {
+  win.document.addEventListener("securitypolicyviolation", (event) => {
+    throw new Error(
+      `CSP blocked ${event.blockedURI} (${event.violatedDirective})`
+    );
+  });
+});
+
 export {};

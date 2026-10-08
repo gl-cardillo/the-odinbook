@@ -20,6 +20,7 @@ export function StatusPage({
 }: StatusPageProps) {
   return (
     <main className={styles.page} role={role}>
+      <title>{`${title} · Odinbook`}</title>
       <div className={styles.card}>
         <img className={styles.image} src={homePic} alt="" />
         {code && <p className={styles.code}>{code}</p>}

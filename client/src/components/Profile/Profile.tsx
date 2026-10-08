@@ -125,7 +125,11 @@ export function Profile() {
   const friendsCount = profile?.friends.length ?? 0;
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout
+      title={profile?.fullname ?? "Profile"}
+      heading={false}
+      aside={<SideMenu />}
+    >
       <div className={styles.page}>
         {profile ? (
           <section className={styles.header}>

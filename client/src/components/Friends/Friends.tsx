@@ -29,6 +29,8 @@ export function Friends({ profile }: { profile?: User }) {
   return profile ? (
     content
   ) : (
-    <PageLayout aside={<SideMenu />}>{content}</PageLayout>
+    <PageLayout title="Friends" aside={<SideMenu />}>
+      {content}
+    </PageLayout>
   );
 }

@@ -349,3 +349,21 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+// hidden until a keyboard user tabs to it
+.skipLink {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 50;
+  padding: 10px 16px;
+  color: #fff;
+  font-weight: 600;
+  background-color: var(--color-primary);
+  border-radius: 8px;
+  transform: translateY(-150%);
+
+  &:focus {
+    transform: none;
+  }
+}

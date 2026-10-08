@@ -95,7 +95,10 @@ function App() {
 
   return (
     <UserContext.Provider value={{ user, login, logout, updateUser }}>
-      <SkeletonTheme baseColor="#e4e6eb" highlightColor="#f0f2f5">
+      <SkeletonTheme
+        baseColor="var(--color-neutral)"
+        highlightColor="var(--color-background)"
+      >
         <ErrorBoundary>
           <BrowserRouter>
             <Suspense fallback={null}>

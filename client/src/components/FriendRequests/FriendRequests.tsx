@@ -12,7 +12,7 @@ export function FriendRequests() {
   const busy = accept.isPending || decline.isPending;
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title="Friend requests" aside={<SideMenu />}>
       <Card title="Friend requests">
         {!requests ? (
           <Skeleton height={56} count={3} style={{ marginBottom: 8 }} />

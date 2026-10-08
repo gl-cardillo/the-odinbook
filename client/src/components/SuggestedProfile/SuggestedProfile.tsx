@@ -10,7 +10,7 @@ export function SuggestedProfile() {
   const { data: suggestedProfile } = useSuggestions();
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title="People you may know" aside={<SideMenu />}>
       <Card title="People you may know">
         {!suggestedProfile ? (
           <PeopleGridSkeleton count={6} />

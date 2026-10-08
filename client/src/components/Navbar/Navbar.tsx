@@ -15,6 +15,9 @@ export function Navbar() {
 
   return (
     <>
+      <a href="#main" className={styles.skipLink}>
+        Skip to content
+      </a>
       <header className={styles.header}>
         <div className={styles.bar}>
           <div className={styles.start}>

@@ -72,6 +72,7 @@ export function Signin() {
 
   return (
     <AuthLayout>
+      <title>Sign up · Odinbook</title>
       <h2 className={styles.heading}>Create a new account</h2>
       <p className={styles.subheading}>It's quick and easy.</p>
       <form onSubmit={handleSubmit(signin)} className={styles.form} noValidate>

@@ -55,6 +55,7 @@ export function Login() {
 
   return (
     <AuthLayout>
+      <title>Log in · Odinbook</title>
       <h2 className={styles.heading}>Log in</h2>
       <p className={styles.subheading}>Welcome back! Good to see you.</p>
       <form onSubmit={handleSubmit(login)} className={styles.form} noValidate>

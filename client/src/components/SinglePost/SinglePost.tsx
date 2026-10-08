@@ -12,7 +12,7 @@ export function SinglePost() {
   const { data: post, isError } = usePost(postId);
 
   return (
-    <PageLayout aside={<SideMenu />}>
+    <PageLayout title="Post" aside={<SideMenu />}>
       {post ? (
         <Post post={post} />
       ) : isError ? (

@@ -11,4 +11,5 @@ export { inputProps } from "./inputProps";
 export { Modal } from "./Modal";
 export { PeopleGrid, PeopleGridSkeleton } from "./PeopleGrid";
 export { PersonRow } from "./PersonRow";
+export { RelativeTime } from "./RelativeTime";
 export { useDismiss } from "./useDismiss";

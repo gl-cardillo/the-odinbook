@@ -2,6 +2,7 @@ import type {
   InfiniteData,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import Skeleton from "react-loading-skeleton";
 import { BsFileEarmarkText } from "react-icons/bs";
 import { Post } from "../Post/Post";
@@ -14,9 +15,23 @@ interface PostListProps {
   emptyText: string;
 }
 
-// a paged list of posts with a "Load more" button
+// a paged list of posts, the next page loads before you reach the end
 export function PostList({ query, emptyText }: PostListProps) {
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } = query;
+  const end = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const marker = end.current;
+    if (!marker || !hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && fetchNextPage(),
+      // about a screen ahead, so scrolling rarely has to wait
+      // (the document as root keeps the margin working inside iframes too)
+      { root: document, rootMargin: "800px 0px" }
+    );
+    observer.observe(marker);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, data]);
 
   if (!data) {
     return (
@@ -40,7 +55,9 @@ export function PostList({ query, emptyText }: PostListProps) {
       {posts.map((post) => (
         <Post key={post.id} post={post} />
       ))}
+      <div ref={end} aria-hidden />
       {hasNextPage && (
+        // still there for keyboard users and browsers that scroll too fast
         <Button
           variant="secondary"
           fullWidth

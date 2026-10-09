@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { AiFillLike } from "react-icons/ai";
 import { FaComment, FaUserCheck, FaUserPlus } from "react-icons/fa";
-import { getTime } from "../../utils/utils";
-import { Avatar } from "../ui";
+import { Avatar, RelativeTime } from "../ui";
 import type { Notification, NotificationType } from "../../types";
 import styles from "./NotificationItem.module.scss";
 
@@ -52,9 +51,10 @@ export function NotificationItem({
           <strong>{notification.fullname ?? "Deleted user"}</strong>{" "}
           {notification.message}
         </span>
-        <span className={`${styles.time} ${isNew ? styles.new : ""}`}>
-          {getTime(notification.date)}
-        </span>
+        <RelativeTime
+          date={notification.date}
+          className={`${styles.time} ${isNew ? styles.new : ""}`}
+        />
       </span>
       {isNew && (
         <span className={styles.unseenDot} role="img" aria-label="new" />

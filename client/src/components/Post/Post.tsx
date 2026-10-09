@@ -2,8 +2,7 @@ import styles from "./Post.module.scss";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { Link } from "react-router";
 import { LikeAndComment } from "../LikeAndComment/LikeAndComment";
-import { Avatar, confirmDelete, toast } from "../ui";
-import { getTime } from "../../utils/utils";
+import { Avatar, confirmDelete, RelativeTime, toast } from "../ui";
 import { useDeletePost } from "../../queries";
 import { MdDelete } from "react-icons/md";
 import type { Post as PostType } from "../../types";
@@ -37,7 +36,9 @@ export function Post({ post }: { post: PostType }) {
           <Link to={`/profile/${post.authorId}`} className={styles.author}>
             {name || "Deleted user"}
           </Link>
-          <p className={styles.time}>{getTime(post.date)}</p>
+          <p className={styles.time}>
+            <RelativeTime date={post.date} />
+          </p>
         </div>
         {post.authorId === user._id && (
           <button

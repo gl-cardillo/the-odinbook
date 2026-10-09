@@ -4,10 +4,10 @@ import { Link } from "react-router";
 import { AiFillLike } from "react-icons/ai";
 import { MdDelete } from "react-icons/md";
 import Skeleton from "react-loading-skeleton";
-import { nFormatter, getTime } from "../../utils/utils";
+import { nFormatter } from "../../utils/utils";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import { useCommentActions, useReplies, useReplyActions } from "../../queries";
-import { Avatar, confirmDelete, toast } from "../ui";
+import { Avatar, confirmDelete, RelativeTime, toast } from "../ui";
 import { LikesModal } from "../LikeAndComment/LikesModal";
 import { CommentForm } from "./CommentForm";
 import type { Comment as CommentType, Reply, UserSummary } from "../../types";
@@ -126,7 +126,7 @@ export function Comment({ comment, postId }: CommentProps) {
         onDelete={comment.authorId === user._id ? onDeleteComment : undefined}
         meta={
           <>
-            <span>{getTime(comment.date)}</span>
+            <RelativeTime date={comment.date} />
             <button
               className={`${styles.action} ${liked ? styles.liked : ""}`}
               onClick={() =>
@@ -185,7 +185,7 @@ export function Comment({ comment, postId }: CommentProps) {
                     ? () => onDeleteReply(reply)
                     : undefined
                 }
-                meta={<span>{getTime(reply.date)}</span>}
+                meta={<RelativeTime date={reply.date} />}
               />
             ))
           ) : (

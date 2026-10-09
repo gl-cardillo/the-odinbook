@@ -110,6 +110,30 @@ describe("Posts, likes and comments", () => {
     cy.contains("Post deleted successfully");
   });
 
+  it("loads older posts while scrolling", () => {
+    // one page is 10 posts
+    for (let i = 1; i <= 13; i++) {
+      cy.apiAs(me, "POST", "/posts", { text: `Post number ${i}` });
+    }
+    cy.reload();
+    cy.get("[data-cy=post]").should("have.length", 10);
+    cy.scrollTo("bottom");
+    cy.get("[data-cy=post]").should("have.length", 13);
+    cy.contains("button", "Load more posts").should("not.exist");
+  });
+
+  it("keeps the time of a post up to date", () => {
+    cy.clock(Date.now(), ["Date", "setInterval"]);
+    writePost("Time flies");
+    cy.contains("[data-cy=post]", "Time flies").within(() => {
+      cy.get("time").should("have.text", "now");
+      // the server stamps the post a moment after the fake clock started
+      cy.tick(4 * 60_000);
+      cy.get("time").should("have.text", "3 minutes ago");
+      cy.get("time").should("have.attr", "datetime");
+    });
+  });
+
   it("shows friends' posts in the feed", () => {
     cy.signupApi("Friend").then((friend) => {
       cy.apiAs(friend, "POST", `/users/${me.user.id}/friend-request`);

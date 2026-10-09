@@ -2,6 +2,7 @@ export { Alert } from "./Alert";
 export { Avatar } from "./Avatar";
 export { Button, ButtonLink } from "./Button";
 export { Card } from "./Card";
+export { CharCount } from "./CharCount";
 export { EmptyState } from "./EmptyState";
 export { Feedback } from "./Feedback";
 export { confirmDelete, toast } from "./feedbackStore";

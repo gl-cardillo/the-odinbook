@@ -1,0 +1,11 @@
+.count {
+  align-self: flex-end;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.full {
+  color: var(--color-danger);
+  font-weight: 600;
+}

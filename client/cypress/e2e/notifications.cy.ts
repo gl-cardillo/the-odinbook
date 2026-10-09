@@ -34,6 +34,17 @@ describe("Notifications and single posts", () => {
     });
   });
 
+  it("counts new notifications in the tab title", () => {
+    cy.then(() =>
+      cy.apiAs(friend, "POST", `/users/${me.user.id}/friend-request`)
+    );
+    cy.then(() => cy.visitAs(me, "/home"));
+    cy.title().should("eq", "(1) Home · Odinbook");
+
+    cy.get("[data-cy=notifications-button]").click();
+    cy.title().should("eq", "Home · Odinbook");
+  });
+
   it("shows when there is nothing to see", () => {
     cy.then(() => cy.visitAs(me, "/notifications"));
     cy.contains("No notifications at the moment");

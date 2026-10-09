@@ -1,8 +1,9 @@
-import { useForm } from "react-hook-form";
+import { useId } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { MAX_COMMENT_LENGTH } from "@odinbook/shared";
-import { Avatar, Button } from "../ui";
+import { Avatar, Button, CharCount } from "../ui";
 import { useCurrentUser } from "../../dataContext/dataContext";
 import styles from "./Comment.module.scss";
 
@@ -37,9 +38,12 @@ export function CommentForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<Form>({ resolver: yupResolver(schema) });
+  const length = useWatch({ control, name: "text" })?.length ?? 0;
+  const countId = useId();
 
   return (
     <form
@@ -54,10 +58,12 @@ export function CommentForm({
           rows={2}
           aria-label={placeholder}
           aria-invalid={Boolean(errors.text)}
+          aria-describedby={countId}
           {...register("text")}
           placeholder={placeholder}
         />
         {errors.text && <p className={styles.error}>{errors.text.message}</p>}
+        <CharCount id={countId} length={length} max={MAX_COMMENT_LENGTH} />
         <Button type="submit" size="sm" disabled={pending}>
           {submitLabel}
         </Button>

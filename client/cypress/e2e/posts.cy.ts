@@ -33,6 +33,28 @@ describe("Posts, likes and comments", () => {
     cy.get("textarea[name=text]").should("have.attr", "maxlength", "5000");
   });
 
+  it("counts the characters once the limit gets close", () => {
+    // fill most of the box at once, then type so react sees the change
+    cy.get("textarea[name=text]").invoke("val", "a".repeat(3990)).type("a");
+    cy.get("[data-cy=char-count]").should("not.exist");
+
+    cy.get("textarea[name=text]").invoke("val", "a".repeat(3999)).type("a");
+    cy.get("[data-cy=char-count]").should("have.text", "4,000 / 5,000");
+
+    cy.get("textarea[name=text]").invoke("val", "a".repeat(4999)).type("bc");
+    cy.get("[data-cy=char-count]").should("have.text", "5,000 / 5,000");
+
+    cy.contains("button", "Add Post").click();
+    cy.contains("[data-cy=post]", "aaaab");
+    cy.get("[data-cy=char-count]").should("not.exist");
+
+    cy.contains("[data-cy=post]", "aaaab").within(() => {
+      cy.contains("button", "Comment").click();
+      cy.get("textarea").invoke("val", "b".repeat(1599)).type("b");
+      cy.get("[data-cy=char-count]").should("have.text", "1,600 / 2,000");
+    });
+  });
+
   it("likes and unlikes a post", () => {
     writePost("Like me");
     cy.contains("[data-cy=post]", "Like me").within(() => {

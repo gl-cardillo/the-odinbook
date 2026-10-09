@@ -71,7 +71,12 @@ export const useFriendRequests = (limit?: number) =>
   });
 
 export const useNotifications = () =>
-  useQuery({ queryKey: keys.notifications, queryFn: api.notifications });
+  useQuery({
+    queryKey: keys.notifications,
+    queryFn: api.notifications,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: true,
+  });
 
 const pagedPosts = (
   queryKey: readonly unknown[],

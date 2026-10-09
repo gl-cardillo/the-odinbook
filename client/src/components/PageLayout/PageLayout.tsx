@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useNotifications } from "../../queries";
 import styles from "./PageLayout.module.scss";
 
 interface PageLayoutProps {
@@ -17,9 +18,13 @@ export function PageLayout({
   children,
   aside,
 }: PageLayoutProps) {
+  const { data } = useNotifications();
+  const unseen = data?.unseen ?? 0;
+  const count = unseen > 0 ? `(${unseen > 9 ? "9+" : unseen}) ` : "";
+
   return (
     <div className={styles.layout}>
-      <title>{`${title} · Odinbook`}</title>
+      <title>{`${count}${title} · Odinbook`}</title>
       <main id="main" className={styles.main} tabIndex={-1}>
         {heading && <h1 className={styles.srOnly}>{title}</h1>}
         {children}

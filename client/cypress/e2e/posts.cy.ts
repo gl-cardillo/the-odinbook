@@ -65,6 +65,61 @@ describe("Posts, likes and comments", () => {
     });
   });
 
+  it("shows a like before the server answers", () => {
+    writePost("Quick like");
+    cy.intercept("PUT", "**/posts/*/like", (req) => {
+      req.on("response", (res) => {
+        res.setDelay(1500);
+      });
+    }).as("like");
+    cy.contains("[data-cy=post]", "Quick like").within(() => {
+      cy.contains("button", "Like").click();
+      // well before the delayed answer
+      cy.get("[data-cy=like-count]", { timeout: 500 }).should(
+        "contain",
+        me.user.fullname
+      );
+    });
+    cy.wait("@like");
+  });
+
+  it("takes a like back when the server refuses it", () => {
+    writePost("Failing like");
+    cy.intercept("PUT", "**/posts/*/like", { statusCode: 500, body: {} });
+    cy.contains("[data-cy=post]", "Failing like").within(() => {
+      cy.contains("button", "Like").click();
+      cy.get("[data-cy=like-count]").should("not.exist");
+      cy.contains("button", "Like").should(
+        "have.attr",
+        "aria-pressed",
+        "false"
+      );
+    });
+    cy.contains("Something went wrong");
+  });
+
+  it("likes a comment at once and undoes it on failure", () => {
+    writePost("Comment likes");
+    cy.contains("[data-cy=post]", "Comment likes").within(() => {
+      cy.contains("button", "Comment").click();
+      cy.get("textarea[placeholder='Write a comment...']").type("Like me");
+      cy.contains("button", "Add Comment").click();
+      cy.contains("[data-cy=comment-text]", "Like me");
+    });
+
+    cy.intercept("PUT", "**/comments/*/like", {
+      statusCode: 500,
+      body: {},
+      delay: 1000,
+    }).as("fail");
+    cy.get("[data-cy=comment]")
+      .contains("button", /^Like$/)
+      .click();
+    cy.get("[data-cy=comment]").contains("button", "Liked");
+    cy.wait("@fail");
+    cy.get("[data-cy=comment]").contains("button", /^Like$/);
+  });
+
   it("comments, replies and deletes the comment", () => {
     writePost("Talk to me");
     cy.contains("[data-cy=post]", "Talk to me").within(() => {

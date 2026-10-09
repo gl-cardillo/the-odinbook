@@ -130,7 +130,15 @@ export function Comment({ comment, postId }: CommentProps) {
             <button
               className={`${styles.action} ${liked ? styles.liked : ""}`}
               onClick={() =>
-                commentActions.like.mutate({ id: comment.id, like: !liked })
+                commentActions.like.mutate({
+                  id: comment.id,
+                  like: !liked,
+                  me: {
+                    id: user.id,
+                    fullname: user.fullname,
+                    profilePicUrl: user.profilePicUrl,
+                  },
+                })
               }
             >
               {liked ? "Liked" : "Like"}

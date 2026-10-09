@@ -28,8 +28,27 @@ export function LikeAndComment({ post }: { post: Post }) {
     setLikes(post.likedBy);
   }, [post.likedBy]);
 
-  const toggleLike = () =>
-    likePost.mutate(!liked, { onSuccess: (newLikes) => setLikes(newLikes) });
+  // the like shows at once, the answer brings the real list or takes it back
+  const toggleLike = () => {
+    if (likePost.isPending) return;
+    const previous = likes;
+    setLikes(
+      liked
+        ? likes.filter((profile) => profile.id !== user.id)
+        : [
+            {
+              id: user.id,
+              fullname: user.fullname,
+              profilePicUrl: user.profilePicUrl,
+            },
+            ...likes,
+          ]
+    );
+    likePost.mutate(!liked, {
+      onSuccess: (newLikes) => setLikes(newLikes),
+      onError: () => setLikes(previous),
+    });
+  };
 
   return (
     <div>
@@ -69,7 +88,6 @@ export function LikeAndComment({ post }: { post: Post }) {
         <button
           className={`${styles.action} ${liked ? styles.active : ""}`}
           onClick={toggleLike}
-          disabled={likePost.isPending}
           aria-pressed={liked}
         >
           {liked ? <AiFillLike /> : <AiOutlineLike />}

@@ -9,7 +9,7 @@ import { api } from "./api";
 import { PAGE_SIZE } from "@odinbook/shared";
 import { errorMessage } from "./utils/utils";
 import { toast } from "./components/ui/feedbackStore";
-import type { Post, User } from "./types";
+import type { Comment, Post, User, UserSummary } from "./types";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -177,10 +177,44 @@ export function useCommentActions(postId: string) {
       onSuccess: refresh,
     }),
     remove: useMutation({ mutationFn: api.deleteComment, onSuccess: refresh }),
+    // the like shows at once, and is taken back if the request fails
     like: useMutation({
-      mutationFn: ({ id, like }: { id: string; like: boolean }) =>
-        api.likeComment(id, like),
-      onSuccess: refresh,
+      mutationFn: ({
+        id,
+        like,
+      }: {
+        id: string;
+        like: boolean;
+        me: UserSummary;
+      }) => api.likeComment(id, like),
+      onMutate: async ({ id, like, me }) => {
+        const key = keys.comments(postId);
+        await client.cancelQueries({ queryKey: key });
+        const previous = client.getQueryData<Comment[]>(key);
+        client.setQueryData<Comment[]>(key, (comments) =>
+          comments?.map((comment) =>
+            comment.id !== id
+              ? comment
+              : like
+                ? {
+                    ...comment,
+                    likes: [...comment.likes, me.id],
+                    likedBy: [...comment.likedBy, me],
+                  }
+                : {
+                    ...comment,
+                    likes: comment.likes.filter((liker) => liker !== me.id),
+                    likedBy: comment.likedBy.filter(
+                      (liker) => liker.id !== me.id
+                    ),
+                  }
+          )
+        );
+        return { previous };
+      },
+      onError: (_err, _vars, context) =>
+        client.setQueryData(keys.comments(postId), context?.previous),
+      onSettled: refresh,
     }),
   };
 }

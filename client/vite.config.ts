@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react";
 
 // pictures are uploaded to and served from this bucket
 const BUCKET = "https://my-odin-bucket.s3.eu-west-2.amazonaws.com";
+// seeded covers come from picsum (which redirects to its fastly cdn), avatars from dicebear
+const SEED_IMAGES =
+  "https://picsum.photos https://fastly.picsum.photos https://api.dicebear.com";
 
 // only the built app gets a policy, the dev server needs inline scripts for hot reload
 function contentSecurityPolicy(apiUrl: string): Plugin {
@@ -13,7 +16,7 @@ function contentSecurityPolicy(apiUrl: string): Plugin {
     "script-src 'self'",
     "style-src 'self' https://fonts.googleapis.com",
     "font-src https://fonts.gstatic.com",
-    `img-src 'self' data: blob: ${BUCKET}`,
+    `img-src 'self' data: blob: ${BUCKET} ${SEED_IMAGES}`,
     `connect-src 'self' ${api} ${BUCKET}`,
     "object-src 'none'",
     "base-uri 'self'",

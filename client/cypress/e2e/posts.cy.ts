@@ -67,19 +67,16 @@ describe("Posts, likes and comments", () => {
 
   it("shows a like before the server answers", () => {
     writePost("Quick like");
-    cy.intercept("PUT", "**/posts/*/like", (req) => {
-      req.on("response", (res) => {
-        res.setDelay(1500);
-      });
-    }).as("like");
+    // the request only reaches the server after 3 seconds
+    cy.intercept("PUT", "**/posts/*/like", () =>
+      Cypress.Promise.delay(3000)
+    ).as("like");
     cy.contains("[data-cy=post]", "Quick like").within(() => {
       cy.contains("button", "Like").click();
-      // well before the delayed answer
-      cy.get("[data-cy=like-count]", { timeout: 500 }).should(
-        "contain",
-        me.user.fullname
-      );
+      cy.get("[data-cy=like-count]").should("contain", me.user.fullname);
     });
+    // the like was already showing while the answer was still held back
+    cy.get("@like").its("response").should("be.undefined");
     cy.wait("@like");
   });
 

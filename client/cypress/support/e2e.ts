@@ -58,9 +58,11 @@ Cypress.Commands.add("apiAs", (session, method, path, body) =>
   })
 );
 
-// anything the content security policy blocks fails the test
+// anything the content security policy blocks fails the test, except what Cypress
+// itself injects (styles for screenshots and for highlighting in the open runner)
 Cypress.on("window:before:load", (win) => {
   win.document.addEventListener("securitypolicyviolation", (event) => {
+    if (event.sourceFile.includes("/__cypress/")) return;
     throw new Error(
       `CSP blocked ${event.blockedURI} (${event.violatedDirective})`
     );
